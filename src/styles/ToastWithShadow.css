@@ -1,0 +1,8 @@
+.toast-container {
+    position: relative;
+    z-index: 9999; /* Ensure the toast appears above other content */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adjust the shadow as needed */
+  }
+  
+  /* You can add more styling to the toast message and button if needed */
+  

@@ -1,0 +1,1 @@
+export interface IFormFields { name: string; display: string; placeholder: string; type: string };
