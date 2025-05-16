@@ -2,6 +2,7 @@ import MeetingCalls from '@/pages/MeetingCalls';
 import Login from 'pages/Login';
 import Register from 'pages/Register';
 import HomePage from '@/pages/NewPages/Homepage';
+import ContactForm from '../../pages/NewPages/ContactUs';
 
 const PublicRoutes = [
     {
@@ -19,6 +20,10 @@ const PublicRoutes = [
     {
         path:'/homepage',
         component:<HomePage/>
+    },
+      {
+        path:'/contact',
+        component:<ContactForm/>
     }
 ]
 
