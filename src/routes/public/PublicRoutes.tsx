@@ -1,7 +1,7 @@
 import MeetingCalls from '@/pages/MeetingCalls';
 import Login from 'pages/Login';
 import Register from 'pages/Register';
-import HomePage from '@/pages/NewPages/Homepage';
+import HomePage from 'pages/NewPages/HomePage';
 import ContactForm from '../../pages/NewPages/ContactUs';
 
 const PublicRoutes = [
