@@ -425,14 +425,14 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
               playsInline
               className={`w-full  ${isScreenSharePinned ? 'h-[82vh]':'h-[240px]'} object-contain`}
             />
-            {/* <div className="absolute top-2 right-2 z-10">
+            <div className="absolute top-2 right-2 z-10">
               <button
                 onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
                 className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
               >
                 {isScreenSharePinned ? <PinOff size={20} /> : <Pin size={20} />}
               </button>
-            </div> */}
+            </div> 
             <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
               Screen Share {screenSharingPeerId === peer?.id ? '(You)' : ''}
             </div>
@@ -455,7 +455,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
 
         {/* Remote videos */}
         {Array.from(peers.entries()).map(([peerId, { stream }]) => (
-          <div key={peerId} className="relative bg-black rounded-lg overflow-hidden">
+          <div key={peerId} className={`relative bg-black rounded-lg overflow-hidden `}>
             <video
               autoPlay
               playsInline
@@ -471,14 +471,14 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
             //   }
             // :undefined}
             />
-            <div className="absolute top-2 right-2 z-10">
+            {/*<div className="absolute top-2 right-2 z-10">
               <button
                 onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
                 className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
               >
                 {isScreenSharePinned ? <PinOff size={20} /> : <Pin size={20} />}
               </button>
-            </div>
+            </div>*/}
             <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
               Participant
             </div>
