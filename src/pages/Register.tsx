@@ -25,7 +25,12 @@ const formSchema = z.object({
   path: ["password"],
 });
 
-const Register = () => {
+interface RegisterProps {
+  type: string;
+  setShowLogin?: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Register:React.FC<RegisterProps> = ({type,setShowLogin}) => {
   const defaultValues = {
     fullname: "",
     email: "",
@@ -45,7 +50,11 @@ const Register = () => {
       console.log('Registration successful:', response.data);
       notifySuccess(); // Show success toast
       // Redirect to the login page using window.location.href
-      window.location.href = '/login';
+      if(type=='modal') {setShowLogin?.(true);}
+      else{
+          window.location.href = '/login';
+      }
+     
     } catch (error) {
       console.error('Registration failed:', error);
       notifyError(error); // Show error toast
@@ -87,7 +96,17 @@ const Register = () => {
           />
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <p>Already have an account? <a href="/login" className="text-primary underline font-semibold">Sign in.</a></p>
+          <p>Already have an account?
+            {
+            type=="modal"?(
+               <span
+          // onClick={() => setShowLogin?.(prev=>!prev)}
+        onClick={()=>setShowLogin?.(true)}
+            className="text-primary underline font-semibold cursor-pointer"
+          >
+            Register.
+          </span>
+            ):<a href="/login" className="text-primary underline font-semibold">Sign in.</a>}</p>
         </CardFooter>
       </Card>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar newestOnTop closeOnClick rtl pauseOnFocusLoss draggable pauseOnHover />

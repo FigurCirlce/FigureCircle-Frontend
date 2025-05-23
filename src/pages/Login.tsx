@@ -13,6 +13,7 @@ import baseURL from "@/config/config";
 //redux 
 import { useDispatch } from "react-redux";
 import { setUser } from "../features/userSlice";
+import Register from "./Register";
 
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
@@ -24,8 +25,12 @@ const formSchema = z.object({
   path: ["password"],
 });
 
+interface LoginProps {
+  type: string;
+  setShowRegister?: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const Login = () => {
+const Login :React.FC<LoginProps>= ({type,setShowRegister}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const defaultValues = {
@@ -33,9 +38,12 @@ const Login = () => {
     password: "",
   };
   const [loading, setLoading] = useState(false);
+    // const [showRegister, setShowRegister] = useState(false);
 
-  const notifySuccess = () => toast.success("Login successful!");
+  const notifySuccess = () =>{type=='modal'? toast.success("Click on Next Button to Continue.."): toast.success("Login successful!")};
   const notifyError = (error: any) => toast.error(`Login failed: ${error}`);
+
+
 
   const onSubmit = async (user: any) => {
     try {
@@ -57,10 +65,11 @@ const Login = () => {
       notifySuccess(); // Show success toast
       console.log('Login successful');
       if(response.data.data_fill == true){
-        navigate('/');
-      }else{
-        navigate('/basic-info');
+        navigate('/dashboard');
       }
+      // }else{
+      //   navigate('/basic-info');
+      // }
     } catch (error) {
       notifyError(error); // Show error toast
       console.error('Login failed:', error);
@@ -122,12 +131,16 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center h-full">
-      <Card className="w-[500px]">
+      <Card className="w-[500px] px-4">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Log in to your account</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl pt-1 ">Log in to your account</CardTitle>
+           {/* <CardTitle className="text-2xl">Log in to your account</CardTitle> */}
+          {/* <CardDescription>
             Enter your email & password to sign in.
-          </CardDescription>
+          </CardDescription> */}
+          {type=="modal"?'':<CardDescription>
+            Enter your email & password to sign in.
+          </CardDescription>}
         </CardHeader>
         <CardContent className="grid gap-4">
           <CustomForm
@@ -153,7 +166,17 @@ const Login = () => {
           </button>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <p>Don't have an account? <Link to='/register' className="text-primary underline font-semibold">Register.</Link></p>
+          <p>Don't have an account? {
+            type=="modal"?(
+               <span
+         onClick={() => setShowRegister?.(true)}
+            className="text-primary underline font-semibold cursor-pointer"
+          >
+            Register.
+          </span>
+            ):
+            
+            (<Link to='/register' className="text-primary underline font-semibold">Register.</Link>)}</p>
         </CardFooter>
       </Card>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar newestOnTop closeOnClick rtl pauseOnFocusLoss draggable pauseOnHover />
