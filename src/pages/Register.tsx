@@ -26,7 +26,7 @@ const formSchema = z.object({
 });
 
 interface RegisterProps {
-  type: string;
+  type?: string;
   setShowLogin?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
