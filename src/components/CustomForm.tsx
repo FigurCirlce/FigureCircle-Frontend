@@ -46,7 +46,7 @@ const CustomForm: FC<ICustomForm> = ({ FormFields, onSubmit, formSchema, default
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1">
                 {
                     FormFields?.map((item: IFormField, index: number) => <FormField
                         key={index}

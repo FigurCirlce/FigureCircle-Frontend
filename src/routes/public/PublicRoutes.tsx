@@ -7,7 +7,7 @@ import ContactForm from '../../pages/NewPages/ContactUs';
 const PublicRoutes = [
     {
         path: '/login',
-        component: <Login />,
+        component: <Login/>,
     },
     {
         path: '/register',
