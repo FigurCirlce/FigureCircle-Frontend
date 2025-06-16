@@ -62,7 +62,7 @@ const Login: React.FC<LoginProps> = ({ type, setShowRegister }) => {
       setLoading(true);
 
       const response = await axios.post(`${baseURL}/login`, user);
-
+console.log("responseLoginnnnn-------",response);
       console.log("response", response.data.access_token);
 
       const token = response.data.access_token;

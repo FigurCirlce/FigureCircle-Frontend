@@ -17,6 +17,7 @@ const Recom: React.FC<RecomProps> = ({ degree }) => {
         const fetchAllData = async () => {
             const token = localStorage.getItem('token');
             const stream = degree?.stream_name;
+            console.log("stream----degree?.stream_name",stream);
 
             if (!stream) return;
 
@@ -31,7 +32,9 @@ const Recom: React.FC<RecomProps> = ({ degree }) => {
                     axios.post(`https://harsh1993-model.hf.space/get_certificate`, { stream }, { headers }),
                     axios.post(`https://harsh1993-model.hf.space/get_competition`, { stream }, { headers }),
                 ]);
-
+console.log("courseRes.data.ans",courseRes.data.ans);
+console.log("certificateRes.data.ans",certificateRes.data.ans);
+console.log("competitionRes.data.ans",competitionRes.data.ans);
                 setData(JSON.parse(courseRes.data.ans));
                 setCertificate(JSON.parse(certificateRes.data.ans));
                 setCompetition(JSON.parse(competitionRes.data.ans));
@@ -52,7 +55,9 @@ const Recom: React.FC<RecomProps> = ({ degree }) => {
         };
 
         fetchAllData();
-    }, [degree?.stream_name]);
+    // }, [degree?.stream_name]);
+     }, []);
+
 
 
     return (
