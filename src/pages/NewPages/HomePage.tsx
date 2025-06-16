@@ -13,10 +13,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import StepOne from "../../components/MultiStep_Form/StepOne";
-import Stepper1 from "../../components/MultiStep_Form/Stepper";
-import StepTwo from "@/components/MultiStep_Form/StepTwo";
-import StepThree from "../../components/MultiStep_Form/StepThree";
+import Stepper1 from "../../components/NewPage/Homepage/MultiStep_Form/Stepper";
+import StepTwo from "@/components/NewPage/Homepage/MultiStep_Form/StepTwo";
+import StepThree from "../../components/NewPage/Homepage/MultiStep_Form/StepThree";
 import { Button } from "@mantine/core";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -24,7 +23,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
-import Login from "../Login";
+import Login from "../../pages/NewPages/Login";
+import Register from '../../pages/NewPages/Register';
+import ReusableTab from "@/components/NewPage/Homepage/ReusableTab";
+import banner2 from '../../assets/banner2.png';
+import banner6 from '../../assets/banner6.png';
 
 interface MentorData {
   background: string;
@@ -74,6 +77,8 @@ const HomePage: React.FC = () => {
   const prevStep = () => setStep((s) => s - 1);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [openLoginDialog, setOpenLoginDialog] = React.useState(false);
+  const [openRegisterDialog, setOpenRegisterDialog] = React.useState(false);
+   const [tabIndex, setTabIndex] = useState(0);
 
   const handleDialogClickOpen = () => {
     setOpenDialog(true);
@@ -89,6 +94,13 @@ const HomePage: React.FC = () => {
 
   const handleLoginDialogClose = () => {
     setOpenLoginDialog(false);
+  };
+  const handleRegisterDialogClickOpen = () => {
+    setOpenRegisterDialog(true);
+  };
+
+  const handleRegisterDialogClose = () => {
+    setOpenRegisterDialog(false);
   };
 
   const navigate = useNavigate();
@@ -230,8 +242,13 @@ const HomePage: React.FC = () => {
   const stepsList = ["Login/Register", "Basic Info", "Select Profile"];
 
   const handleSubmit = () => {
-    alert("form Submit");
+    navigate('/homepage/dashboard');
   };
+
+  const tabs = [
+    { label: "Login", content: <Login /> },
+    { label: "Register", content: <Register setTabIndex={setTabIndex} /> },
+  ];
 
   return (
     <div className="min-h-screen  ">
@@ -259,7 +276,9 @@ const HomePage: React.FC = () => {
             >
               Login
             </button>
-            <button className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700">
+            <button
+             onClick={handleRegisterDialogClickOpen}
+            className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700">
               Sign Up
             </button>
           </div>
@@ -274,8 +293,8 @@ const HomePage: React.FC = () => {
             aria-describedby="alert-dialog-slide-description"
             PaperProps={{
               style: {
-                width: "50vw",
-                height: "90vh",
+                 width: "35vw",
+                // height: "0vh",
                 maxWidth: "none", // Override default maxWidth
                 maxHeight: "none", // Override default maxHeight
               },
@@ -293,6 +312,76 @@ const HomePage: React.FC = () => {
               </Button>
             </DialogActions>
           </Dialog>
+
+          {/**Register Button Modal */}
+         
+    <Dialog
+          open={openRegisterDialog}
+          slots={{
+            transition: Transition,
+          }}
+          keepMounted
+          onClose={handleRegisterDialogClose}
+          aria-describedby="alert-dialog-slide-description"
+          PaperProps={{
+            style: {
+              width: "90vw",
+              height: "100vh",
+              maxWidth: "none", // Override default maxWidth
+              maxHeight: "none", // Override default maxHeight
+            },
+          }}
+        >
+          <DialogContent className="">
+            <DialogContentText id="alert-dialog-slide-description">
+              <div className="bg-white  rounded shadow-md  min-w-full">
+                {/**Modal Pages */}
+                <Stepper1 step={step} steps={stepsList} />
+                 {step === 1 && 
+                     <Register  />}
+
+
+                {step === 2 && <StepTwo />}
+                {step === 3 && <StepThree />}
+              </div>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            {/* <Button onClick={handleDialogClose}> */}
+            <div className="flex gap-5 mt-3">
+              {step > 1 && (
+                <button
+                  onClick={prevStep}
+                  className="px-4 py-2 bg-gray-300 rounded"
+                >
+                  Back
+                </button>
+              )}
+              {step < 3 && (
+                <button
+                  onClick={handleNext}
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  Next
+                </button>
+              )}
+              {step == 3 && (
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+            {/* </Button> */}
+          </DialogActions>
+          <DialogActions className="absolute top-0 right-2">
+            <Button onClick={handleRegisterDialogClose}>
+              <X size={40} color="black" />
+            </Button>
+          </DialogActions>
+        </Dialog>
 
           {/* Mobile menu button */}
           <button
@@ -317,7 +406,7 @@ const HomePage: React.FC = () => {
 
         {/**Dream Profile Banner Section */}
 
-        <section className="w-full relative bg-blue-100">
+        {/* <section className="w-full relative bg-blue-100">
           <img src={dream_profile_banner} className="w-full object-cover" />
           <div className="absolute top-[45%] md:top-1/3  left-1/2 transform -translate-x-1/2 text-center px-4">
             <h1 className="text-lg md:text-4xl lg:text-5xl font-bold text-black">
@@ -327,13 +416,14 @@ const HomePage: React.FC = () => {
               Build Your Future
             </h2>
           </div>
-        </section>
+        </section> */}
+        {/* <div className="flex w-full"> */}
+        
 
         {/* Mentor Banner Section */}
 
-        <section className="relative">
+        {/* <section className="relative">
           <img src={hero} className="w-full object-cover" />
-          {/* <div className="absolute top-[2%] md:top-[10%] left-1/2 transform -translate-x-1/2 px-4 text-center bg-black w-auto sm:bg-none sm:w-auto"> */}
           <div className="absolute top-[2%] md:top-[10%] left-1/2 transform -translate-x-1/2 px-4 text-center ">
             <h1 className="text-sm sm:text-lg md:text-4xl lg:text-5xl font-bold text-white pb-4">
               Learn What You Need. <br />
@@ -345,11 +435,11 @@ const HomePage: React.FC = () => {
               you.
             </p>
           </div>
-        </section>
-
+     
+</div>
         {/**Features */}
 
-        <section className="py-12 bg-white px-4 md:px-[5%]">
+        {/* <section className="py-12 bg-white px-4 md:px-[5%]">
           <h1 className="text-3xl md:text-5xl font-bold text-center mb-8">
             Features
           </h1>
@@ -386,12 +476,94 @@ const HomePage: React.FC = () => {
               </p>
             </div>
           </div>
+        </section> */}
+        <section className="flex px-[5%] pt-[5%]">
+              <div className="w-full relative ">
+          {/* <img src={dream_profile_banner} className="w-[600px] h-[300px]" /> */}
+           <img src={banner6} className="w-full h-[300px]" />
+          <div className="absolute top-[45%] md:top-[10%]  left-[50%] transform -translate-x-1/2 text-center px-4">
+            <h1 className="text-lg md:text-4xl font-bold text-grey-600">
+              Find Your Dream Profile,
+            </h1>
+            <h2 className="text-lg md:text-4xl  font-bold text-grey-600">
+              Build Your Future
+            </h2>
+          </div>
+        </div>
+               {/* <div className="w-full relative ">
+          <img src={hero} className="w-[600px] h-[300px]" />
+          <div className="absolute top-[45%] md:top-[40%]  left-[50%] transform -translate-x-1/2 text-center px-4">
+            <h1 className="text-lg md:text-2xl font-semibold text-white">
+              Learn What You Need. 
+             
+            </h1>
+            <h2 className="text-lg md:text-2xl  font-semibold text-white">
+               Grow on Your Terms.
+            </h2>
+          </div>
+        </div> */}
         </section>
+<div className="w-full py-[5%] px-[5%]">
+     
+
+        <h2 className="text-4xl font-bold text-center text-black mb-4">
+          Find Your Path to a Professional Career
+        </h2>
+
+        {/* Recommendation Section */}
+        <div className="flex gap-6 w-full h-[200px]">
+        <div className="bg-yellow-100 p-3 rounded-md space-y-4 w-1/3">
+          <div className="flex items-center gap-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="icon" className="w-20 h-20" />
+            <p className="text-lg font-medium">Get Recommendations</p>
+          </div>
+          <p className="text-md text-gray-600">
+            For degree courses, certifications, exams and more
+          </p>
+          <div className="flex gap-2 text-md">
+            <span className="bg-blue-200 px-2 py-1 rounded">Data Science</span>
+            <span className="bg-purple-200 px-2 py-1 rounded">Machine Learning</span>
+          </div>
+        </div>
+      
+
+        {/* Mentor Section */}
+        <div className="bg-green-100 p-3 rounded-md space-y-4 w-1/3">
+          <div className="flex items-center gap-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/921/921347.png" alt="icon" className="w-20 h-20" />
+            <p className="text-lg font-medium">Get Recommended Mentors</p>
+          </div>
+          <p className="text-[15px] text-gray-600">Professionals from leading companies and universities</p>
+          <button className="text-md bg-teal-500 text-white px-3 py-1 rounded hover:bg-teal-600">
+            View Mentors
+          </button>
+        </div>
+
+        {/* Progress Section */}
+        <div className="bg-blue-100 p-3 rounded-md space-y-4 w-1/3">
+          <div className="flex items-center gap-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="icon" className="w-20 h-20" />
+            <p className="text-lg font-medium">Get Feedback and Track Progress</p>
+          </div>
+          <p className="text-md text-gray-600">
+            Work with mentors and achieve milestones
+          </p>
+          <button className="text-md bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+            View Progress
+          </button>
+        </div>
+
+      
+        
+      {/* </div> */}
+        </div>
+      </div>
+
 
         {/**Discover Mentors */}
 
         <section id="mentor" className="">
-          <h1 className="flex justify-center text-xl sm:text-4xl font-bold pb-[3%]">
+          <h1 className="flex justify-center text-xl sm:text-4xl font-bold mb-4">
             Discover Best Mentors
           </h1>
 
@@ -403,9 +575,9 @@ const HomePage: React.FC = () => {
             >
               {allMentorData.map((item, index) => (
                 <div key={index} className="w-full px-2 ml-2 py-2">
-                  <div className="w-[350px] h-[420px] lg:w-[320px] xl:w-[350px] flex flex-col justify-between items-center gap-2 shadow-xl shadow-slate-300 py-5 rounded-lg bg-white">
+                  <div className="w-[350px] h-[380px] lg:w-[320px] xl:w-[350px] flex flex-col justify-between items-center gap-2 shadow-xl shadow-slate-300 py-5 rounded-lg bg-white">
                     <div className="flex flex-col items-center">
-                      <div className="w-[150px] h-[150px] mb-3">
+                      <div className="w-[150px] h-[150px] mb-1">
                         <img
                           src={item.profile_picture}
                           alt={`${item.name} profile`}
@@ -420,7 +592,7 @@ const HomePage: React.FC = () => {
                         <h2>{item.expertise}</h2>
                       </div>
 
-                      <div className="flex items-center mt-2">
+                      <div className="flex items-center mt-1">
                         <div className="inline-flex items-center px-3 py-0 bg-white text-gray-800 text-sm font-medium rounded-full border-2 border-slate-300">
                           &#9733; 4/5
                         </div>
@@ -430,12 +602,12 @@ const HomePage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="px-5 mt-3 text-center text-slate-400 text-sm line-clamp-3">
+                      <div className="px-5 mt-1 text-center text-slate-400 text-sm line-clamp-3">
                         {item.background}
                       </div>
                     </div>
 
-                    <div className="flex justify-around w-full mt-4 px-5">
+                    <div className="flex justify-around w-full mt-1 px-5">
                       {/* <Button variant="default" onClick={open}>
                     Schedule First Call
                   </Button> */}
@@ -498,7 +670,16 @@ const HomePage: React.FC = () => {
               <div className="bg-white  rounded shadow-md  min-w-full">
                 {/**Modal Pages */}
                 <Stepper1 step={step} steps={stepsList} />
-                {step === 1 && <StepOne />}
+                 {step === 1 && 
+//                  <ReusableTab tabs={[
+//     { label: "Login", content: <Login /> },
+//     { label: "Register", content: <Register setTabIndex={setTabIndex} />},
+//   ]}
+//   onChange={(index) => console.log("Current tab index:", index)}
+// />} */
+ <ReusableTab tabs={tabs} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
+
+
                 {step === 2 && <StepTwo />}
                 {step === 3 && <StepThree />}
               </div>
@@ -542,12 +723,12 @@ const HomePage: React.FC = () => {
         </Dialog>
 
         {/**    How It Works**/}
-        <section id="works" className="py-10 bg-white w-full px-[5%]">
-          <h1 className="flex justify-center text-xl sm:text-4xl font-bold pt-[2rem] pb-[2.5rem]">
+        <section id="works" className="py-[5%] bg-white w-full px-[5%]">
+          <h1 className="flex justify-center text-xl sm:text-4xl font-bold mb-4">
             How It Works?
           </h1>
           <div className="flex flex-col items-center gap-5 sm:flex sm:flex-row sm:gap-[5%] ">
-            <div className="w-full sm:w-1/2  h-[200px] sm:h-[300px] lg:h-[250px]  p-5 flex flex-col gap-5 bg-slate-100 rounded-3xl border-2 border-slate-400 hover:bg-blue-400 cursor-pointer shadow-md shadow-slate-400">
+            <div className="w-full sm:w-1/2  h-[200px] sm:h-[300px] lg:h-[200px]  p-5 flex flex-col gap-5 bg-slate-100 rounded-3xl border-2 border-slate-400 hover:bg-blue-400 cursor-pointer shadow-md shadow-slate-400">
               <h1 className="flex justify-center font-bold text-2xl">
                 Registration
               </h1>
@@ -556,7 +737,7 @@ const HomePage: React.FC = () => {
                 professional
               </p>
             </div>
-            <div className=" w-full sm:w-1/2  h-[200px] sm:h-[300px] lg:h-[250px] p-5 flex flex-col gap-5 bg-slate-100 rounded-3xl  border-2 border-slate-400 hover:bg-blue-400 cursor-pointer shadow-md shadow-slate-400">
+            <div className=" w-full sm:w-1/2  h-[200px] sm:h-[300px] lg:h-[200px] p-5 flex flex-col gap-5 bg-slate-100 rounded-3xl  border-2 border-slate-400 hover:bg-blue-400 cursor-pointer shadow-md shadow-slate-400">
               <h1 className="flex justify-center font-bold text-2xl">
                 Find Your Dream Profile
               </h1>
@@ -566,7 +747,7 @@ const HomePage: React.FC = () => {
                 your next step{" "}
               </p>
             </div>
-            <div className="w-full sm:w-1/2  h-[200px] sm:h-[300px] lg:h-[250px]  p-5 flex flex-col gap-5 bg-slate-100 rounded-3xl border-2 border-slate-400 hover:bg-blue-400 cursor-pointer shadow-md shadow-slate-400">
+            <div className="w-full sm:w-1/2  h-[200px] sm:h-[300px] lg:h-[200px]  p-5 flex flex-col gap-5 bg-slate-100 rounded-3xl border-2 border-slate-400 hover:bg-blue-400 cursor-pointer shadow-md shadow-slate-400">
               <h1 className="flex justify-center font-bold text-2xl">
                 Meeting with Expert
               </h1>
@@ -579,7 +760,7 @@ const HomePage: React.FC = () => {
 
         {/**Reviews */}
         <section className="px-[5%]">
-          <h1 className="flex justify-center text-4xl font-bold py-[2rem]">
+          <h1 className="flex justify-center text-4xl font-bold mb-4">
             User Reviews
           </h1>
           <div className=" relative max-w-full ">

@@ -225,7 +225,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = ({ setCount, count }) =>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        <div className="">
           <label className="block text-sm font-medium text-gray-700">
             Mentor:
             <select
