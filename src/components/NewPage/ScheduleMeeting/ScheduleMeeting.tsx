@@ -1,9 +1,9 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import {
-  Button,
+  
   TextField,
   MenuItem,
-  Avatar,
+  
   Typography,
   Paper,
 } from "@mui/material";
@@ -64,14 +64,15 @@ export interface MentorResponse {
 const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
 ) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState("1:00 PM");
-  const [selectedMentor, setSelectedMentor] = useState("");
+ 
+ 
   const [durationOpen, setDurationOpen] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  // const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [mentorsList, setMentorsList] = useState<
     {
       email: string;
-      mentor_id: number;
+      mentor_id: number | null;
       name: string;
       phone: string;
       linkedin: string;
@@ -81,8 +82,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
+ 
   //@ts-ignore
   const [userDetails, setUserDetails] = useState<any>({
     user_id: "",
@@ -93,18 +93,18 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   //  const[user_id,setUser_id]=useState(0);
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const token = localStorage.getItem("token");
-  const [user_id, setUser_id] = useState<number | null>(() => {
-    const stored = localStorage.getItem("degree");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        return parsed?.user_id ?? null;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  // const [user_id, setUser_id] = useState<number | null>(() => {
+  //   const stored = localStorage.getItem("degree");
+  //   if (stored) {
+  //     try {
+  //       const parsed = JSON.parse(stored);
+  //       return parsed?.user_id ?? null;
+  //     } catch {
+  //       return null;
+  //     }
+  //   }
+  //   return null;
+  // });
 
   {
     /**Reused */
@@ -115,7 +115,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
     email: "",
     start_date: "",
     duration: "30",
-    mentor_id: "",
+    mentor_id:null; 
     user_id: "",
     mentor_email: "",
     mentor_phone: "",
@@ -150,7 +150,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   }, []);
 
   {/**Converting into ISO format */}
-  const convertDateAndTimeToISO = (date: Date, timeString: string): string => {
+  const convertDateAndTimeToISO = (date: Date, timeString: string): void => {
     const dateObj = new Date(date); 
     const [time, modifier] = timeString.split(" ");
     let [hours, minutes] = time.split(":").map(Number);

@@ -55,6 +55,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20.4.8",
     "@types/react": "^18.0.37",
     "@types/react-datepicker": "^4.19.1",

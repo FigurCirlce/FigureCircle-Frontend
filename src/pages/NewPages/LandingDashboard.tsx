@@ -69,7 +69,7 @@ const LandingDashboard: React.FC = () => {
   const [certificate, setCertificate] = useState<string[]>([]);
   const [competition, setCompetition] = useState<string[]>([]);
   const token = localStorage.getItem("token");
-   const degree=localStorage.getItem("degree");
+  const degree = localStorage.getItem("degree");
 
   useEffect(() => {
     const fetchAssignedMentors = async () => {
@@ -78,11 +78,11 @@ const LandingDashboard: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data?.mentors?.length) {
-          console.log("res.data?.mentors?",res.data?.mentors);
-           setAssignedMentorData(res.data.mentors);
+          console.log("res.data?.mentors?", res.data?.mentors);
+          setAssignedMentorData(res.data.mentors);
           // const mentorData = {
           //   mentors: [
-             
+
           //     {
           //       background: "pick me",
           //       degree: "Ph.D. Quantum Physics",
@@ -119,7 +119,7 @@ const LandingDashboard: React.FC = () => {
           // };
           // setAssignedMentorData(mentorData.mentors);
           // setSelectedExpertKey(res.data.mentors[0].mentor_id);
-            setSelectedExpertKey(res.data.mentors[0].mentor_id);
+          setSelectedExpertKey(res.data.mentors[0].mentor_id);
         }
       } catch (error) {
         console.error("Error fetching assigned mentors", error);
@@ -132,12 +132,10 @@ const LandingDashboard: React.FC = () => {
   useEffect(() => {
     if (selectedExpertKey == null) return;
 
-    console.log("userDatttaDegree---",degree);
+    console.log("userDatttaDegree---", degree);
     //  const stored = localStorage.getItem("degree"); //degree has user_id
-    const degreeData=degree ? JSON.parse(degree) : null;
-    const user_id=degreeData?.user_id;
- 
-
+    const degreeData = degree ? JSON.parse(degree) : null;
+    const user_id = degreeData?.user_id;
 
     const fetchProgressData = async () => {
       try {
@@ -205,15 +203,14 @@ const LandingDashboard: React.FC = () => {
         // ];
         // setSelectedExpertData(data[0]);
         // if (res.data && res.data.length > 0) {
-      //   if (data && data.length > 0) {
-      //   setSelectedExpertData(data[0]);
-      // }
-      //  else {
-      //   setSelectedExpertData(null); 
-      // }
+        //   if (data && data.length > 0) {
+        //   setSelectedExpertData(data[0]);
+        // }
+        //  else {
+        //   setSelectedExpertData(null);
+        // }
       } catch (error) {
         console.error("Error fetching progress data", error);
-      
       }
     };
 
@@ -223,10 +220,9 @@ const LandingDashboard: React.FC = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       const token = localStorage.getItem("token");
-       const degreeData =  degree ? JSON.parse(degree) : null;
-       const stream=degreeData.stream_name;
-       console.log("Stream==--",stream);
-     
+      const degreeData = degree ? JSON.parse(degree) : null;
+      const stream = degreeData.stream_name;
+      console.log("Stream==--", stream);
 
       if (!stream) return;
 

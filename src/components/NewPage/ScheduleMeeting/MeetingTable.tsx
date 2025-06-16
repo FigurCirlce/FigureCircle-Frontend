@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Mail } from 'lucide-react';
+
 import axios from "axios";
 import baseURL from "@/config/config";
 
@@ -26,13 +26,13 @@ interface Meeting {
 function convertDateTime(datetimeStr: string | number | Date): string {
   const dateObj = new Date(datetimeStr);
 
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
   const year = dateObj.getFullYear();
 
   let hours = dateObj.getHours();
-  const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
 
   const time = `${hours}:${minutes} ${ampm}`;
@@ -44,7 +44,7 @@ function convertDateTime(datetimeStr: string | number | Date): string {
 type MeetingTableProps = {
   user_id: number; // or string, depending on your type
 };
-const MeetingTable: React.FC <MeetingTableProps>= ({user_id}) => {
+const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -56,17 +56,19 @@ const MeetingTable: React.FC <MeetingTableProps>= ({user_id}) => {
   );
 
   const fetchMeetingData = async () => {
-    console.log("user_id----",user_id);
+    console.log("user_id----", user_id);
     try {
       const response = await axios.get(`${baseURL}/api/schedules`, {
         params: { user_id: user_id },
       });
 
       if (response.data) {
-        const sortedData = [...response.data].sort((a, b) =>
-        new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime()
-      );
-    
+        const sortedData = [...response.data].sort(
+          (a, b) =>
+            new Date(b.start_datetime).getTime() -
+            new Date(a.start_datetime).getTime()
+        );
+
         setMeetingData(sortedData);
       } else {
         console.log("No meetings found.");
@@ -100,24 +102,24 @@ const MeetingTable: React.FC <MeetingTableProps>= ({user_id}) => {
             </tr>
           </thead> */}
           <thead>
-  <tr className="bg-gray-100 text-left">
-    <th className="p-2 border w-1/6">Mentor Name</th>
-    <th className="p-2 border w-1/6">Email</th>
-    <th className="p-2 border w-1/6">Date / Time</th>
-    <th className="p-2 border w-1/12">Duration</th>
-    <th className="p-2 border w-1/6">Meeting Link</th>
-    <th className="p-2 border w-1/6">Milestone Link</th>
-    <th className="p-2 border w-1/6">Feedback Link</th>
-    {/* <th className="p-2 border">Actions</th> */}
-  </tr>
-</thead>
+            <tr className="bg-gray-100 text-left">
+              <th className="p-2 border w-1/6">Mentor Name</th>
+              <th className="p-2 border w-1/6">Email</th>
+              <th className="p-2 border w-1/6">Date / Time</th>
+              <th className="p-2 border w-1/12">Duration</th>
+              <th className="p-2 border w-1/6">Meeting Link</th>
+              <th className="p-2 border w-1/6">Milestone Link</th>
+              <th className="p-2 border w-1/6">Feedback Link</th>
+              {/* <th className="p-2 border">Actions</th> */}
+            </tr>
+          </thead>
 
           <tbody>
             {paginatedData.map((meeting) => (
               <tr key={meeting.id} className="hover:bg-gray-50">
                 <td className="p-2 border text-sm">{meeting.mentor_name}</td>
                 <td className="p-2 border text-sm">{meeting.mentor_email}</td>
-                  {/* <td className="p-2 border">
+                {/* <td className="p-2 border">
                   <a
                     href={meeting.mentor_email}
                     target="_blank"
@@ -127,8 +129,10 @@ const MeetingTable: React.FC <MeetingTableProps>= ({user_id}) => {
                     <Mail/>
                   </a>
                 </td> */}
-                <td className="p-2 border text-sm">{convertDateTime(meeting.start_datetime)}</td>
-                 <td className="p-2 border text-sm">{meeting.duration} mins</td>
+                <td className="p-2 border text-sm">
+                  {convertDateTime(meeting.start_datetime)}
+                </td>
+                <td className="p-2 border text-sm">{meeting.duration} mins</td>
                 <td className="p-2 border">
                   <a
                     href={meeting.link}
@@ -181,17 +185,19 @@ const MeetingTable: React.FC <MeetingTableProps>= ({user_id}) => {
             disabled={currentPage === 1}
             className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
           >
-                &lt;
+            &lt;
           </button>
           <span className="self-center text-sm">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
           >
-             &gt;
+            &gt;
           </button>
         </div>
       </div>
