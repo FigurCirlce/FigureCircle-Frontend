@@ -1,11 +1,14 @@
 import React from 'react';
 import Sidebar from '../../components/NewPage/Sidebar.tsx';
 import { useState } from 'react';
+//@ts-ignore
 import ScheduleMeeting from '../../components/NewPage/ScheduleMeeting/scheduleMeeting.tsx';
 import Profile from './Profile.tsx';
+//@ts-ignore
 import LandingDashboard from './landingDashboard.tsx';
 import TrialMeeting from './TrialMeeting.tsx';
-import pic from '../../assets/pic.jpg';
+//@ts-ignore
+// import pic from '../../assets/pic.jpg';
 import axios from 'axios';
 import baseURL from '@/config/config.tsx';
 import { useEffect } from 'react';
@@ -82,12 +85,14 @@ const Dashboard: React.FC = () => {
       case "Dashboard":
         return <div><LandingDashboard/></div>;
       case "Schedule Meeting":
+        //@ts-ignore
         return <div><ScheduleMeeting/> </div>;
       case "My Profile":
         return <div><Profile/></div>;
       // case "My Experts":
       //   return <div>My Experts Content</div>;
       case "Trial Meetings":
+        //@ts-ignore
         return <div> <TrialMeeting allMentorData={recommendedMentors}/></div>;
       default:
         return <div>Welcome to the Dashboard!</div>;

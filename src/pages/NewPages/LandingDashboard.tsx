@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import coding from "../../assets/coding.jpg";
 import pic from "../../assets/pic.jpg";
-import { Search } from "lucide-react";
+// import { Search } from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
 

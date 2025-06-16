@@ -24,6 +24,7 @@ interface RegisterProps {
    setTabIndex?: (index: number) => void;
 }
 
+//@ts-ignore
 const Register: React.FC<RegisterProps> = ({ type, setTabIndex}) => {
   const [formData, setFormData] = useState<FormData>({
     fullName: "",

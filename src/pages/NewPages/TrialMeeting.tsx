@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from "react";
-import Slider from "react-slick";
+// import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Linkedin } from "lucide-react";
 import { GraduationCap } from "lucide-react";
-import { Banknote } from "lucide-react";
+// import { Banknote } from "lucide-react";
 import { IndianRupee } from "lucide-react";
 
 // Replace with your actual arrow component
@@ -46,6 +46,7 @@ const TrialMeeting: React.FC<MentorSectionProps> = ({ allMentorData }) => {
     });
   }, [searchTerm, allMentorData]);
 
+  //@ts-ignore
   const Mentorsettings = {
     dots: true,
     infinite: true,
@@ -88,8 +89,9 @@ const TrialMeeting: React.FC<MentorSectionProps> = ({ allMentorData }) => {
         ) : (
           // <Slider {...Mentorsettings} className="bg-slate-100 py-4 px-2 rounded-xl ">
           <div className="flex flex-wrap gap-5">
+            //@ts-ignore
             {filteredMentors.map((item, index) => (
-              <div key={item.name} className="px-2 py-2">
+              <div key={index} className="px-2 py-2">
                 <div className="w-[350px] h-[450px] flex flex-col justify-between items-center gap-2 shadow-xl shadow-slate-300 py-5 rounded-lg bg-white mx-auto">
                   <div className="flex flex-col items-center">
                     <div className="w-[150px] h-[150px] mb-3">

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../assets/image (1).png";
-import hero from "../../assets/Hero.png";
-import call from "../../assets/call.png";
-import schedule from "../../assets/schedule.png";
-import milestone from "../../assets/milestone.png";
+// import hero from "../../assets/Hero.png";
+// import call from "../../assets/call.png";
+// import schedule from "../../assets/schedule.png";
+// import milestone from "../../assets/milestone.png";
 import image1 from "../../assets/image1.png";
-import dream_profile_banner from "../../assets/dream_profile_banner.jpg";
+// import dream_profile_banner from "../../assets/dream_profile_banner.jpg";
 import axios from "axios";
 import baseURL from "@/config/config";
 import Slider from "react-slick";
@@ -26,7 +26,7 @@ import { TransitionProps } from "@mui/material/transitions";
 import Login from "../../pages/NewPages/Login";
 import Register from '../../pages/NewPages/Register';
 import ReusableTab from "@/components/NewPage/Homepage/ReusableTab";
-import banner2 from '../../assets/banner2.png';
+// import banner2 from '../../assets/banner2.png';
 import banner6 from '../../assets/banner6.png';
 
 interface MentorData {
