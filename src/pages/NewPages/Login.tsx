@@ -49,6 +49,25 @@ const Login: React.FC<LoginProps> = ({ type }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+   const fetchBasicInfo = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${baseURL}/api/basic-info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  console.log("basicInformation---",response.data);
+localStorage.setItem("degree", JSON.stringify(response.data));
+
+        // setBasicInfo([response.data]);
+        // setDegree(response.data.interested_stream);
+        // setFormData(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -70,6 +89,7 @@ const Login: React.FC<LoginProps> = ({ type }) => {
         notifySuccess();
 
         if (response.data.data_fill === true) {
+          fetchBasicInfo();
           navigate("/dashboard");
         } else {
           navigate("/basic-info");

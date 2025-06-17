@@ -67,7 +67,7 @@ export interface MentorResponse {
 const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
 ) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
- 
+//  const[selectedMentor,setSelectedMentor]=useState<>()
  
   const [durationOpen, setDurationOpen] = useState(false);
   // const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
@@ -85,13 +85,10 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const[user_id,setUser_id]=useState<number|null>(null);
  
-  //@ts-ignore
-  const [userDetails, setUserDetails] = useState<any>({
-    user_id: "",
-    name: "",
-    email: "",
-  });
+
 
   //  const[user_id,setUser_id]=useState(0);
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
@@ -181,8 +178,8 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
 
   const handleSelect = (date: Date, time: string) => {
     setSelectedSlot(time);
-    const isoDateTime = convertDateAndTimeToISO(date, time);
-    console.log("ISODatetime:", isoDateTime);
+  convertDateAndTimeToISO(date, time);
+   
     setDurationOpen(true);
   };
 
@@ -226,6 +223,10 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
     return date.toISOString().slice(0, 16); // Format to match datetime-local input
   };
 
+  
+
+    
+
   useEffect(() => {
     const fetchMentors = async () => {
       try {
@@ -251,6 +252,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
     };
 
     fetchMentors();
+
   }, []);
 
   const handleInputChange = (
@@ -316,7 +318,8 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
     const userData = localStorage.getItem("degree");
     if (userData) {
       const parsedUserData = JSON.parse(userData);
-      setUserDetails({ user_id: parsedUserData.id });
+
+      setUser_id(parsedUserData.id);
     }
   }, []);
 
@@ -393,7 +396,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
 
         console.log("meetingLink----", meetingLink);
         const scheduleData = {
-          name: parsedUserData2.first_name || "",
+          name: parsedUserData2.firstname|| "",
           email: parsedUserData.username || "",
           start_datetime: startDate,
           end_datetime: endDate,
@@ -445,6 +448,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
     } catch (err: any) {
         //@ts-ignore
       setError(err.response?.data?.error || "An error occurred");
+      alert("An error occured");
     } finally {
       setLoading(false);
     }
@@ -476,11 +480,11 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   // Generate 30-minute intervals
   const getTimeSlots = (start, end) => {
     const slots = [];
-    const startDate = parseTime(start);
-    const endDate = parseTime(end);
-    const current = new Date(startDate);
+    const slotStartDate = parseTime(start);
+    const slotEndDate = parseTime(end);
+    const current = new Date(slotStartDate);
 
-    while (current <= endDate) {
+    while (current <= slotEndDate) {
       slots.push(new Date(current));
       current.setMinutes(current.getMinutes() + 30);
     }
@@ -488,6 +492,9 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
     return slots;
   };
 
+
+
+  
   return (
     <Paper elevation={4} className="p-6 w-full  mx-auto  rounded-2xl">
       <Typography
@@ -507,12 +514,13 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
               </Typography>
               <TextField
                 name="mentor_id"
-                value={formData.mentor_id}
+                // value={formData.mentor_id}
                 required
                 onChange={(e) => {
                   const value = e.target.value;
                   //@ts-ignore
-                  setFormData((prev) => ({ ...prev, mentor_id: value }));
+                   setFormData((prev) => ({ ...prev, mentor_id: value }));
+                  // setFormData((prev) => ({ ...prev, mentor_id: isNaN(id) ? null : id }));
                   console.log("value---", value);
                   console.log("typevalue---", typeof value);
                   //@ts-ignore
@@ -529,7 +537,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
                     key={mentor.mentor_id}
                     value={mentor.mentor_id}
                     //@ts-ignore
-                    onClick={() => setSelectedMentor(mentor.id)}
+                    // onClick={() => setSelectedMentor(mentor.id)}
                   >
                     {mentor.name}
                   </MenuItem>
@@ -609,7 +617,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
                                 <button
                                   key={timeIndex}
                                   onClick={() => {
-                                    setSelectedSlot(formatted);
+                                    // setSelectedSlot(formatted);
                                     handleSelect(selectedDate, formatted);
                                   }}
                                   className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-200 
@@ -672,7 +680,9 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
         </div>
       </form>
       
-      <MeetingTable user_id={userDetails.user_id} />
+    
+      {user_id && <MeetingTable user_id={user_id} />}
+
     </Paper>
   );
 };

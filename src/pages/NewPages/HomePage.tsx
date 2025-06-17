@@ -250,6 +250,13 @@ const HomePage: React.FC = () => {
     { label: "Register", content: <Register setTabIndex={setTabIndex} /> },
   ];
 
+  const token=localStorage.getItem('token');
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen  ">
       <div className="font-sans text-gray-800 ">
@@ -269,19 +276,32 @@ const HomePage: React.FC = () => {
           </Link>
         </nav> */}
 
-          <div className="hidden md:flex gap-2">
-            <button
-              onClick={handleLoginDialogClickOpen}
-              className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
-            >
-              Login
-            </button>
-            <button
-             onClick={handleRegisterDialogClickOpen}
-            className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700">
-              Sign Up
-            </button>
-          </div>
+       <div className="hidden md:flex gap-2">
+  {token ? (
+    <button
+      onClick={handleLogout}
+      className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
+    >
+      Logout
+    </button>
+  ) : (
+    <>
+      <button
+        onClick={handleLoginDialogClickOpen}
+        className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
+      >
+        Login
+      </button>
+      <button
+        onClick={handleRegisterDialogClickOpen}
+        className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700"
+      >
+        Sign Up
+      </button>
+    </>
+  )}
+</div>
+
           {/**Login Button Modal */}
           <Dialog
             open={openLoginDialog}
