@@ -63,6 +63,7 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
         params: { user_id: user_id },
       });
 
+      
       if (response.data) {
         const sortedData = [...response.data].sort(
           (a, b) =>
@@ -116,7 +117,7 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
           </thead>
 
           <tbody>
-            {paginatedData.map((meeting) => (
+            {paginatedData.length===0?<div className="flex justify-center w-full">No Meeting Data </div>:paginatedData.map((meeting) => (
               <tr key={meeting.id} className="hover:bg-gray-50">
                 <td className="p-2 border text-sm">{meeting.mentor_name}</td>
                 <td className="p-2 border text-sm">{meeting.mentor_email}</td>

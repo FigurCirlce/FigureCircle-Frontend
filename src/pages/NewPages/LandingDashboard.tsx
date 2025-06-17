@@ -68,8 +68,28 @@ const LandingDashboard: React.FC = () => {
   const [course, setCourse] = useState<string[]>([]);
   const [certificate, setCertificate] = useState<string[]>([]);
   const [competition, setCompetition] = useState<string[]>([]);
+  // const [user_id, setUser_id] = useState<string | null>(null);
   const token = localStorage.getItem("token");
   const degree = localStorage.getItem("degree");
+
+
+  //  const fetchBasicInfo = async () => {
+  //     try {
+  //       const token = localStorage.getItem('token');
+  //       const response = await axios.get(`${baseURL}/api/basic-info`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  
+  //       setBasicInfo([response.data]);
+  //       setDegree(response.data.interested_stream);
+  //       setFormData(response.data);
+  //       setUser_id(response.data.id);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
   useEffect(() => {
     const fetchAssignedMentors = async () => {
@@ -118,7 +138,7 @@ const LandingDashboard: React.FC = () => {
           //   ],
           // };
           // setAssignedMentorData(mentorData.mentors);
-          // setSelectedExpertKey(res.data.mentors[0].mentor_id);
+          //  setSelectedExpertKey();
           setSelectedExpertKey(res.data.mentors[0].mentor_id);
         }
       } catch (error) {
@@ -127,16 +147,17 @@ const LandingDashboard: React.FC = () => {
     };
 
     fetchAssignedMentors();
+    // fetchBasicInfo();
   }, []);
 
   useEffect(() => {
     if (selectedExpertKey == null) return;
 
-    console.log("userDatttaDegree---", degree);
-    //  const stored = localStorage.getItem("degree"); //degree has user_id
+    // console.log("userDatttaDegree---", degree);
+     const degree = localStorage.getItem("degree"); //degree has user_id
     const degreeData = degree ? JSON.parse(degree) : null;
-    const user_id = degreeData?.user_id;
-
+    const user_id = degreeData?.id;
+console.log("user_id",user_id);
     const fetchProgressData = async () => {
       try {
         const res = await axios.get(`${baseURL}/progress/enhanced`, {
@@ -221,7 +242,7 @@ const LandingDashboard: React.FC = () => {
     const fetchAllData = async () => {
       const token = localStorage.getItem("token");
       const degreeData = degree ? JSON.parse(degree) : null;
-      const stream = degreeData.stream_name;
+      const stream = degreeData.interested_stream;
       console.log("Stream==--", stream);
 
       if (!stream) return;
