@@ -65,6 +65,7 @@ const Login: React.FC<LoginProps> = ({ type }) => {
         localStorage.setItem("token", token);
         localStorage.setItem("userlocaldata", JSON.stringify(form));
 
+        //@ts-ignore
         dispatch(setUser(form));
         notifySuccess();
 

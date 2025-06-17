@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Pen } from 'lucide-react';
 import pic from '../../assets/pic.jpg';
 import dream from '../../assets/dream.jpg';

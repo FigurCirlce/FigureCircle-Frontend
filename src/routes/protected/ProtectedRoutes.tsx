@@ -1,24 +1,24 @@
 // ProtectedRoutes.jsx
 
-import MainMentor from "@/components/mentor/MainMentor";
-import AddedMilestone from "@/pages/AddedMilestone";
-import AdminVerfy from "@/pages/AdminVerfy";
-import BasicInfo from "@/pages/BasicInfo";
-import BecomeMentor from "@/pages/BecomeMentor";
-import Contact from "@/pages/Contact";
-import FeedBack from "@/pages/FeedBack";
-import FeedBackForm from "@/pages/FeedBackForm";
-import FutureProfile from "@/pages/FutureProfile";
-import Meeting from "@/pages/Meeting";
-// import MeetingCalls from '@/pages/MeetingCalls';
-import Mentor from "@/pages/Mentor";
-import MentorList from "@/pages/MentorList";
-import MilneStonForm from "@/pages/MilneStonForm";
-import MyExperts from "@/pages/MyExperts";
-import Question from "@/pages/Question";
-import RazerPay from "@/pages/RazerPay";
+// import MainMentor from "@/components/mentor/MainMentor";
+// import AddedMilestone from "@/pages/AddedMilestone";
+// import AdminVerfy from "@/pages/AdminVerfy";
+// import BasicInfo from "@/pages/BasicInfo";
+// import BecomeMentor from "@/pages/BecomeMentor";
+// import Contact from "@/pages/Contact";
+// import FeedBack from "@/pages/FeedBack";
+// import FeedBackForm from "@/pages/FeedBackForm";
+// import FutureProfile from "@/pages/FutureProfile";
+// import Meeting from "@/pages/Meeting";
+// // import MeetingCalls from '@/pages/MeetingCalls';
+// import Mentor from "@/pages/Mentor";
+// import MentorList from "@/pages/MentorList";
+// import MilneStonForm from "@/pages/MilneStonForm";
+// import MyExperts from "@/pages/MyExperts";
+// import Question from "@/pages/Question";
+// import RazerPay from "@/pages/RazerPay";
 
-import Home from "pages/Home";
+// import Home from "pages/Home";
 import Dashboard from "../../pages/NewPages/Dashboard";
 
 const ProtectedRoutes = (user: any) => {

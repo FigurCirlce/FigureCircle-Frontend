@@ -44,6 +44,7 @@ function convertDateTime(datetimeStr: string | number | Date): string {
 type MeetingTableProps = {
   user_id: number; // or string, depending on your type
 };
+//@ts-ignore
 const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
