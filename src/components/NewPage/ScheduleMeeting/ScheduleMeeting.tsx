@@ -402,7 +402,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
           end_datetime: endDate,
           duration: formData.duration,
           link: meetingLink,
-          user_id: parsedUserData2.user_id,
+          user_id: parsedUserData2.id,
           mentor_id: formData.mentor_id,
           mentor_name:
             mentorsList.find(
