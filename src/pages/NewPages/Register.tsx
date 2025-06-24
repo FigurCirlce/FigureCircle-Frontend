@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import baseUrl from "../../config/config";
 
+
 interface FormData {
   fullName: string;
   email: string;
@@ -94,7 +95,7 @@ const Register: React.FC<RegisterProps> = ({ type, setTabIndex}) => {
   };
 
   return (
-    <div className="min-h-full bg-blue-100 flex items-center justify-center">
+    <div className="min-h-full  flex items-center justify-center">
       <ToastContainer />
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-3 text-center text-black">
