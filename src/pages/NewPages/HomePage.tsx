@@ -239,7 +239,7 @@ const HomePage: React.FC = () => {
     navigate("/contact");
   };
 
-  const stepsList = ["Login/Register", "Basic Info", "Select Profile"];
+  const stepsList = ["Login/Register", "Basic Info"];
 
   const handleSubmit = () => {
     navigate('/homepage/dashboard');
@@ -303,7 +303,7 @@ const HomePage: React.FC = () => {
 </div>
 
           {/**Login Button Modal */}
-          <Dialog
+            <Dialog
             open={openLoginDialog}
             slots={{
               transition: Transition,
@@ -313,17 +313,16 @@ const HomePage: React.FC = () => {
             aria-describedby="alert-dialog-slide-description"
             PaperProps={{
               style: {
-                 width: "35vw",
-                // height: "0vh",
-                maxWidth: "none", // Override default maxWidth
-                maxHeight: "none", // Override default maxHeight
+                 minWidth: "35vw",
+                maxHeight: "75vh",
+               
               },
             }}
           >
             <DialogContent className="">
-              <DialogContentText id="alert-dialog-slide-description">
+              
                 <Login type="" />
-              </DialogContentText>
+              
             </DialogContent>
 
             <DialogActions className="absolute top-0 right-2">
@@ -332,10 +331,10 @@ const HomePage: React.FC = () => {
               </Button>
             </DialogActions>
           </Dialog>
-
+          
           {/**Register Button Modal */}
          
-    <Dialog
+   <Dialog
           open={openRegisterDialog}
           slots={{
             transition: Transition,
@@ -346,25 +345,37 @@ const HomePage: React.FC = () => {
           PaperProps={{
             style: {
               width: "90vw",
-              height: "100vh",
-              maxWidth: "none", // Override default maxWidth
-              maxHeight: "none", // Override default maxHeight
+        minHeight: "100vh",
+              // maxWidth: "none", // Override default maxWidth
+              // maxHeight: "none", // Override default maxHeight
+
             },
           }}
         >
-          <DialogContent className="">
-            <DialogContentText id="alert-dialog-slide-description">
+          <DialogContent className="flex flex-col items-content justify-center">
+
+           
               <div className="bg-white  rounded shadow-md  min-w-full">
                 {/**Modal Pages */}
                 <Stepper1 step={step} steps={stepsList} />
-                 {step === 1 && 
-                     <Register  />}
+                 {step === 1 && (
+                 <div className="flex flex-col justify-center py-5">
+                     <Register  />
+                     </div>)}
 
 
-                {step === 2 && <StepTwo />}
-                {step === 3 && <StepThree />}
+                {step === 2 && (
+                   <div className=" flex flex-col justify-center py-5">
+                  <StepTwo />
+                  </div>
+                )}
+                 {step === 3 && (
+                  <div className="flex flex-col justify-center py-5">
+                  <Login type="" />
+                  </div>)}
+              
               </div>
-            </DialogContentText>
+           
           </DialogContent>
           <DialogActions>
             {/* <Button onClick={handleDialogClose}> */}
@@ -377,7 +388,7 @@ const HomePage: React.FC = () => {
                   Back
                 </button>
               )}
-              {step < 3 && (
+              {step < 2 && (
                 <button
                   onClick={handleNext}
                   className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -385,7 +396,7 @@ const HomePage: React.FC = () => {
                   Next
                 </button>
               )}
-              {step == 3 && (
+              {step == 2 && (
                 <button
                   onClick={handleSubmit}
                   className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -510,18 +521,7 @@ const HomePage: React.FC = () => {
             </h2>
           </div>
         </div>
-               {/* <div className="w-full relative ">
-          <img src={hero} className="w-[600px] h-[300px]" />
-          <div className="absolute top-[45%] md:top-[40%]  left-[50%] transform -translate-x-1/2 text-center px-4">
-            <h1 className="text-lg md:text-2xl font-semibold text-white">
-              Learn What You Need. 
-             
-            </h1>
-            <h2 className="text-lg md:text-2xl  font-semibold text-white">
-               Grow on Your Terms.
-            </h2>
-          </div>
-        </div> */}
+           
         </section>
 <div className="w-full py-[5%] px-[5%]">
      
@@ -678,10 +678,10 @@ const HomePage: React.FC = () => {
           aria-describedby="alert-dialog-slide-description"
           PaperProps={{
             style: {
-              width: "90vw",
+              width: "60vw",
               height: "100vh",
-              maxWidth: "none", // Override default maxWidth
-              maxHeight: "none", // Override default maxHeight
+              maxWidth: "none", 
+              maxHeight: "none", 
             },
           }}
         >
@@ -691,17 +691,12 @@ const HomePage: React.FC = () => {
                 {/**Modal Pages */}
                 <Stepper1 step={step} steps={stepsList} />
                  {step === 1 && 
-//                  <ReusableTab tabs={[
-//     { label: "Login", content: <Login /> },
-//     { label: "Register", content: <Register setTabIndex={setTabIndex} />},
-//   ]}
-//   onChange={(index) => console.log("Current tab index:", index)}
-// />} */
+
  <ReusableTab tabs={tabs} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
 
 
                 {step === 2 && <StepTwo />}
-                {step === 3 && <StepThree />}
+                {/* {step === 3 && <StepThree />} */}
               </div>
             </DialogContentText>
           </DialogContent>
@@ -716,7 +711,7 @@ const HomePage: React.FC = () => {
                   Back
                 </button>
               )}
-              {step < 3 && (
+              {step < 2 && (
                 <button
                   onClick={handleNext}
                   className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -724,7 +719,7 @@ const HomePage: React.FC = () => {
                   Next
                 </button>
               )}
-              {step == 3 && (
+              {step == 2 && (
                 <button
                   onClick={handleSubmit}
                   className="px-4 py-2 bg-blue-600 text-white rounded"

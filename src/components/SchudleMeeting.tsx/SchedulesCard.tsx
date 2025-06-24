@@ -15,13 +15,14 @@ const SchedulesCard = ({ count, setCount }) => {
   useEffect(() => {
     const userData2 = localStorage.getItem("degree");
     const parsedUserData2 = JSON.parse(userData2 || '{}');
-    setuserId(parsedUserData2.user_id);
+    setuserId(parsedUserData2.id);
 
     const fetchSchedules = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${baseURL}/api/schedules`, {
           params: { user_id: userId, mentor_id: mentorId?.mentor_id },
+            // params: { user_id: userId, mentor_id: 6},
         });
         setSchedules(response.data);
 
@@ -36,7 +37,8 @@ const SchedulesCard = ({ count, setCount }) => {
     if (userId) {
       fetchSchedules();
     }
-  }, [userId, mentorId,count]);
+ }, [userId, mentorId,count]);
+  //  }, [userId,count]);
 
 
   useEffect(() => {
@@ -47,7 +49,9 @@ const SchedulesCard = ({ count, setCount }) => {
         const response = await axios.get(`${baseURL}/api/mentor/details`, {
           params: { user_id: userId },
         });
-        setMentorId(response.data);
+        // setMentorId(6);
+         setMentorId(response.data);
+        console.log("mentor---ID",mentorId);
         localStorage.setItem('mentorData', JSON.stringify(response.data));
 
       } catch (err) {
