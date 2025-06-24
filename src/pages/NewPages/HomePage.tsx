@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import Stepper1 from "../../components/NewPage/Homepage/MultiStep_Form/Stepper";
 import StepTwo from "@/components/NewPage/Homepage/MultiStep_Form/StepTwo";
-import StepThree from "../../components/NewPage/Homepage/MultiStep_Form/StepThree";
 import { Button } from "@mantine/core";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
