@@ -23,10 +23,11 @@ interface FormErrors {
 interface RegisterProps {
   type?: string;
    setTabIndex?: (index: number) => void;
+    onRegisterSuccess?: () => void;
 }
 
 //@ts-ignore
-const Register: React.FC<RegisterProps> = ({ type, setTabIndex}) => {
+const Register: React.FC<RegisterProps> = ({ type, setTabIndex,onRegisterSuccess}) => {
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -75,6 +76,10 @@ const Register: React.FC<RegisterProps> = ({ type, setTabIndex}) => {
           password,
         });
         console.log("Registration successful:", response.data);
+         localStorage.setItem('registerStatus', response.data.register);
+        console.log("Calling onRegisterSuccess:", typeof onRegisterSuccess);
+         onRegisterSuccess?.();
+         
         notifySuccess();
 
         // Redirect after a short delay
@@ -83,7 +88,7 @@ const Register: React.FC<RegisterProps> = ({ type, setTabIndex}) => {
         // }, 1500);
     
 
-    // ✅ Switch to Login tab
+    // Switch to Login tab
     if (setTabIndex) setTabIndex(0);
       } catch (error: any) {
         console.error("Registration failed:", error);

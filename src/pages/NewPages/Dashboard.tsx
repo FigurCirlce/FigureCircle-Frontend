@@ -103,6 +103,10 @@ const Dashboard: React.FC = () => {
     localStorage.clear();
     navigate('/');
   };
+
+  const handleHome=()=>{
+    navigate('/');
+  }
   
   return (
     <>
@@ -117,6 +121,9 @@ const Dashboard: React.FC = () => {
         {/* Header (not fixed anymore) */}
         <header className="flex-shrink-0 flex justify-end items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
           {/* <img alt="image" width={50} className="object-contain" /> */}
+          <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
+            Home
+          </button>
            <button
             className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700" onClick={handleLogout}>
               Log Out

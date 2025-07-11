@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-
 import axios from "axios";
 import baseURL from "@/config/config";
 
-// Define TypeScript interface for a meeting
 interface Meeting {
   user_id: number;
   mentorName: string;
@@ -22,7 +20,6 @@ interface Meeting {
   created_at: string;
 }
 
-// Function to convert ISO datetime to "DD/MM/YYYY HH:MM AM/PM"
 function convertDateTime(datetimeStr: string | number | Date): string {
   const dateObj = new Date(datetimeStr);
 
@@ -42,7 +39,7 @@ function convertDateTime(datetimeStr: string | number | Date): string {
 }
 
 type MeetingTableProps = {
-  user_id: number; // or string, depending on your type
+  user_id: number;
 };
 //@ts-ignore
 const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
@@ -57,20 +54,20 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
   );
 
   const fetchMeetingData = async () => {
-    console.log("user_id----", user_id);
+    console.log("user_id FetchMeetingData----", user_id);
     try {
       const response = await axios.get(`${baseURL}/api/schedules`, {
+        // params: { user_id: 3},
         params: { user_id: user_id },
       });
 
-      
       if (response.data) {
         const sortedData = [...response.data].sort(
           (a, b) =>
             new Date(b.start_datetime).getTime() -
             new Date(a.start_datetime).getTime()
         );
-
+        console.log("sortedData-----", sortedData);
         setMeetingData(sortedData);
       } else {
         console.log("No meetings found.");
@@ -117,66 +114,53 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
           </thead>
 
           <tbody>
-            {paginatedData.length===0?<div className="flex justify-center w-full">No Meeting Data </div>:paginatedData.map((meeting) => (
-              <tr key={meeting.id} className="hover:bg-gray-50">
-                <td className="p-2 border text-sm">{meeting.mentor_name}</td>
-                <td className="p-2 border text-sm">{meeting.mentor_email}</td>
-                {/* <td className="p-2 border">
-                  <a
-                    href={meeting.mentor_email}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    <Mail/>
-                  </a>
-                </td> */}
-                <td className="p-2 border text-sm">
-                  {convertDateTime(meeting.start_datetime)}
-                </td>
-                <td className="p-2 border text-sm">{meeting.duration} mins</td>
-                <td className="p-2 border">
-                  <a
-                    href={meeting.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    Link
-                  </a>
-                </td>
-                <td className="p-2 border">
-                  <a
-                    href={meeting.milestoneLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    Milestone
-                  </a>
-                </td>
-                <td className="p-2 border">
-                  <a
-                    href={meeting.feedbackLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    Feedback
-                  </a>
-                </td>
-                {/* <td className="p-2 border">
-                  <div className="flex gap-2">
-                    <button className="text-blue-600 hover:text-blue-800">
-                      <Pen size={16} />
-                    </button>
-                    <button className="text-red-600 hover:text-red-800">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td> */}
-              </tr>
-            ))}
+            {paginatedData.length === 0 ? (
+              <div className="flex justify-center w-full">No Meeting Data </div>
+            ) : (
+              paginatedData.map((meeting) => (
+                <tr key={meeting.id} className="hover:bg-gray-50">
+                  <td className="p-2 border text-sm">{meeting.mentor_name}</td>
+                  <td className="p-2 border text-sm">{meeting.mentor_email}</td>
+
+                  <td className="p-2 border text-sm">
+                    {convertDateTime(meeting.start_datetime)}
+                  </td>
+                  <td className="p-2 border text-sm">
+                    {meeting.duration} mins
+                  </td>
+                  <td className="p-2 border">
+                    <a
+                      href={meeting.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      Link
+                    </a>
+                  </td>
+                  <td className="p-2 border">
+                    <a
+                      href={meeting.milestoneLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      Milestone
+                    </a>
+                  </td>
+                  <td className="p-2 border">
+                    <a
+                      href={meeting.feedbackLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      Feedback
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
 

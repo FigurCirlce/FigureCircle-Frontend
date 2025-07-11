@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
   const [isOpen, setIsOpen] = useState(true);
 //@ts-ignore
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(true);
-  const [activeItem, setActiveItem] = useState<string>('Dashboard'); // 💡 Track active item
+  const [activeItem, setActiveItem] = useState<string>('Dashboard');
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const HomeMenu: MenuItem[] = [
@@ -31,9 +31,12 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
   ];
 
   const handleItemClick = (title: string) => {
-    setActiveItem(title);           // ✅ Set active item
-    setActivePage(title);           // 🔄 Also notify parent
+    setActiveItem(title);           
+    setActivePage(title);         
   };
+
+  const userData = JSON.parse(localStorage.getItem("userlocaldata") || "{}");
+const username = userData.username;
 
   return (
     <>
@@ -52,8 +55,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
         <div className="flex items-center gap-3 p-3 border-2 border-slate-300 shadow-lg rounded-md w-[90%] mx-3 my-3">
           <img src={pic} alt="profile" className="rounded-full w-10" />
           <div>
-            <h1 className="font-semibold">Hi, Harsh</h1>
-            <h2 className="text-sm text-slate-500">Free Plan</h2>
+            <h1 className="font-semibold">Hi, {username}</h1>
+            
           </div>
         </div>
 

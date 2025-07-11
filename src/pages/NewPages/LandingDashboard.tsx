@@ -4,6 +4,7 @@ import pic from "../../assets/pic.jpg";
 // import { Search } from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
+import { useUserContext } from "@/components/context/userContext";
 
 // Define Interfaces
 interface ProgressAPIResponse {
@@ -71,6 +72,8 @@ const LandingDashboard: React.FC = () => {
   // const [user_id, setUser_id] = useState<string | null>(null);
   const token = localStorage.getItem("token");
   const degree = localStorage.getItem("degree");
+
+    const { userData} = useUserContext();
 
 
   //  const fetchBasicInfo = async () => {
@@ -387,7 +390,7 @@ console.log("user_id",user_id);
         <div className="flex flex-col lg:flex-row gap-5 w-full">
           {/* Expert List */}
           <div className="bg-white rounded-2xl shadow p-6 w-[400px]">
-            <h2 className="text-2xl font-bold mb-4">Your Experts</h2>
+            <h2 className="text-2xl font-bold mb-4">{userData.is_mentor?"Your Mentees":"Your Experts"}</h2>
             <div className="space-y-4 w-[350px]">
               {assignedMentorData.length < 1
                 ? "No Assigned Mentor"
@@ -426,7 +429,7 @@ console.log("user_id",user_id);
           {/* Expert Progress */}
           <div className="bg-white rounded-2xl shadow p-6 flex-1">
             <h2 className="text-2xl mb-4 font-bold text-center">
-              Progress with Experts
+             {userData.is_mentor?"Progress with Mentees":"Progress with Experts"}
             </h2>
             {selectedExpertData ? (
               <>
