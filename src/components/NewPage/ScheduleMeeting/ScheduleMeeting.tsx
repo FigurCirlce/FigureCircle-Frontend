@@ -1,12 +1,13 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import {
   
-  TextField,
-  MenuItem,
-  
-  Typography,
+ 
+Typography,
   Paper,
 } from "@mui/material";
+import pic from "../../../assets/pic.jpg";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 //@ts-ignore
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 //@ts-ignore
@@ -24,7 +25,7 @@ interface Schedule {
   email: string;
   start_date: string;
   duration: string;
-  mentor_id: number;
+  mentor_id: number | null;
   user_id: string;
   mentor_email?: string;
   mentor_phone?: string;
@@ -51,7 +52,7 @@ export interface Mentor {
   expertise: string;
   fee: string;
   linkedin: string;
-  mentor_id: number;
+  mentor_id: number |null;
   milestones: number;
   name: string;
   phone: string;
@@ -85,7 +86,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
-
+const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
   const[user_id,setUser_id]=useState<number|null>(null);
  
 
@@ -277,51 +278,81 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   //   }
   // };
 
-  const handleMentorSelection = (mentorId: number) => {
-    const selectedMentor = mentorsList.find(
-      (mentor) => mentor.mentor_id === mentorId
-    );
-    if (selectedMentor) {
-      console.log("selectedMentor", selectedMentor);
-      setFormData((prevData) => ({
-        ...prevData,
-        mentor_id: mentorId,
-        mentor_email: selectedMentor.email,
-        mentor_phone: selectedMentor.phone,
-        mentor_linkedin: selectedMentor.linkedin,
-      }));
-      MentorSlot(mentorId);
-    }
-    // } else {
+  // const handleMentorSelection = (mentorId: number) => {
+  //   const selectedMentor = mentorsList.find(
+  //     (mentor) => mentor.mentor_id === mentorId
+  //   );
+  //   if (selectedMentor) {
+  //     console.log("selectedMentor", selectedMentor);
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       mentor_id: mentorId,
+  //       mentor_email: selectedMentor.email,
+  //       mentor_phone: selectedMentor.phone,
+  //       mentor_linkedin: selectedMentor.linkedin,
+  //     }));
+  //     MentorSlot(mentorId);
+  //   }
+  //   // } else {
 
-    //   setFormData((prevData) => ({
-    //     ...prevData,
-    //     mentor_id: "",
-    //     mentor_email: "",
-    //     mentor_phone: "",
-    //     mentor_linkedin: "",
-    //   }));
-    // }
-  };
+  //   //   setFormData((prevData) => ({
+  //   //     ...prevData,
+  //   //     mentor_id: "",
+  //   //     mentor_email: "",
+  //   //     mentor_phone: "",
+  //   //     mentor_linkedin: "",
+  //   //   }));
+  //   // }
+  // };
 
-  const MentorSlot = (mentorId: number) => {
-    const selectedMentor = assignedMentorData.find(
-      (mentor) => mentor.mentor_id === mentorId
-    );
-    console.log(
-      "selectedMentor----MentorSlot-----",
-      selectedMentor?.availability
-    );
-  };
+  // const MentorSlot = (mentorId: number) => {
+  //   const selectedMentor = assignedMentorData.find(
+  //     (mentor) => mentor.mentor_id === mentorId
+  //   );
+  //   console.log(
+  //     "selectedMentor----MentorSlot-----",
+  //     selectedMentor?.availability
+  //   );
+  // };
 
   useEffect(() => {
-    const userData = localStorage.getItem("degree");
-    if (userData) {
-      const parsedUserData = JSON.parse(userData);
+    // const userData = localStorage.getItem("degree");
+    // if (userData) {
+    //   const parsedUserData = JSON.parse(userData);
 
-      setUser_id(parsedUserData.id);
+    //   setUser_id(parsedUserData.id);
+    // }
+    const user=localStorage.getItem("user");
+    if(user){
+       const parsedUserData = JSON.parse(user);
+      setUser_id(parsedUserData.user_id);
     }
   }, []);
+
+    const fetchMentorData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/api/mentor/details?user_id=${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data) {
+        console.log("response--data---fetchMentor-dattttaa---", response.data);
+        // setAssignedMentorData(response.data.mentors);
+      } else {
+        console.log("No Mentors found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Assigned Mentors:", error);
+    }
+  };
+
+    useEffect(() => {
+    fetchMentorData();
+  }, [user_id]);
+
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     // setCount(count + 1);
@@ -402,7 +433,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
           end_datetime: endDate,
           duration: formData.duration,
           link: meetingLink,
-          user_id: parsedUserData2.id,
+          user_id: user_id,
           mentor_id: formData.mentor_id,
           mentor_name:
             mentorsList.find(
@@ -486,66 +517,169 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
 
     while (current <= slotEndDate) {
       slots.push(new Date(current));
-      current.setMinutes(current.getMinutes() + 30);
+      current.setMinutes(current.getMinutes() + 60);
     }
 
     return slots;
   };
 
+//  const Mentorsettings = {
+//     // dots: true,
+//     arrows: true,
+//     infinite: true,
+//     speed: 500,
+//     slidesToShow: 3,
+//     slidesToScroll: 1,
+//     initialSlide: 0,
+//     cssEase: "linear",
+//     responsive: [
+//       // {
+//       //   breakpoint: 1024,
+//       //   settings: {
+//       //     slidesToShow: 3,
+//       //     slidesToScroll: 3,
+//       //     infinite: true,
+//       //   },
+//       // },
+//       {
+//         breakpoint: 1024,
+//         settings: {
+//           slidesToShow: 2,
+//           slidesToScroll: 2,
+//           initialSlide: 2,
+//           infinite: true,
+//         },
+//       },
+//       {
+//         breakpoint: 768,
+//         settings: {
+//           slidesToShow: 1,
+//           slidesToScroll: 1,
+//           infinite: true,
+//         },
+//       },
+//     ],
+//   };
 
+  {
+    /**Mentor Slider Next Arrow */
+  }
+  // const NextArrow = (props: any) => {
+  //   const { onClick } = props;
+  //   return (
+  //     <div
+  //       onClick={onClick}
+  //       className="custom-next absolute bottom-[50%] right-[0%] cursor-pointer"
+  //     >
+  //       ▶
+  //     </div>
+  //   );
+  // };
+
+  
+
+// const handleMentorSelect = (mentorId: number | null) => {
+//   setSelectedMentorId(mentorId);
+//   // If you have an onChange or form update function, call it here
+// };
+
+// const mentorsList1 = [
+//   {
+//     mentor_id: 1,
+//     name: "Alice Johnson",
+//     email: "alice.johnson@example.com",
+//     image: "https://i.pravatar.cc/150?img=1",
+//   },
+//   {
+//     mentor_id: 2,
+//     name: "Bob Smith",
+//     email: "bob.smith@example.com",
+//     image: "https://i.pravatar.cc/150?img=2",
+//   },
+//   {
+//     mentor_id: 3,
+//     name: "Charlie Williams",
+//     email: "charlie.williams@example.com",
+//     image: "https://i.pravatar.cc/150?img=3",
+//   },
+//   {
+//     mentor_id: 4,
+//     name: "Diana Patel",
+//     email: "diana.patel@example.com",
+//     image: "https://i.pravatar.cc/150?img=4",
+//   },
+//   {
+//     mentor_id: 5,
+//     name: "Edward Kim",
+//     email: "edward.kim@example.com",
+//     image: "https://i.pravatar.cc/150?img=5",
+//   },
+//   {
+//     mentor_id: 6,
+//     name: "Fiona Garcia",
+//     email: "fiona.garcia@example.com",
+//     image: "https://i.pravatar.cc/150?img=6",
+//   },
+//   {
+//     mentor_id: 7,
+//     name: "George Liu",
+//     email: "george.liu@example.com",
+//     image: "https://i.pravatar.cc/150?img=7",
+//   },
+//   {
+//     mentor_id: 8,
+//     name: "Hannah Lee",
+//     email: "hannah.lee@example.com",
+//     image: "https://i.pravatar.cc/150?img=8",
+//   },
+// ];
 
   
   return (
     <Paper elevation={4} className="p-6 w-full  mx-auto  rounded-2xl">
       <Typography
         variant="h6"
-        className="text-center text-gray-700 !mb-6 !font-bold"
+        className="text-center text-gray-700 !mb-6 !font-bold !text-2xl"
       >
         Schedule Meeting
       </Typography>
 
       {/* Mentor Selection at Top */}
       <form onSubmit={handleSubmit} className="space-y-4 w-full">
-        <div className="flex justify-center w-full">
-          <div className="flex gap-5 w-[70%]">
-            <div className="mb-6 w-full">
-              <Typography className="mb-2 text-md text-gray-600 !font-semibold">
-                Select a Mentor
-              </Typography>
-              <TextField
-                name="mentor_id"
-                // value={formData.mentor_id}
-                required
-                onChange={(e) => {
-                  const value = e.target.value;
-                  //@ts-ignore
-                   setFormData((prev) => ({ ...prev, mentor_id: value }));
-                  // setFormData((prev) => ({ ...prev, mentor_id: isNaN(id) ? null : id }));
-                  console.log("value---", value);
-                  console.log("typevalue---", typeof value);
-                  //@ts-ignore
-                  handleMentorSelection(value);
-                }}
-                select
-                fullWidth
-                size="small"
-                // value={selectedMentor}
-                // onChange={(e) => setSelectedMentor(e.target.value)}
-              >
-                {assignedMentorData.map((mentor) => (
-                  <MenuItem
-                    key={mentor.mentor_id}
-                    value={mentor.mentor_id}
-                    //@ts-ignore
-                    // onClick={() => setSelectedMentor(mentor.id)}
-                  >
-                    {mentor.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
+        <h1 className="flex justify-center font-semibold text-xl">Select a Mentor</h1>
+        <div className="flex justify-center ">
+          
+   <div className="flex gap-4 overflow-x-auto py-2 w-[70%]">
+  {mentorsList.map((mentor) => (
+    <div
+      key={mentor.mentor_id}
+      onClick={() => {
+        setSelectedMentorId(mentor.mentor_id);
+        setFormData((prev) => ({
+          ...prev,
+          mentor_id: mentor.mentor_id,
+          mentor_email: mentor.email,
+        }));
+      }}
+      className={`min-w-[200px] cursor-pointer rounded-xl p-4 shadow-md border transition-all duration-300 ${
+        selectedMentorId === mentor.mentor_id
+          ? 'border-blue-500 bg-blue-50'
+          : 'border-gray-300 bg-white'
+      }`}
+    >
+      <img
+        src={pic}
+        alt={mentor.name}
+        className="w-16 h-16 rounded-full object-cover mb-2"
+      />
+      <div className="text-sm font-semibold">{mentor.name}</div>
+      <div className="text-xs text-gray-600">{mentor.email}</div>
+    </div>
+  ))}
+</div>
+
             {formData.mentor_id && (
-              <div>
+              <div className="ml-5">
                 <label className="block text-sm font-medium text-gray-700">
                   Email:
                   <input
@@ -561,7 +695,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
         
   
           </div>
-        </div>
+        
 
         {/* Calendar and Time Slots Side by Side */}
         <div className="flex flex-col md:flex-row gap-2 mb-1">

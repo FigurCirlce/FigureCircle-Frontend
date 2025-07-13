@@ -1,4 +1,3 @@
-// import Nav from "@/components/layout/nav";
 import { Navigate, Outlet } from "react-router-dom";
 
 interface Auth {

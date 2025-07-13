@@ -89,7 +89,7 @@ const TrialMeeting: React.FC<MentorSectionProps> = ({ allMentorData }) => {
         ) : (
           // <Slider {...Mentorsettings} className="bg-slate-100 py-4 px-2 rounded-xl ">
           <div className="flex flex-wrap gap-5">
-            //@ts-ignore
+            
             {filteredMentors.map((item, index) => (
               <div key={index} className="px-2 py-2">
                 <div className="w-[350px] h-[450px] flex flex-col justify-between items-center gap-2 shadow-xl shadow-slate-300 py-5 rounded-lg bg-white mx-auto">

@@ -6,6 +6,7 @@ import axios from "axios";
 import baseURL from "@/config/config";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../features/userSlice";
+import { useUserContext } from "@/components/context/userContext";
 
 type FormData = {
   username: string;
@@ -27,6 +28,7 @@ const Login: React.FC<LoginProps> = ({ type }) => {
   const [errors, setErrors] = useState<FormErrors>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+   const { updateUser } = useUserContext();
 
   const notifySuccess = () => {
     type === "modal"
@@ -41,6 +43,7 @@ const Login: React.FC<LoginProps> = ({ type }) => {
         "Login failed. Please try again."
     );
 
+    
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
     if (!form.username.trim()) newErrors.username = "Username is required";
@@ -68,6 +71,25 @@ localStorage.setItem("degree", JSON.stringify(response.data));
       }
     };
 
+//     const fetchMentorBasicInfo=async()=>{
+//        try {
+//         const token = localStorage.getItem('token');
+//         const response = await axios.get(`${baseURL}/api/mentor/details?user_id=43`, {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         });
+//   console.log("basicInformation---",response.data);
+// localStorage.setItem("degree", JSON.stringify(response.data));
+
+//         // setBasicInfo([response.data]);
+//         // setDegree(response.data.interested_stream);
+//         // setFormData(response.data);
+//       } catch (error) {
+//         console.log(error);
+//       } 
+//     }
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -86,10 +108,13 @@ localStorage.setItem("degree", JSON.stringify(response.data));
 
         //@ts-ignore
         dispatch(setUser(form));
+updateUser(response.data);
         notifySuccess();
 
         if (response.data.data_fill === true) {
+          console.log("---fetchbasicInfo-----");
           fetchBasicInfo();
+          // fetchMentorBasicInfo();
           navigate("/dashboard");
         } else {
           navigate("/basic-info");

@@ -5,6 +5,7 @@ import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users, Pin, PinOff } f
 import axios from 'axios';
 import baseURL from '@/config/config';
 import { toast } from 'react-toastify';
+import { useUserContext } from './context/userContext';
 
 interface MeetingCallProps {
   roomId: string;
@@ -38,9 +39,9 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
   const [schudle, setSchudle] = useState<any>();
   const [milestoneUrl, setMilestoneUrl] = useState("");
   const [feedbackUrl, setFeedbackUrl] = useState("");
+
+   const { setSchedule } = useUserContext();
   
-
-
   useEffect(() => {
     const url = new URL(window.location.href);
     // const pathSegments = url.pathname.split("/").filter(Boolean);
@@ -64,6 +65,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
 
         if (response.data) {
           setSchudle(response.data);
+           setSchedule(response.data);
         } else {
           // if (lastSegment) {
           //   setMilestoneUrl(`/milestoneform/${lastSegment}`);
@@ -108,8 +110,10 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
         if (response.data) {
           // setSchudle(response.data);
           console.log('milestones===>', response.data, response.data.user_id, response.data.mentor_id);
-          setMilestoneUrl(`/milestoneformAdd/${response.data.user_id}-${response.data.mentor_id}`);
-          setFeedbackUrl(`/feedbackform/${lastSegment}`);
+          setMilestoneUrl(`/new-milestone/${response.data.user_id}-${response.data.mentor_id}`);
+          // setMilestoneUrl(`/milestoneformAdd/${response.data.user_id}-${response.data.mentor_id}`);
+          // setMilestoneUrl(`/new-milestone/$`)
+          setFeedbackUrl(`/newFeedback/${lastSegment}`);
 
         } else {
 
@@ -117,8 +121,10 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
         }
       } catch (error) {
         if (lastSegment) {
-          setMilestoneUrl(`/milestoneform/${lastSegment}`);
-          setFeedbackUrl(`/feedbackform/${lastSegment}`);
+          //  setMilestoneUrl(`/milestoneform/${lastSegment}`);
+             setMilestoneUrl(`/new-milestone/${lastSegment}`);
+          //  setMilestoneUrl(`/new-milestone`);
+          setFeedbackUrl(`/newFeedback/${lastSegment}`);
         }
         console.log('Failed to fetch milestone data.');
         console.error('Error fetching milestones:', error);

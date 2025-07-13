@@ -27,6 +27,7 @@ import Register from '../../pages/NewPages/Register';
 import ReusableTab from "@/components/NewPage/Homepage/ReusableTab";
 // import banner2 from '../../assets/banner2.png';
 import banner6 from '../../assets/banner6.png';
+import ProfileDropdown from "@/components/NewPage/ProfileDropdown";
 
 interface MentorData {
   background: string;
@@ -78,6 +79,7 @@ const HomePage: React.FC = () => {
   const [openLoginDialog, setOpenLoginDialog] = React.useState(false);
   const [openRegisterDialog, setOpenRegisterDialog] = React.useState(false);
    const [tabIndex, setTabIndex] = useState(0);
+   const [moveNext,setMoveNext]=useState(false);
 
   const handleDialogClickOpen = () => {
     setOpenDialog(true);
@@ -244,12 +246,46 @@ const HomePage: React.FC = () => {
     navigate('/homepage/dashboard');
   };
 
+  /**Enable Next Button only when registeration is successful */
+  const handleMoveNext = () => {
+  setMoveNext(true); 
+};
+
+
   const tabs = [
     { label: "Login", content: <Login /> },
-    { label: "Register", content: <Register setTabIndex={setTabIndex} /> },
+    { label: "Register", content: <Register setTabIndex={setTabIndex} onRegisterSuccess={handleMoveNext}/> },
   ];
 
   const token=localStorage.getItem('token');
+
+//   const status=localStorage.getItem('registerStatus');
+
+// useEffect(()=>{
+//   if(status){
+//  setMoveNext(true);
+//   }
+ 
+
+// },[status])
+
+useEffect(() => {
+  const checkStatus = () => {
+    const status = localStorage.getItem('registerStatus');
+    if (status === 'true') {
+      setMoveNext(true);
+    }
+  };
+
+  window.addEventListener("storage", checkStatus);
+  return () => window.removeEventListener("storage", checkStatus);
+}, []);
+
+//  useEffect(() => {
+//   const status = localStorage.getItem('registerStatus');
+//   setMoveNext(!!status); // true if present
+// }, []);
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -263,26 +299,22 @@ const HomePage: React.FC = () => {
 
         <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
           <img src={logo} width={50} className="object-contain" />
-          {/* <nav className="hidden md:flex gap-8 text-sm font-medium">
-          <Link to="/homepage" className="hover:text-blue-600 text-xl">
-            Home
-          </Link>
-          <Link to="/dashboard" className="hover:text-blue-600 text-xl">
-            Dashboard
-          </Link>
-          <Link to="/ask-ai" className="hover:text-blue-600 text-xl">
-            Ask AI
-          </Link>
-        </nav> */}
+          
 
        <div className="hidden md:flex gap-2">
   {token ? (
+    <>
+    <div className="mr-3">
+      <ProfileDropdown/>
+    </div>
+    
     <button
       onClick={handleLogout}
       className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
     >
       Logout
     </button>
+    </>
   ) : (
     <>
       <button
@@ -359,7 +391,7 @@ const HomePage: React.FC = () => {
                 <Stepper1 step={step} steps={stepsList} />
                  {step === 1 && (
                  <div className="flex flex-col justify-center py-5">
-                     <Register  />
+                     <Register onRegisterSuccess={handleMoveNext} />
                      </div>)}
 
 
@@ -387,14 +419,16 @@ const HomePage: React.FC = () => {
                   Back
                 </button>
               )}
-              {step < 2 && (
-                <button
-                  onClick={handleNext}
-                  className="px-4 py-2 bg-blue-600 text-white rounded"
-                >
-                  Next
-                </button>
-              )}
+             {step < 2 && (
+  <button
+    onClick={handleNext}
+    className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
+    disabled={!moveNext}
+  >
+    Next
+  </button>
+)}
+
               {step == 2 && (
                 <button
                   onClick={handleSubmit}
@@ -711,13 +745,14 @@ const HomePage: React.FC = () => {
                 </button>
               )}
               {step < 2 && (
-                <button
-                  onClick={handleNext}
-                  className="px-4 py-2 bg-blue-600 text-white rounded"
-                >
-                  Next
-                </button>
-              )}
+  <button
+    onClick={handleNext}
+    className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
+    disabled={!moveNext}
+  >
+    Next
+  </button>
+)}
               {step == 2 && (
                 <button
                   onClick={handleSubmit}

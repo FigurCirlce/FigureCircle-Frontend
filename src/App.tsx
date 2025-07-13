@@ -10,6 +10,7 @@ import PublicRoutes from 'routes/public/PublicRoutes';
 import PublicRoutesOutlet from 'routes/public/PublicRoutesOutlet';
 import ProtectedRoutesOutlet from 'routes/protected/ProtectedRoutesOutlet';
 import PageNotFound from './pages/404';
+import { UserProvider } from './components/context/userContext';
 
 interface RouteI {
   path: string;
@@ -23,6 +24,7 @@ function App() {
   console.log("data", user)
   return (
     <main className="h-screen">
+      <UserProvider>
       <Provider store={store}>
         <ToastContainer />
         <Routes>
@@ -42,7 +44,9 @@ function App() {
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Routes>
+        
       </Provider>
+      </UserProvider>
     </main>
   );
 }

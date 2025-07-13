@@ -10,8 +10,8 @@ const StepTwo: React.FC = () => {
      const [status, setStatus] = useState<"idle" | "success" | "error" | "submitting">("idle");
 
     const [userInfo, setUserInfo] = useState({
-        first_name: '',
-        last_name: '',
+        firstname: '',
+        lastname: '',
         emailid: '',
         high_education: '',
         interested_stream: '',
@@ -46,11 +46,12 @@ console.log("type",typeof(token));
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
          setStatus("submitting");
+         const newUserInfo={...userInfo,data_filed: true};
         setUserInfo(prev => ({ ...prev, data_filed: true }));
-        console.log("USERINFO----------",userInfo);
+        console.log("newUSERINFO----------",newUserInfo);
 
         try {
-            const response = await axios.post(`${baseURL}/api/basic-info`, userInfo, { headers });
+            const response = await axios.post(`${baseURL}/api/basic-info`, newUserInfo, { headers });
             if (response.status === 201) {
               setStatus("success");
                 notifySuccess();
@@ -72,15 +73,15 @@ console.log("type",typeof(token));
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
                     <div>
-                        <label className="text-gray-700 dark:text-gray-200" htmlFor="firstName">
+                        <label className="text-gray-700 dark:text-gray-200" htmlFor="firstname">
                             First Name
                         </label>
                         <input
                             type="text"
-                            id="firstName"
+                            id="firstname"
                             placeholder="First Name"
-                            value={userInfo.first_name}
-                            onChange={(e) => handleInputChange(e, 'first_name')}
+                            value={userInfo.firstname}
+                            onChange={(e) => handleInputChange(e, 'firstname')}
                             className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
                             dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
                             focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
@@ -89,15 +90,15 @@ console.log("type",typeof(token));
                     </div>
 
                     <div>
-                        <label className="text-gray-700 dark:text-gray-200" htmlFor="lastName">
+                        <label className="text-gray-700 dark:text-gray-200" htmlFor="lastname">
                             Last Name
                         </label>
                         <input
                             type="text"
-                            id="lastName"
+                            id="lastname"
                             placeholder="Last Name"
-                            value={userInfo.last_name}
-                            onChange={(e) => handleInputChange(e, 'last_name')}
+                            value={userInfo.lastname}
+                            onChange={(e) => handleInputChange(e, 'lastname')}
                             className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
                             dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
                             focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
