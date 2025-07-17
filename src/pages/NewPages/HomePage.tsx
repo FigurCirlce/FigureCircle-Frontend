@@ -1,11 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import logo from "../../assets/image (1).png";
-// import hero from "../../assets/Hero.png";
-// import call from "../../assets/call.png";
-// import schedule from "../../assets/schedule.png";
-// import milestone from "../../assets/milestone.png";
 import image1 from "../../assets/image1.png";
-// import dream_profile_banner from "../../assets/dream_profile_banner.jpg";
 import axios from "axios";
 import baseURL from "@/config/config";
 import Slider from "react-slick";
@@ -23,10 +18,10 @@ import DialogContentText from "@mui/material/DialogContentText";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import Login from "../../pages/NewPages/Login";
-import Register from '../../pages/NewPages/Register';
+import Register from "../../pages/NewPages/Register";
 import ReusableTab from "@/components/NewPage/Homepage/ReusableTab";
 // import banner2 from '../../assets/banner2.png';
-import banner6 from '../../assets/banner6.png';
+import banner6 from "../../assets/banner6.png";
 import ProfileDropdown from "@/components/NewPage/ProfileDropdown";
 
 interface MentorData {
@@ -78,8 +73,11 @@ const HomePage: React.FC = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
   const [openLoginDialog, setOpenLoginDialog] = React.useState(false);
   const [openRegisterDialog, setOpenRegisterDialog] = React.useState(false);
-   const [tabIndex, setTabIndex] = useState(0);
-   const [moveNext,setMoveNext]=useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [status, setStatus] = useState<Boolean>(false);
+
+  const registerRef = useRef<any>(null);
+  const stepTwoRef = useRef<any>(null);
 
   const handleDialogClickOpen = () => {
     setOpenDialog(true);
@@ -242,50 +240,51 @@ const HomePage: React.FC = () => {
 
   const stepsList = ["Login/Register", "Basic Info"];
 
-  const handleSubmit = () => {
-    navigate('/homepage/dashboard');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus(true);
+    if (registerRef.current?.handleSubmit) {
+      registerRef.current.handleSubmit(e);
+    }
+
+    if (stepTwoRef.current?.handleSubmit) {
+      stepTwoRef.current.handleSubmit(e);
+    }
+
+    setTimeout(() => {
+      setStatus(false);
+      setOpenRegisterDialog(false);
+      setOpenDialog(false);
+      // console.log("handleSubmit-register&basicInfo logic");
+    }, 2000);
   };
-
-  /**Enable Next Button only when registeration is successful */
-  const handleMoveNext = () => {
-  setMoveNext(true); 
-};
-
 
   const tabs = [
     { label: "Login", content: <Login /> },
-    { label: "Register", content: <Register setTabIndex={setTabIndex} onRegisterSuccess={handleMoveNext}/> },
+    {
+      label: "Register",
+      content: <Register ref={registerRef} setTabIndex={setTabIndex} />,
+    },
   ];
 
-  const token=localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
-//   const status=localStorage.getItem('registerStatus');
+  // useEffect(() => {
+  //   const checkStatus = () => {
+  //     const status = localStorage.getItem('registerStatus');
+  //     if (status === 'true') {
+  //       setMoveNext(true);
+  //     }
+  //   };
 
-// useEffect(()=>{
-//   if(status){
-//  setMoveNext(true);
-//   }
- 
+  //   window.addEventListener("storage", checkStatus);
+  //   return () => window.removeEventListener("storage", checkStatus);
+  // }, []);
 
-// },[status])
-
-useEffect(() => {
-  const checkStatus = () => {
-    const status = localStorage.getItem('registerStatus');
-    if (status === 'true') {
-      setMoveNext(true);
-    }
-  };
-
-  window.addEventListener("storage", checkStatus);
-  return () => window.removeEventListener("storage", checkStatus);
-}, []);
-
-//  useEffect(() => {
-//   const status = localStorage.getItem('registerStatus');
-//   setMoveNext(!!status); // true if present
-// }, []);
-
+  //  useEffect(() => {
+  //   const status = localStorage.getItem('registerStatus');
+  //   setMoveNext(!!status); // true if present
+  // }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -299,42 +298,41 @@ useEffect(() => {
 
         <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
           <img src={logo} width={50} className="object-contain" />
-          
 
-       <div className="hidden md:flex gap-2">
-  {token ? (
-    <>
-    <div className="mr-3">
-      <ProfileDropdown/>
-    </div>
-    
-    <button
-      onClick={handleLogout}
-      className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
-    >
-      Logout
-    </button>
-    </>
-  ) : (
-    <>
-      <button
-        onClick={handleLoginDialogClickOpen}
-        className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
-      >
-        Login
-      </button>
-      <button
-        onClick={handleRegisterDialogClickOpen}
-        className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700"
-      >
-        Sign Up
-      </button>
-    </>
-  )}
-</div>
+          <div className="hidden md:flex gap-2">
+            {token ? (
+              <>
+                <div className="mr-3">
+                  <ProfileDropdown />
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleLoginDialogClickOpen}
+                  className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={handleRegisterDialogClickOpen}
+                  className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
+          </div>
 
           {/**Login Button Modal */}
-            <Dialog
+          <Dialog
             open={openLoginDialog}
             slots={{
               transition: Transition,
@@ -344,16 +342,13 @@ useEffect(() => {
             aria-describedby="alert-dialog-slide-description"
             PaperProps={{
               style: {
-                 minWidth: "35vw",
+                minWidth: "35vw",
                 maxHeight: "75vh",
-               
               },
             }}
           >
             <DialogContent className="">
-              
-                <Login type="" />
-              
+              <Login type="" />
             </DialogContent>
 
             <DialogActions className="absolute top-0 right-2">
@@ -362,90 +357,94 @@ useEffect(() => {
               </Button>
             </DialogActions>
           </Dialog>
-          
+
           {/**Register Button Modal */}
-         
-   <Dialog
-          open={openRegisterDialog}
-          slots={{
-            transition: Transition,
-          }}
-          keepMounted
-          onClose={handleRegisterDialogClose}
-          aria-describedby="alert-dialog-slide-description"
-          PaperProps={{
-            style: {
-              width: "90vw",
-        minHeight: "100vh",
-              // maxWidth: "none", // Override default maxWidth
-              // maxHeight: "none", // Override default maxHeight
 
-            },
-          }}
-        >
-          <DialogContent className="flex flex-col items-content justify-center">
-
-           
+          <Dialog
+            open={openRegisterDialog}
+            slots={{
+              transition: Transition,
+            }}
+            keepMounted
+            onClose={handleRegisterDialogClose}
+            aria-describedby="alert-dialog-slide-description"
+            PaperProps={{
+              style: {
+                width: "90vw",
+                minHeight: "100vh",
+                // maxWidth: "none", // Override default maxWidth
+                // maxHeight: "none", // Override default maxHeight
+              },
+            }}
+          >
+            <DialogContent className="flex flex-col items-content justify-center">
               <div className="bg-white  rounded shadow-md  min-w-full">
                 {/**Modal Pages */}
                 <Stepper1 step={step} steps={stepsList} />
-                 {step === 1 && (
+                {/* {step === 1 && (
                  <div className="flex flex-col justify-center py-5">
-                     <Register onRegisterSuccess={handleMoveNext} />
-                     </div>)}
-
+                     
+                      <Register ref={registerRef}/>
+                     </div>)} */}
+                <div
+                  className={`flex flex-col justify-center py-5 ${
+                    step === 1 ? "" : "hidden"
+                  }`}
+                >
+                  <Register ref={registerRef} />
+                </div>
 
                 {step === 2 && (
-                   <div className=" flex flex-col justify-center py-5">
-                  <StepTwo />
+                  <div className=" flex flex-col justify-center py-5">
+                    <StepTwo ref={stepTwoRef} />
                   </div>
                 )}
-                 {step === 3 && (
+                {step === 3 && (
                   <div className="flex flex-col justify-center py-5">
-                  <Login type="" />
-                  </div>)}
-              
+                    <Login type="" />
+                  </div>
+                )}
               </div>
-           
-          </DialogContent>
-          <DialogActions>
-            {/* <Button onClick={handleDialogClose}> */}
-            <div className="flex gap-5 mt-3">
-              {step > 1 && (
-                <button
-                  onClick={prevStep}
-                  className="px-4 py-2 bg-gray-300 rounded"
-                >
-                  Back
-                </button>
-              )}
-             {step < 2 && (
-  <button
-    onClick={handleNext}
-    className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
-    disabled={!moveNext}
-  >
-    Next
-  </button>
-)}
+            </DialogContent>
+            <DialogActions>
+              {/* <Button onClick={handleDialogClose}> */}
+              <div className="flex gap-5 mt-3">
+                {step > 1 && (
+                  <button
+                    onClick={prevStep}
+                    className="px-4 py-2 bg-gray-300 rounded"
+                  >
+                    Back
+                  </button>
+                )}
+                {step < 2 && (
+                  <button
+                    onClick={handleNext}
+                    // className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
+                    className={`px-4 py-2 text-white rounded !bg-blue-600`}
+                    // disabled={!moveNext}
+                  >
+                    Next
+                  </button>
+                )}
 
-              {step == 2 && (
-                <button
-                  onClick={handleSubmit}
-                  className="px-4 py-2 bg-blue-600 text-white rounded"
-                >
-                  Submit
-                </button>
-              )}
-            </div>
-            {/* </Button> */}
-          </DialogActions>
-          <DialogActions className="absolute top-0 right-2">
-            <Button onClick={handleRegisterDialogClose}>
-              <X size={40} color="black" />
-            </Button>
-          </DialogActions>
-        </Dialog>
+                {step == 2 && (
+                  <button
+                    onClick={handleSubmit}
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                  >
+                    {status ? "Submitting..." : "Submit"}
+                  </button>
+                )}
+              </div>
+              {/* </Button> */}
+            </DialogActions>
+            <DialogActions className="absolute top-0 right-2">
+              <Button onClick={handleRegisterDialogClose}>
+                <X size={40} color="black" />
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           {/* Mobile menu button */}
           <button
@@ -458,160 +457,106 @@ useEffect(() => {
           {/* Mobile menu dropdown */}
           {menuOpen && (
             <div className="absolute top-full right-4 mt-2 bg-white shadow-md rounded-lg p-4 flex flex-col gap-2 md:hidden z-20">
-              <button className="text-blue-600 hover:text-slate-400 text-sm font-semibold">
+              <button
+                onClick={handleLoginDialogClickOpen}
+                className="text-blue-600 hover:text-slate-400 text-sm font-semibold"
+              >
                 Login
               </button>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-blue-700">
+              <button
+                onClick={handleRegisterDialogClickOpen}
+                className="bg-blue-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-blue-700"
+              >
                 Sign Up
               </button>
             </div>
           )}
         </header>
 
-        {/**Dream Profile Banner Section */}
-
-        {/* <section className="w-full relative bg-blue-100">
-          <img src={dream_profile_banner} className="w-full object-cover" />
-          <div className="absolute top-[45%] md:top-1/3  left-1/2 transform -translate-x-1/2 text-center px-4">
-            <h1 className="text-lg md:text-4xl lg:text-5xl font-bold text-black">
-              Find Your Dream Profile,
-            </h1>
-            <h2 className="text-lg md:text-4xl lg:text-5xl font-bold text-black">
-              Build Your Future
-            </h2>
-          </div>
-        </section> */}
-        {/* <div className="flex w-full"> */}
-        
-
-        {/* Mentor Banner Section */}
-
-        {/* <section className="relative">
-          <img src={hero} className="w-full object-cover" />
-          <div className="absolute top-[2%] md:top-[10%] left-1/2 transform -translate-x-1/2 px-4 text-center ">
-            <h1 className="text-sm sm:text-lg md:text-4xl lg:text-5xl font-bold text-white pb-4">
-              Learn What You Need. <br />
-              Grow on Your Terms.
-            </h1>
-            <p className="text-[8px] sm:text-2xl md:text-xl text-white max-w-lg sm:max-w-xl mx-auto">
-              Whether you're starting out, switching paths, or leveling up—get
-              expert guidance, smart tools, and clear milestones tailored to
-              you.
-            </p>
-          </div>
-     
-</div>
-        {/**Features */}
-
-        {/* <section className="py-12 bg-white px-4 md:px-[5%]">
-          <h1 className="text-3xl md:text-5xl font-bold text-center mb-8">
-            Features
-          </h1>
-
-          <div className="flex flex-col md:flex-row gap-6 md:gap-10">
-            <div className="relative w-full  md:w-1/3 ">
-              <img src={call} className="w-full h-[250px] md:h-[70%] " />
-              <div className="absolute top-[10%] left-5 text-black">
-                <h1 className="text-xl md:text-3xl font-bold">Work 1-on-1</h1>
-                <p className="pt-2 md:pt-5 text-base md:text-xl">
-                  With professionals from leading companies and universities
-                </p>
-              </div>
-            </div>
-
-            <div className="relative w-full md:w-2/3">
-              <img src={schedule} className="w-full h-full sm:h-[70%]" />
-              <div className="absolute top-[10%] left-5 text-black">
-                <p className="text-lg md:text-2xl font-bold">
-                  Get practical, relevant advice rooted in real experience
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative w-full mt-4 ">
-            <img src={milestone} className="w-full xl:w-1/2  " />
-            <div className="absolute top-[10%] left-5 text-black">
-              <h1 className="text-xl md:text-3xl font-bold">
-                Communicate clearly and consistently—
-              </h1>
-              <p className="pt-2 md:pt-5 text-base md:text-xl">
-                at your pace, on your terms
-              </p>
-            </div>
-          </div>
-        </section> */}
         <section className="flex px-[5%] pt-[5%]">
-              <div className="w-full relative ">
-          {/* <img src={dream_profile_banner} className="w-[600px] h-[300px]" /> */}
-           <img src={banner6} className="w-full h-[300px]" />
-          <div className="absolute top-[45%] md:top-[10%]  left-[50%] transform -translate-x-1/2 text-center px-4">
-            <h1 className="text-lg md:text-4xl font-bold text-grey-600">
-              Find Your Dream Profile,
-            </h1>
-            <h2 className="text-lg md:text-4xl  font-bold text-grey-600">
-              Build Your Future
-            </h2>
+          <div className="w-full relative ">
+            {/* <img src={dream_profile_banner} className="w-[600px] h-[300px]" /> */}
+            <img src={banner6} className="w-full h-[300px]" />
+            <div className="absolute top-[45%] md:top-[10%]  left-[50%] transform -translate-x-1/2 text-center px-4">
+              <h1 className="text-lg md:text-4xl font-bold text-grey-600">
+                Find Your Dream Profile,
+              </h1>
+              <h2 className="text-lg md:text-4xl  font-bold text-grey-600">
+                Build Your Future
+              </h2>
+            </div>
           </div>
-        </div>
-           
         </section>
-<div className="w-full py-[5%] px-[5%]">
-     
+        <div className="w-full py-[5%] px-[5%]">
+          <h2 className="text-4xl font-bold text-center text-black mb-4">
+            Find Your Path to a Professional Career
+          </h2>
 
-        <h2 className="text-4xl font-bold text-center text-black mb-4">
-          Find Your Path to a Professional Career
-        </h2>
+          {/* Recommendation Section */}
+          <div className="flex gap-6 w-full h-[200px]">
+            <div className="bg-yellow-100 p-3 rounded-md space-y-4 w-1/3">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                  alt="icon"
+                  className="w-20 h-20"
+                />
+                <p className="text-lg font-medium">Get Recommendations</p>
+              </div>
+              <p className="text-md text-gray-600">
+                For degree courses, certifications, exams and more
+              </p>
+              <div className="flex gap-2 text-md">
+                <span className="bg-blue-200 px-2 py-1 rounded">
+                  Data Science
+                </span>
+                <span className="bg-purple-200 px-2 py-1 rounded">
+                  Machine Learning
+                </span>
+              </div>
+            </div>
 
-        {/* Recommendation Section */}
-        <div className="flex gap-6 w-full h-[200px]">
-        <div className="bg-yellow-100 p-3 rounded-md space-y-4 w-1/3">
-          <div className="flex items-center gap-2">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="icon" className="w-20 h-20" />
-            <p className="text-lg font-medium">Get Recommendations</p>
-          </div>
-          <p className="text-md text-gray-600">
-            For degree courses, certifications, exams and more
-          </p>
-          <div className="flex gap-2 text-md">
-            <span className="bg-blue-200 px-2 py-1 rounded">Data Science</span>
-            <span className="bg-purple-200 px-2 py-1 rounded">Machine Learning</span>
+            {/* Mentor Section */}
+            <div className="bg-green-100 p-3 rounded-md space-y-4 w-1/3">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/921/921347.png"
+                  alt="icon"
+                  className="w-20 h-20"
+                />
+                <p className="text-lg font-medium">Get Recommended Mentors</p>
+              </div>
+              <p className="text-[15px] text-gray-600">
+                Professionals from leading companies and universities
+              </p>
+              <button className="text-md bg-teal-500 text-white px-3 py-1 rounded hover:bg-teal-600">
+                View Mentors
+              </button>
+            </div>
+
+            {/* Progress Section */}
+            <div className="bg-blue-100 p-3 rounded-md space-y-4 w-1/3">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png"
+                  alt="icon"
+                  className="w-20 h-20"
+                />
+                <p className="text-lg font-medium">
+                  Get Feedback and Track Progress
+                </p>
+              </div>
+              <p className="text-md text-gray-600">
+                Work with mentors and achieve milestones
+              </p>
+              <button className="text-md bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                View Progress
+              </button>
+            </div>
+
+            {/* </div> */}
           </div>
         </div>
-      
-
-        {/* Mentor Section */}
-        <div className="bg-green-100 p-3 rounded-md space-y-4 w-1/3">
-          <div className="flex items-center gap-2">
-            <img src="https://cdn-icons-png.flaticon.com/512/921/921347.png" alt="icon" className="w-20 h-20" />
-            <p className="text-lg font-medium">Get Recommended Mentors</p>
-          </div>
-          <p className="text-[15px] text-gray-600">Professionals from leading companies and universities</p>
-          <button className="text-md bg-teal-500 text-white px-3 py-1 rounded hover:bg-teal-600">
-            View Mentors
-          </button>
-        </div>
-
-        {/* Progress Section */}
-        <div className="bg-blue-100 p-3 rounded-md space-y-4 w-1/3">
-          <div className="flex items-center gap-2">
-            <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="icon" className="w-20 h-20" />
-            <p className="text-lg font-medium">Get Feedback and Track Progress</p>
-          </div>
-          <p className="text-md text-gray-600">
-            Work with mentors and achieve milestones
-          </p>
-          <button className="text-md bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-            View Progress
-          </button>
-        </div>
-
-      
-        
-      {/* </div> */}
-        </div>
-      </div>
-
 
         {/**Discover Mentors */}
 
@@ -670,25 +615,6 @@ useEffect(() => {
                       >
                         Schedule First Call
                       </button>
-                      {/* <Modal
-        opened={opened}
-        onClose={close}
-        title="Schedule First Call"
-        centered
-        fullScreen
-      >
-        <Stepper active={step - 1}>
-          <Stepper.Step label="Step 1"><StepOne/></Stepper.Step>
-          <Stepper.Step label="Step 2"><StepTwo/></Stepper.Step>
-          <Stepper.Step label="Step 3"><StepOne/></Stepper.Step>
-        </Stepper>
-
-        <div className="mt-4 flex gap-2">
-          {step > 1 && <Button onClick={prevStep}>Back</Button>}
-          {step < 3 && <Button onClick={handleNext}>Next</Button>}
-          {step === 3 && <Button onClick={handleSubmit}>Submit</Button>}
-        </div>
-      </Modal> */}
 
                       <button className="bg-white text-blue-400 w-[130px] rounded-xl hover:bg-blue-700 hover:text-white text-sm border-2 border-blue-400 py-2">
                         Learn More
@@ -713,8 +639,8 @@ useEffect(() => {
             style: {
               width: "60vw",
               height: "100vh",
-              maxWidth: "none", 
-              maxHeight: "none", 
+              maxWidth: "none",
+              maxHeight: "none",
             },
           }}
         >
@@ -723,12 +649,21 @@ useEffect(() => {
               <div className="bg-white  rounded shadow-md  min-w-full">
                 {/**Modal Pages */}
                 <Stepper1 step={step} steps={stepsList} />
-                 {step === 1 && 
+                {/* {step === 1 &&  */}
+                <div
+                  className={`flex flex-col justify-center py-5 ${
+                    step === 1 ? "" : "hidden"
+                  }`}
+                >
+                  <ReusableTab
+                    tabs={tabs}
+                    tabIndex={tabIndex}
+                    setTabIndex={setTabIndex}
+                  />
+                </div>
+                {/* } */}
 
- <ReusableTab tabs={tabs} tabIndex={tabIndex} setTabIndex={setTabIndex} />}
-
-
-                {step === 2 && <StepTwo />}
+                {step === 2 && <StepTwo ref={stepTwoRef} />}
                 {/* {step === 3 && <StepThree />} */}
               </div>
             </DialogContentText>
@@ -745,20 +680,19 @@ useEffect(() => {
                 </button>
               )}
               {step < 2 && (
-  <button
-    onClick={handleNext}
-    className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
-    disabled={!moveNext}
-  >
-    Next
-  </button>
-)}
+                <button
+                  onClick={handleNext}
+                  className={`px-4 py-2 text-white rounded !bg-blue-600`}
+                >
+                  Next
+                </button>
+              )}
               {step == 2 && (
                 <button
                   onClick={handleSubmit}
                   className="px-4 py-2 bg-blue-600 text-white rounded"
                 >
-                  Submit
+                  {status ? "Submitting..." : "Submit"}
                 </button>
               )}
             </div>

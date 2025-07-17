@@ -70,7 +70,7 @@ const FeedbackForm: React.FC = () => {
         mentor_responsibility: complete === "yes" ? true : false,
         user_responsibility: complete === "yes" ? true : false,
         check_id: scheduleData ? scheduleData.mentor_id : null,
-        check_meeting_id: id,
+        check_meeting_id: Number(id),
       };
 
       const response = await axios.post(`${baseURL}/feedback`, dataToSend, {
@@ -100,12 +100,13 @@ console.log("response-data",response.data);
             DD
           </div>
           <div>
-            <div className="font-semibold text-lg">Harsh Mentor</div>
+            <div className="font-semibold text-lg"> {scheduleData?scheduleData.mentor_name:null}</div>
             <div className="text-gray-500 text-md">Mentor</div>
           </div>
         </div>
         <div className="text-gray-600 text-lg">
-          <span className="font-medium !text-lg">Session Date:</span> 2025-06-27
+          <span className="font-medium !text-lg">Session Date:</span> {scheduleData?scheduleData.start_datetime.split("T")[0]:null}
+
         </div>
       </div>
 

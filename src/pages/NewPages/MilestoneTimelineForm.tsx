@@ -6,18 +6,34 @@ import baseURL from "@/config/config";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import AvailMilestone from './Milestone';
 
 interface Milestone {
-  title: string;
+  milestone: string;
   description: string;
   expectedCompletionDate: string;
+  mentorFees?:number;
 }
+
+type MilestoneData = {
+  check_id: number;
+  check_meeting_id: number;
+  created_at: string;
+  history_count: number;
+  latest_milestone: Milestone;
+  mentor_id: number;
+  serial_number: number;
+  user_id: number;
+};
 
 const MilestoneTimelineForm: React.FC = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [mentorData, setmentorData] = useState<any>();
+  const[mentorId,setMentorId]=useState<any>();
+  const[stateMilestone,setStateMilestone]=useState<boolean>(false);
+  const [milestoneData,setMilestoneData]=useState<MilestoneData[]>([]);
   const [formData, setFormData] = useState<Milestone>({
-    title: "",
+    milestone: "",
     description: "",
     expectedCompletionDate: "",
   });
@@ -41,7 +57,9 @@ const MilestoneTimelineForm: React.FC = () => {
         }
       );
       console.log("basicInformation---", response.data);
-      setmentorData(response.data);
+      const data=response.data;
+      setmentorData(data);
+      setMentorId(data.mentor_id);
 
       // setBasicInfo([response.data]);
     } catch (error) {
@@ -49,17 +67,61 @@ const MilestoneTimelineForm: React.FC = () => {
     }
   };
 
+ 
+
   useEffect(() => {
     fetchMentorInfo();
   }, []);
 
+   useEffect(() => {
+        // if (!userId || !mentorId) {
+        //     setErrorMessage('Invalid user or mentor ID.');
+        //     setLoading(false);
+        //     return;
+        // }
+console.log("mentor_id",mentorId);
+        const fetchMilestoneData = async () => {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                toast.error('Token not found!');
+                return;
+            }
+            try {
+                const response = await axios.get(`${baseURL}/api/milestone`, {
+                    params: { user_id: parsedUserData.user_id, mentor_id: mentorId },
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (response.data) {
+                    // setMilestones(response.data.milestone);
+                    // setMilestonesSerial(response.data);
+console.log("response-----datttaaa-----response",response.data);
+setStateMilestone(true);
+setMilestoneData([response.data]);
+                    console.log('milestones', response.data);
+                } else {
+                    console.log('No milestones found.');
+                }
+            } catch (error) {
+                console.log('Failed to fetch milestone data.');
+                console.error('Error fetching milestones:', error);
+            } finally {
+                console.log(false);
+            }
+        };
+
+        fetchMilestoneData();
+    }, [parsedUserData.user_id, mentorId]);
+
+  
   const handleChange = (field: keyof Milestone, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
   const addOrUpdateMilestone = () => {
     if (
-      !formData.title ||
+      !formData.milestone ||
       !formData.description ||
       !formData.expectedCompletionDate
     )
@@ -74,7 +136,7 @@ const MilestoneTimelineForm: React.FC = () => {
       setMilestones([...milestones, formData]);
     }
 
-    setFormData({ title: "", description: "", expectedCompletionDate: "" });
+    setFormData({ milestone: "", description: "", expectedCompletionDate: "" });
   };
 
   const handleEdit = (index: number) => {
@@ -86,7 +148,7 @@ const MilestoneTimelineForm: React.FC = () => {
     const updated = milestones.filter((_, i) => i !== index);
     setMilestones(updated);
     if (editIndex === index) {
-      setFormData({ title: "", description: "", expectedCompletionDate: "" });
+      setFormData({ milestone: "", description: "", expectedCompletionDate: "" });
       setEditIndex(null);
     }
   };
@@ -127,6 +189,28 @@ const MilestoneTimelineForm: React.FC = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white min-h-screen">
+{stateMilestone?milestoneData.map((item)=>
+  <AvailMilestone
+  data={{
+    check_id:item.check_id ,
+    check_meeting_id: item.check_meeting_id,
+    created_at: item.created_at,
+    history_count: item.history_count,
+    latest_milestone: {
+      description: item.latest_milestone.description,
+      expectedCompletionDate: item.latest_milestone.expectedCompletionDate,
+      mentorFees: Number(item.latest_milestone.mentorFees),
+      milestone: item.latest_milestone.milestone,
+    },
+    mentor_id: item.mentor_id,
+    serial_number: item.serial_number,
+    user_id: item.user_id,
+  }}
+/>
+)
+
+:
+      <div>
       <h1 className="text-2xl font-bold text-center mb-6">
         Milestone Timeline Form
       </h1>
@@ -141,8 +225,8 @@ const MilestoneTimelineForm: React.FC = () => {
             <input
               type="text"
               placeholder="Milestone Title"
-              value={formData.title}
-              onChange={(e) => handleChange("title", e.target.value)}
+              value={formData.milestone}
+              onChange={(e) => handleChange("milestone", e.target.value)}
               className="w-full p-2 border rounded"
             />
             <textarea
@@ -188,7 +272,7 @@ const MilestoneTimelineForm: React.FC = () => {
                 <div className="bg-gray-100 p-4 rounded-md shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                   {/* Milestone Content */}
                   <div>
-                    <h3 className="font-bold text-base">{milestone.title}</h3>
+                    <h3 className="font-bold text-base">{milestone.milestone}</h3>
                     <p className="text-sm text-gray-700">
                       {milestone.description}
                     </p>
@@ -218,6 +302,7 @@ const MilestoneTimelineForm: React.FC = () => {
           )}
         </div>
       </div>
+      </div>}
     </div>
   );
 };
