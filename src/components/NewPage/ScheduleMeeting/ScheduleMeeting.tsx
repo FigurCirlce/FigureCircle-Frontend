@@ -1,10 +1,5 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
-import {
-  
- 
-Typography,
-  Paper,
-} from "@mui/material";
+import { Typography, Paper } from "@mui/material";
 import pic from "../../../assets/pic.jpg";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -16,6 +11,7 @@ import MeetingTable from "../ScheduleMeeting/MeetingTable.tsx";
 import axios from "axios";
 import baseURL from "@/config/config.tsx";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 //@ts-ignore
 import CryptoJS from "crypto-js";
 
@@ -44,7 +40,6 @@ interface Slot {
   endTime: string;
 }
 
-
 export interface Mentor {
   background: string;
   degree: string;
@@ -52,7 +47,7 @@ export interface Mentor {
   expertise: string;
   fee: string;
   linkedin: string;
-  mentor_id: number |null;
+  mentor_id: number | null;
   milestones: number;
   name: string;
   phone: string;
@@ -65,13 +60,16 @@ export interface MentorResponse {
   mentors: Mentor[];
 }
 
-const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
-) => {
+const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-//  const[selectedMentor,setSelectedMentor]=useState<>()
- 
+  const [refreshKey, setRefreshKey] = useState(0);
+  //  const[selectedMentor,setSelectedMentor]=useState<>()
+  const [tempSelectedTime, setTempSelectedTime] = useState<string | null>(null);
+  const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(null);
+
   const [durationOpen, setDurationOpen] = useState(false);
   // const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+   //@ts-ignore
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [mentorsList, setMentorsList] = useState<
     {
@@ -86,10 +84,8 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = (
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
-const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
-  const[user_id,setUser_id]=useState<number|null>(null);
- 
-
+  const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
+  const [user_id, setUser_id] = useState<number | null>(null);
 
   //  const[user_id,setUser_id]=useState(0);
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
@@ -110,7 +106,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
   {
     /**Reused */
   }
-  
+
   const [formData, setFormData] = useState<Schedule>({
     id: 0,
     name: "",
@@ -118,7 +114,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     start_date: "",
     duration: "30",
     //@ts-ignore
-    mentor_id:null,
+    mentor_id: null,
     user_id: "",
     mentor_email: "",
     mentor_phone: "",
@@ -152,9 +148,35 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     fetchAssignedMentor();
   }, []);
 
-  {/**Converting into ISO format */}
-  const convertDateAndTimeToISO = (date: Date, timeString: string): void => {
-    const dateObj = new Date(date); 
+  {
+    /**Converting into ISO format */
+  }
+  // const convertDateAndTimeToISO = (date: Date, timeString: string): void => {
+  //   const dateObj = new Date(date);
+  //   const [time, modifier] = timeString.split(" ");
+  //   let [hours, minutes] = time.split(":").map(Number);
+
+  //   if (modifier === "PM" && hours !== 12) hours += 12;
+  //   if (modifier === "AM" && hours === 12) hours = 0;
+
+  //   dateObj.setHours(hours);
+  //   dateObj.setMinutes(minutes);
+  //   dateObj.setSeconds(0);
+  //   dateObj.setMilliseconds(0);
+
+  //   const pad = (n: number) => n.toString().padStart(2, "0");
+  //   const year = dateObj.getFullYear();
+  //   const month = pad(dateObj.getMonth() + 1);
+  //   const day = pad(dateObj.getDate());
+  //   const hour = pad(dateObj.getHours());
+  //   const minute = pad(dateObj.getMinutes());
+
+  //   const start_date: string = `${year}-${month}-${day}T${hour}:${minute}`;
+  //   setFormData((prev) => ({ ...prev, start_date }));
+  // };
+
+  const convertDateAndTimeToISO = (date: Date, timeString: string): string => {
+    const dateObj = new Date(date);
     const [time, modifier] = timeString.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
 
@@ -173,14 +195,16 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     const hour = pad(dateObj.getHours());
     const minute = pad(dateObj.getMinutes());
 
-    const start_date: string = `${year}-${month}-${day}T${hour}:${minute}`;
-    setFormData((prev) => ({ ...prev, start_date }));
+    return `${year}-${month}-${day}T${hour}:${minute}`;
   };
 
   const handleSelect = (date: Date, time: string) => {
-    setSelectedSlot(time);
-  convertDateAndTimeToISO(date, time);
-   
+    //   setSelectedSlot(time);
+    // convertDateAndTimeToISO(date, time);
+    setTempSelectedDate(date);
+    setTempSelectedTime(time);
+    setDurationOpen(true);
+
     setDurationOpen(true);
   };
 
@@ -224,10 +248,6 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     return date.toISOString().slice(0, 16); // Format to match datetime-local input
   };
 
-  
-
-    
-
   useEffect(() => {
     const fetchMentors = async () => {
       try {
@@ -253,7 +273,6 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     };
 
     fetchMentors();
-
   }, []);
 
   const handleInputChange = (
@@ -322,20 +341,49 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
 
     //   setUser_id(parsedUserData.id);
     // }
-    const user=localStorage.getItem("user");
-    if(user){
-       const parsedUserData = JSON.parse(user);
-      setUser_id(parsedUserData.user_id);
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUserData = JSON.parse(user);
+      if (parsedUserData.is_mentor) {
+        fetchMentorDetail(parsedUserData.user_id);
+      } else {
+        setUser_id(parsedUserData.user_id);
+      }
     }
   }, []);
 
-    const fetchMentorData = async () => {
+  const fetchMentorDetail = async (id: any) => {
+    const endpoint = `${baseURL}/api/mentor/details?user_id=${id}`;
+
     try {
-      const response = await axios.get(`${baseURL}/api/mentor/details?user_id=${user_id}`, {
+      const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (response.data) {
+        console.log("response--data---fetchMentor-dattttaa---", response.data);
+        // setAssignedMentorData(response.data.mentors);
+        setUser_id(response.data.mentor_id);
+      } else {
+        console.log("No Mentors found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Assigned Mentors:", error);
+    }
+  };
+
+  const fetchMentorData = async () => {
+    try {
+      const response = await axios.get(
+        `${baseURL}/api/mentor/details?user_id=${user_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.data) {
         console.log("response--data---fetchMentor-dattttaa---", response.data);
@@ -348,21 +396,41 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     fetchMentorData();
   }, [user_id]);
 
-
+  const notifySuccess = (msg = "Schedule created successfully!") => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    // setCount(count + 1);
+    e.preventDefault();
+    console.log("formdata----", formData);
+
+    if (!tempSelectedDate || !tempSelectedTime) {
+      alert("Please select date and time");
+      return;
+    }
     try {
-      e.preventDefault();
-      console.log("formdata----", formData);
-      //  setCount(count + 1);
-      // setLoading(true);
-      // setError("");
-      // setSuccessMessage("");
+      const startDateISO = convertDateAndTimeToISO(
+        tempSelectedDate,
+        tempSelectedTime
+      );
+      // const endDate = calculateEndDate(startDateISO, formData.duration);
+
+      // Now continue with the rest of your logic
+      const updatedFormData = {
+        ...formData,
+        start_date: startDateISO,
+      };
 
       const userData = localStorage.getItem("userlocaldata");
       const userData2 = localStorage.getItem("degree");
@@ -384,7 +452,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
 
         const secretKey = "meetingkeys";
         console.log("secretKey----", secretKey);
-        const startDate = formData.start_date;
+        const startDate = updatedFormData.start_date;
         console.log("startDate----", startDate);
         const endDate = calculateEndDate(startDate, formData.duration);
         console.log("endDate----", endDate);
@@ -427,7 +495,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
 
         console.log("meetingLink----", meetingLink);
         const scheduleData = {
-          name: parsedUserData2.firstname|| "",
+          name: parsedUserData2.firstname || "",
           email: parsedUserData.username || "",
           start_datetime: startDate,
           end_datetime: endDate,
@@ -449,9 +517,15 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
           `${baseURL}/api/schedule`,
           scheduleData
         );
-        alert(response.data.message);
+        notifySuccess();
+        setDurationOpen(false);
+        setSelectedMentorId(null);
+        // alert(response.data.message);
         //@ts-ignore
-        setSuccessMessage(response.data.message);
+
+        // setSuccessMessage(response.data.message);
+
+        setRefreshKey(Date.now());
         setSchedules((prev) => [
           ...prev,
           {
@@ -471,13 +545,14 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
           mentor_email: "",
           mentor_phone: "",
           mentor_linkedin: "",
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
       } else {
         //@ts-ignore
         setError("User data not found in localStorage.");
       }
     } catch (err: any) {
-        //@ts-ignore
+      //@ts-ignore
       setError(err.response?.data?.error || "An error occurred");
       alert("An error occured");
     } finally {
@@ -485,9 +560,6 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     }
   };
 
-
-
- 
   // Helper to convert "HH:mm" to Date object
   //@ts-ignore
   const parseTime = (timeStr) => {
@@ -496,7 +568,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     date.setHours(hours, minutes, 0, 0);
     return date;
   };
-                //@ts-ignore
+  //@ts-ignore
 
   // Format Date to "h:mm A" format
   const formatTime = (date) => {
@@ -507,7 +579,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     return `${hours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
   };
 
-                //@ts-ignore
+  //@ts-ignore
   // Generate 30-minute intervals
   const getTimeSlots = (start, end) => {
     const slots = [];
@@ -523,118 +595,6 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
     return slots;
   };
 
-//  const Mentorsettings = {
-//     // dots: true,
-//     arrows: true,
-//     infinite: true,
-//     speed: 500,
-//     slidesToShow: 3,
-//     slidesToScroll: 1,
-//     initialSlide: 0,
-//     cssEase: "linear",
-//     responsive: [
-//       // {
-//       //   breakpoint: 1024,
-//       //   settings: {
-//       //     slidesToShow: 3,
-//       //     slidesToScroll: 3,
-//       //     infinite: true,
-//       //   },
-//       // },
-//       {
-//         breakpoint: 1024,
-//         settings: {
-//           slidesToShow: 2,
-//           slidesToScroll: 2,
-//           initialSlide: 2,
-//           infinite: true,
-//         },
-//       },
-//       {
-//         breakpoint: 768,
-//         settings: {
-//           slidesToShow: 1,
-//           slidesToScroll: 1,
-//           infinite: true,
-//         },
-//       },
-//     ],
-//   };
-
-  {
-    /**Mentor Slider Next Arrow */
-  }
-  // const NextArrow = (props: any) => {
-  //   const { onClick } = props;
-  //   return (
-  //     <div
-  //       onClick={onClick}
-  //       className="custom-next absolute bottom-[50%] right-[0%] cursor-pointer"
-  //     >
-  //       ▶
-  //     </div>
-  //   );
-  // };
-
-  
-
-// const handleMentorSelect = (mentorId: number | null) => {
-//   setSelectedMentorId(mentorId);
-//   // If you have an onChange or form update function, call it here
-// };
-
-// const mentorsList1 = [
-//   {
-//     mentor_id: 1,
-//     name: "Alice Johnson",
-//     email: "alice.johnson@example.com",
-//     image: "https://i.pravatar.cc/150?img=1",
-//   },
-//   {
-//     mentor_id: 2,
-//     name: "Bob Smith",
-//     email: "bob.smith@example.com",
-//     image: "https://i.pravatar.cc/150?img=2",
-//   },
-//   {
-//     mentor_id: 3,
-//     name: "Charlie Williams",
-//     email: "charlie.williams@example.com",
-//     image: "https://i.pravatar.cc/150?img=3",
-//   },
-//   {
-//     mentor_id: 4,
-//     name: "Diana Patel",
-//     email: "diana.patel@example.com",
-//     image: "https://i.pravatar.cc/150?img=4",
-//   },
-//   {
-//     mentor_id: 5,
-//     name: "Edward Kim",
-//     email: "edward.kim@example.com",
-//     image: "https://i.pravatar.cc/150?img=5",
-//   },
-//   {
-//     mentor_id: 6,
-//     name: "Fiona Garcia",
-//     email: "fiona.garcia@example.com",
-//     image: "https://i.pravatar.cc/150?img=6",
-//   },
-//   {
-//     mentor_id: 7,
-//     name: "George Liu",
-//     email: "george.liu@example.com",
-//     image: "https://i.pravatar.cc/150?img=7",
-//   },
-//   {
-//     mentor_id: 8,
-//     name: "Hannah Lee",
-//     email: "hannah.lee@example.com",
-//     image: "https://i.pravatar.cc/150?img=8",
-//   },
-// ];
-
-  
   return (
     <Paper elevation={4} className="p-6 w-full  mx-auto  rounded-2xl">
       <Typography
@@ -646,39 +606,40 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
 
       {/* Mentor Selection at Top */}
       <form onSubmit={handleSubmit} className="space-y-4 w-full">
-        <h1 className="flex justify-center font-semibold text-xl">Select a Mentor</h1>
+        <h1 className="flex justify-center font-semibold text-xl">
+          Select a Mentor
+        </h1>
         <div className="flex justify-center ">
-          
-   <div className="flex gap-4 overflow-x-auto py-2 w-[70%]">
-  {mentorsList.map((mentor) => (
-    <div
-      key={mentor.mentor_id}
-      onClick={() => {
-        setSelectedMentorId(mentor.mentor_id);
-        setFormData((prev) => ({
-          ...prev,
-          mentor_id: mentor.mentor_id,
-          mentor_email: mentor.email,
-        }));
-      }}
-      className={`min-w-[200px] cursor-pointer rounded-xl p-4 shadow-md border transition-all duration-300 ${
-        selectedMentorId === mentor.mentor_id
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-300 bg-white'
-      }`}
-    >
-      <img
-        src={pic}
-        alt={mentor.name}
-        className="w-16 h-16 rounded-full object-cover mb-2"
-      />
-      <div className="text-sm font-semibold">{mentor.name}</div>
-      <div className="text-xs text-gray-600">{mentor.email}</div>
-    </div>
-  ))}
-</div>
+          <div className="flex gap-4 overflow-x-auto py-2 w-[70%]">
+            {mentorsList.map((mentor) => (
+              <div
+                key={mentor.mentor_id}
+                onClick={() => {
+                  setSelectedMentorId(mentor.mentor_id);
+                  setFormData((prev) => ({
+                    ...prev,
+                    mentor_id: mentor.mentor_id,
+                    mentor_email: mentor.email,
+                  }));
+                }}
+                className={`min-w-[200px] cursor-pointer rounded-xl p-4 shadow-md border transition-all duration-300 ${
+                  selectedMentorId === mentor.mentor_id
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-300 bg-white"
+                }`}
+              >
+                <img
+                  src={pic}
+                  alt={mentor.name}
+                  className="w-16 h-16 rounded-full object-cover mb-2"
+                />
+                <div className="text-sm font-semibold">{mentor.name}</div>
+                <div className="text-xs text-gray-600">{mentor.email}</div>
+              </div>
+            ))}
+          </div>
 
-            {formData.mentor_id && (
+          {/* {formData.mentor_id && (
               <div className="ml-5">
                 <label className="block text-sm font-medium text-gray-700">
                   Email:
@@ -691,11 +652,8 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
                   />
                 </label>
               </div>
-            )}
-        
-  
-          </div>
-        
+            )} */}
+        </div>
 
         {/* Calendar and Time Slots Side by Side */}
         <div className="flex flex-col md:flex-row gap-2 mb-1">
@@ -727,8 +685,6 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
             </Typography>
             <div className={`w-full `}>
               <div className="w-full">
-              
-
                 {assignedMentorData?.map((mentor, mentorIndex) => (
                   <div key={mentorIndex} className="mb-6 w-full">
                     {mentor.availability?.map((slot, slotIndex) => {
@@ -749,6 +705,7 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
 
                               return (
                                 <button
+                                  type="button"
                                   key={timeIndex}
                                   onClick={() => {
                                     // setSelectedSlot(formatted);
@@ -813,10 +770,8 @@ const [selectedMentorId, setSelectedMentorId] = useState<number | null>(null);
           )}
         </div>
       </form>
-      
-    
-      {user_id && <MeetingTable user_id={user_id} />}
 
+      {user_id && <MeetingTable user_id={user_id} refreshKey={refreshKey} />}
     </Paper>
   );
 };

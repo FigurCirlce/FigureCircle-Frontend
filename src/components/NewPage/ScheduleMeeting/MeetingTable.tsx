@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import baseURL from "@/config/config";
 
+
 interface Meeting {
   user_id: number;
   mentorName: string;
@@ -40,11 +41,13 @@ function convertDateTime(datetimeStr: string | number | Date): string {
 
 type MeetingTableProps = {
   user_id: number;
+  refreshKey?: number;
 };
 //@ts-ignore
-const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
+const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+
   const pageSize = 5;
 
   const totalPages = Math.ceil(meetingData.length / pageSize);
@@ -54,11 +57,14 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
   );
 
   const fetchMeetingData = async () => {
+     const user=localStorage.getItem("user");
+     const parsedUserData = user?JSON.parse(user):null;
+       
     console.log("user_id FetchMeetingData----", user_id);
     try {
       const response = await axios.get(`${baseURL}/api/schedules`, {
         // params: { user_id: 3},
-        params: { user_id: user_id },
+        params: parsedUserData.is_mentor? {mentor_id: user_id}:{user_id:user_id},
       });
 
       if (response.data) {
@@ -79,7 +85,8 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id }) => {
 
   useEffect(() => {
     fetchMeetingData();
-  }, []);
+    console.log("refreshkey---");
+  }, [user_id,refreshKey]);
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
