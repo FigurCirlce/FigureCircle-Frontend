@@ -48,12 +48,14 @@ const Register:React.FC<RegisterProps> = ({type,setShowLogin}) => {
     try {
       const response = await axios.post(`${baseUrl}/register`, { username:email, password });
       console.log('Registration successful:', response.data);
+      // localStorage.setItem("isRegistered",JSON.stringify(true));
       notifySuccess(); // Show success toast
       // Redirect to the login page using window.location.href
       if(type=='modal') {setShowLogin?.(true);}
       else{
           window.location.href = '/login';
       }
+     
      
     } catch (error) {
       console.error('Registration failed:', error);

@@ -1,6 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import baseURL from "@/config/config";
+import FeedbackPopup from "../FeedbackPopup.tsx";
+
+
+// interface FeedbackData {
+//   check_id: number;
+//   check_meeting_id: number;
+//   created_at: string;
+//   feedback_id: number;
+//   mentor_id: number;
+//   mentor_responsibility: boolean;
+//   milestone: string;
+//   milestone_achieved: boolean;
+//   next_steps_identified: boolean;
+//   progress_rating: number;
+//   user_id: number;
+//   user_responsibility: boolean;
+// }
+
+// interface FeedbackPopupProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   feedbackData: FeedbackData[];
+//   // meetingId: number;
+// }
+
 
 
 interface Meeting {
@@ -32,12 +57,61 @@ function convertDateTime(datetimeStr: string | number | Date): string {
   const minutes = String(dateObj.getMinutes()).padStart(2, "0");
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
+  
 
+  
   const time = `${hours}:${minutes} ${ampm}`;
   const formattedDate = `${day}/${month}/${year}`;
 
   return `${formattedDate} ${time}`;
 }
+
+const feedbackdataSchedule=
+[
+    {
+        "check_id": 40,
+        "check_meeting_id": 984,
+        "created_at": "Tue, 22 Apr 2025 14:38:15 GMT",
+        "feedback_id": 8,
+        "mentor_id": 2,
+        "mentor_responsibility": true,
+        "milestone": "milestone added",
+        "milestone_achieved": true,
+        "next_steps_identified": true,
+        "progress_rating": 100,
+        "user_id": 40,
+        "user_responsibility": true
+    },
+    {
+        "check_id": 40,
+        "check_meeting_id": 600,
+        "created_at": "Tue, 22 Apr 2025 16:09:55 GMT",
+        "feedback_id": 10,
+        "mentor_id": 2,
+        "mentor_responsibility": true,
+        "milestone": "project discussion",
+        "milestone_achieved": true,
+        "next_steps_identified": true,
+        "progress_rating": 5,
+        "user_id": 40,
+        "user_responsibility": true
+    },
+    {
+        "check_id": 40,
+        "check_meeting_id": 1011,
+        "created_at": "Tue, 08 Jul 2025 06:16:56 GMT",
+        "feedback_id": 11,
+        "mentor_id": 40,
+        "mentor_responsibility": true,
+        "milestone": "Complete project draft",
+        "milestone_achieved": true,
+        "next_steps_identified": true,
+        "progress_rating": 4,
+        "user_id": 40,
+        "user_responsibility": true
+    }
+]
+
 
 type MeetingTableProps = {
   user_id: number;
@@ -47,6 +121,7 @@ type MeetingTableProps = {
 const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const pageSize = 5;
 
@@ -87,6 +162,12 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
     fetchMeetingData();
     console.log("refreshkey---");
   }, [user_id,refreshKey]);
+
+  const handleFeedbackPopup=(user_id:number,mentor_id:number)=>{
+console.log("user_id",user_id);
+console.log("mentor_id",mentor_id);
+//fetch feedback API here
+  }
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
@@ -156,14 +237,12 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
                     </a>
                   </td>
                   <td className="p-2 border">
-                    <a
-                      href={meeting.feedbackLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                     onClick={()=>handleFeedbackPopup(meeting.user_id,meeting.mentor_id)} //in this i have to send user_id and mentor_id to fetch feedback then I have to fetch feedback data and there I should also set meeting id
                       className="text-blue-600 underline hover:text-blue-800"
                     >
                       Feedback
-                    </a>
+                    </button>
                   </td>
                 </tr>
               ))
@@ -194,6 +273,14 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
           </button>
         </div>
       </div>
+       <FeedbackPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        // feedbackData={selectedFeedback}
+         feedbackData={feedbackdataSchedule}
+      //  meetingId={selectedMeetingId}
+        // meetingId={600}
+      />
     </div>
   );
 };

@@ -35,8 +35,9 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
     setActivePage(title);         
   };
 
-  const userData = JSON.parse(localStorage.getItem("userlocaldata") || "{}");
-const username = userData.username;
+  // const userData = JSON.parse(localStorage.getItem("userlocaldata") || "{}");
+    const userData = JSON.parse(localStorage.getItem("degree") || "{}");
+const username = userData.firstname;
 
   return (
     <>

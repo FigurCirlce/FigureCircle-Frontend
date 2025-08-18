@@ -9,6 +9,7 @@ import { useUserContext } from "../../components/context/userContext";
 import { Check } from "lucide-react";
 import { X } from "lucide-react";
 import { Linkedin } from "lucide-react";
+import ExpertiseInfoRow from "../../pages/NewPages/ExpertiseInRow";
 
 interface BasicInfo {
   emailid: string;
@@ -18,6 +19,8 @@ interface BasicInfo {
   interested_stream: string;
   lastname: string;
   useruniqid: string;
+  work_experience: string;
+  role_based: string;
 }
 
 export interface MentorDetails {
@@ -68,10 +71,10 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = event.target.value;
-    setSearchQuery(value); // update visible input
+    setSearchQuery(value);
     setFormData((prev) => ({
       ...prev,
-      interested_stream: value, // sync to formData
+      interested_stream: value,
     }));
   };
 
@@ -157,7 +160,8 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
       }
       // setBasicInfo([response.data]);
       console.log("response.data---setdegreee---", response.data);
-      setDegree(response.data.interested_stream);
+      // setDegree(response.data.interested_stream);
+      setDegree(response.data.role_based);
       setFormData(response.data);
     } catch (error) {
       console.log(error);
@@ -577,6 +581,30 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                       className="border p-1 rounded"
                     />
                   </div>
+
+                  <p>
+                    <label className="font-semibold mr-2">
+                      Work Experience:
+                    </label>
+                    <input
+                      type="text"
+                      name="work_experience"
+                      value={formData.work_experience || ""}
+                      onChange={handleChange}
+                      className="border p-1 rounded"
+                    />
+                  </p>
+                  <p>
+                    <label className="font-semibold mr-2">Role:</label>
+                    <input
+                      type="text"
+                      name="role_based"
+                      value={formData.role_based || ""}
+                      onChange={handleChange}
+                      className="border p-1 rounded"
+                    />
+                  </p>
+
                   {/* <div className="flex gap-4 mt-4">
                 <button
                   className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
@@ -609,10 +637,22 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                     {item.firstname} {item.lastname}
                   </p>
                   <p>
+                    <span className="font-semibold mr-2">Email:</span>
+                    {item.useruniqid}
+                  </p>
+                  <p>
                     <span className="font-semibold mr-2">
                       Highest Education:
                     </span>
                     {item.high_education}
+                  </p>
+                  <p>
+                    <span className="font-semibold mr-2">Work Experience:</span>
+                    {item.work_experience}
+                  </p>
+                  <p>
+                    <span className="font-semibold mr-2">Role:</span>
+                    {item.role_based}
                   </p>
                   <p>
                     <span className="font-semibold mr-2">
@@ -620,10 +660,10 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                     </span>
                     {item.interested_stream}
                   </p>
-                  <p>
+                  {/* <p>
                     <span className="font-semibold mr-2">Email:</span>
                     {item.useruniqid}
-                  </p>
+                  </p> */}
                 </>
               )}
             </div>
@@ -711,15 +751,18 @@ const Profile = () => {
   const { userData } = useUserContext();
 
   return (
-    <div
-      className={`${
-        userData.is_mentor
-          ? "flex justify-center"
-          : "flex flex-col md:flex-row gap-6 p-6"
-      } bg-gray-50 max-h-screen`}
-    >
-      <InfoCard setDegree={setDegree} />
-      {userData.is_mentor ? "" : <DreamProfileCard degree={degree} />}
+    <div>
+      <div
+        className={`${
+          userData.is_mentor
+            ? "flex justify-center"
+            : "flex flex-col md:flex-row gap-6 p-6"
+        } bg-gray-50 max-h-screen`}
+      >
+        <InfoCard setDegree={setDegree} />
+        {userData.is_mentor ? "" : <DreamProfileCard degree={degree} />}
+      </div>
+      {userData.is_mentor ? <ExpertiseInfoRow /> : ""}
     </div>
   );
 };

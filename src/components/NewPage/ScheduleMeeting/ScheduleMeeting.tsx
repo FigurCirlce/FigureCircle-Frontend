@@ -15,6 +15,9 @@ import { toast } from "react-toastify";
 //@ts-ignore
 import CryptoJS from "crypto-js";
 
+
+
+
 interface Schedule {
   id: number;
   name: string;
@@ -60,6 +63,16 @@ export interface MentorResponse {
   mentors: Mentor[];
 }
 
+// const Transition = React.forwardRef(function Transition(
+//   props: TransitionProps & {
+//     children: React.ReactElement<any, any>;
+//   },
+//   ref: React.Ref<unknown>
+// ) {
+//   return <Slide direction="up" ref={ref} {...props} />;
+// });
+
+
 const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [refreshKey, setRefreshKey] = useState(0);
@@ -68,6 +81,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
   const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(null);
 
   const [durationOpen, setDurationOpen] = useState(false);
+  
   // const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
    //@ts-ignore
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -205,7 +219,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
     setTempSelectedTime(time);
     setDurationOpen(true);
 
-    setDurationOpen(true);
+    // setDurationOpen(true);
   };
 
   {
@@ -341,13 +355,14 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
 
     //   setUser_id(parsedUserData.id);
     // }
-    const user = localStorage.getItem("user");
+     const user = localStorage.getItem("user");
+    // const user = localStorage.getItem("user");
     if (user) {
       const parsedUserData = JSON.parse(user);
       if (parsedUserData.is_mentor) {
         fetchMentorDetail(parsedUserData.user_id);
       } else {
-        setUser_id(parsedUserData.user_id);
+        setUser_id(parsedUserData?.user_id);
       }
     }
   }, []);
@@ -679,7 +694,7 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
           </div>
 
           {/* Time Slots */}
-          <div className={`w-[250px]`}>
+          <div className={`w-[300px]`}>
             <Typography className="mb-4 text-sm text-gray-600">
               Pick a time interval
             </Typography>
@@ -732,6 +747,8 @@ const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
               </div>
             </div>
           </div>
+
+            
           {/**Duration */}
           {durationOpen && (
             <div className="flex gap-5  ">

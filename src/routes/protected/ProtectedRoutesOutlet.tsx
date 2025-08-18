@@ -13,7 +13,8 @@ const ProtectedRoutesOutlet = () => {
       <Outlet />
     </>
   ) : (
-    <Navigate to="/login" />
+    // <Navigate to="/login" />
+     <Navigate to="/login" />
   );
 };
 
