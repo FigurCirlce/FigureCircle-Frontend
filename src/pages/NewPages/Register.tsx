@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User, Lock, Mail } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,16 +24,24 @@ interface FormErrors {
   confirmPassword?: string;
 }
 
+interface sendData{
+  fullName?: string;
+  email?: string;
+  password?:string;
+}
+
 interface RegisterProps {
   type?: string;
   setTabIndex?: (index: number) => void;
   onRegisterSuccess?: () => void;
+   sendData?: (data: sendData) => void; 
 }
+
 
 //@ts-ignore
 const Register: ForwardRefRenderFunction<any, RegisterProps> = (
   // { type, setTabIndex, onRegisterSuccess },
-  { setTabIndex },
+  { setTabIndex ,sendData},
   ref
 ) => {
   const [formData, setFormData] = useState<FormData>({
@@ -42,6 +50,8 @@ const Register: ForwardRefRenderFunction<any, RegisterProps> = (
     password: "",
     confirmPassword: "",
   });
+
+ 
 
   const [errors, setErrors] = useState<FormErrors>({});
   // const [loading, setLoading] = useState(false);
@@ -114,7 +124,21 @@ const Register: ForwardRefRenderFunction<any, RegisterProps> = (
   //for ref in homepage
   useImperativeHandle(ref, () => ({
     handleSubmit,
+//    getFormData: () => ({
+//   fullName: formData.fullName,
+//   email: formData.email
+// }),
   }));
+
+ 
+useEffect(() => {
+  const dataTosend={
+    fullName: formData.fullName,
+    email: formData.email,
+    password:formData.password
+  }
+    sendData?.(dataTosend);
+  }, [formData.fullName,formData.email,formData.password]);
 
   return (
     <div className="min-h-full  flex items-center justify-center">

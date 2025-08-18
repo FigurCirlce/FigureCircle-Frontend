@@ -5,6 +5,7 @@ import pic from "../../assets/pic.jpg";
 import axios from "axios";
 import baseURL from "@/config/config";
 import { useUserContext } from "@/components/context/userContext";
+import MilestonePreview from "@/components/NewPage/Dashboard/MilestonePreview";
 
 // Define Interfaces
 interface ProgressAPIResponse {
@@ -157,9 +158,12 @@ const LandingDashboard: React.FC = () => {
     if (selectedExpertKey == null) return;
 
     // console.log("userDatttaDegree---", degree);
-     const degree = localStorage.getItem("degree"); //degree has user_id
-    const degreeData = degree ? JSON.parse(degree) : null;
-    const user_id = degreeData?.id;
+    //  const degree = localStorage.getItem("degree"); //degree has user_id
+    // const degreeData = degree ? JSON.parse(degree) : null;
+    // const user_id = degreeData?.id;
+      const userData = localStorage.getItem("userData"); //degree has user_id
+    const parseUserData = userData? JSON.parse(userData) : null;
+    const user_id = parseUserData?.user_id;
 console.log("user_id",user_id);
     const fetchProgressData = async () => {
       try {
@@ -317,7 +321,7 @@ console.log("user_id",user_id);
               course.map((item, i) => (
                 <div
                   key={i}
-                  className="border-2 border-slate-200 w-[300px] rounded-lg shadow-lg"
+                  className="border-2 border-slate-200 w-[250px] rounded-lg shadow-lg"
                 >
                   <img src={coding} alt="Course" className="mb-2" />
                   <button className="bg-orange-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
@@ -344,7 +348,7 @@ console.log("user_id",user_id);
               certificate.map((item, i) => (
                 <div
                   key={i}
-                  className="border-2 border-slate-200 w-[300px] rounded-lg shadow-lg"
+                  className="border-2 border-slate-200 w-[250px] rounded-lg shadow-lg"
                 >
                   <img src={coding} alt="Certification" className="mb-2" />
                   <button className="bg-blue-500 text-white px-2 rounded-2xl text-xs my-2 mx-4">
@@ -369,7 +373,7 @@ console.log("user_id",user_id);
               competition.map((item, i) => (
                 <div
                   key={i}
-                  className="border-2 border-slate-200 w-[300px] rounded-lg shadow-lg"
+                  className="border-2 border-slate-200 w-[250px] rounded-lg shadow-lg"
                 >
                   <img src={coding} alt="Competition" className="mb-2" />
                   <button className="bg-green-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
@@ -387,8 +391,10 @@ console.log("user_id",user_id);
         </div>
 
         {/* Expert Section */}
+        {assignedMentorData.length===0?<div className=""><MilestonePreview/></div>:
         <div className="flex flex-col lg:flex-row gap-5 w-full">
           {/* Expert List */}
+        
           <div className="bg-white rounded-2xl shadow p-6 w-[400px]">
             <h2 className="text-2xl font-bold mb-4">{userData.is_mentor?"Your Mentees":"Your Experts"}</h2>
             <div className="space-y-4 w-[350px]">
@@ -544,6 +550,7 @@ console.log("user_id",user_id);
             )}
           </div>
         </div>
+}
       </div>
     </div>
   );

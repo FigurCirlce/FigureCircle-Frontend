@@ -42,7 +42,7 @@ const ProtectedRoutes = (user: any) => {
         component: <Home />,
     },
     {
-        path: '/expert',
+        path: '/expert/:id',
         component: <Mentor />,
     },
     {

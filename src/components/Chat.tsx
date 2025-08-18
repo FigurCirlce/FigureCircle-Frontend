@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const Chat: React.FC = () => {
+
+
+
+
+
+
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ message: string; source: string }[]>([]);
     const [loading, setLoading] = useState(false);

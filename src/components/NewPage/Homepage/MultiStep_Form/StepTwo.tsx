@@ -1,33 +1,36 @@
 import React, { useState } from "react";
-import axios from "axios";
-import baseURL from "@/config/config";
-import { toast } from "react-toastify";
+
 import {
   useImperativeHandle,
   forwardRef,
   ForwardRefRenderFunction,
 } from "react";
 
-const StepTwo: ForwardRefRenderFunction<any, {}> = (_, ref) => {
+
+interface StepTwoProps {
+  formData: {
+    fullName: string;
+    email: string;
+  };
+   degree?: (data: object) => void; 
+}
+
+
+
+
+
+const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree}, ref) => {
+ 
   const [userInfo, setUserInfo] = useState({
-    firstname: "",
-    lastname: "",
-    emailid: "",
+    emailid:"",
+   
+    work_experience: "",
     high_education: "",
     interested_stream: "",
     data_filed: false,
   });
 
-  const notifySuccess = (msg = "Saved successfully!") => {
-    toast.success(msg, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-    });
-  };
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -37,42 +40,67 @@ const StepTwo: ForwardRefRenderFunction<any, {}> = (_, ref) => {
     setUserInfo((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("-------userInfo------", userInfo);
+     const nameParts = formData.fullName.trim().split(/\s+/);
+  const firstname = nameParts[0] || "";
+  const lastname = nameParts.slice(1).join(" ") || "";
     const newUserInfo = {
       ...userInfo,
       data_filed: true,
-      useruniqid: userInfo.emailid,
-    };
-    // setUserInfo(prev => ({ ...prev, data_filed: true }));
-    console.log("newUSERINFO----------", newUserInfo);
+      emailid:formData.email,
+      useruniqid: formData.email,
+      firstname,
+      lastname,
 
-    try {
-      //             const response = await axios.post(`${baseURL}/api/basic-info`, newUserInfo,
-      //                 {
-      //           headers: {
-      //             Authorization: `Bearer ${
+    };
+     degree?.(newUserInfo);
+    }
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   console.log("-------userInfo------", userInfo);
+  //     const nameParts = formData.fullName.trim().split(/\s+/);
+  // const firstname = nameParts[0] || "";
+  // const lastname = nameParts.slice(1).join(" ") || "";
+  //   const newUserInfo = {
+  //     ...userInfo,
+  //     data_filed: true,
+  //     emailid:formData.email,
+  //     useruniqid: formData.email,
+  //     firstname,
+  //     lastname,
+
+  //   };
+  //   // setUserInfo(prev => ({ ...prev, data_filed: true }));
+  //   console.log("newUSERINFO----------", newUserInfo);
+
+  //   try {
+  //     //             const response = await axios.post(`${baseURL}/api/basic-info`, newUserInfo,
+  //     //                 {
+  //     //           headers: {
+  //     //             Authorization: `Bearer ${
 
      
-      //           },
-      //         }
-      //     );
-      const response = await axios.post(
-        `${baseURL}/api/basic-info`,
-        newUserInfo
-      );
-      if (response.status === 201) {
-        //   setStatus("success");
-        notifySuccess();
-        // navigate('/dashboard');
-      }
-    } catch (error) {
-      alert("Submission failed. Please try again.");
-      console.error("Error submitting data:", error);
-      // setStatus("error");
-    }
-  };
+  //     //           },
+  //     //         }
+  //     //     );
+  //     const response = await axios.post(
+  //       `${baseURL}/api/basic-info`,
+  //       newUserInfo
+  //     );
+  //     if (response.status === 201) {
+  //       //   setStatus("success");
+  //       degree?.(userInfo.high_education);
+  //       notifySuccess();
+  //       // navigate('/dashboard');
+  //     }
+  //   } catch (error) {
+  //     alert("Submission failed. Please try again.");
+  //     console.error("Error submitting data:", error);
+  //     // setStatus("error");
+  //   }
+  // };
 
   useImperativeHandle(ref, () => ({
     handleSubmit,
@@ -86,65 +114,11 @@ const StepTwo: ForwardRefRenderFunction<any, {}> = (_, ref) => {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-          <div>
-            <label
-              className="text-gray-700 dark:text-gray-200"
-              htmlFor="firstname"
-            >
-              First Name
-            </label>
-            <input
-              type="text"
-              id="firstname"
-              placeholder="First Name"
-              value={userInfo.firstname}
-              onChange={(e) => handleInputChange(e, "firstname")}
-              className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
-                            dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
-                            focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
-                            dark:focus:border-blue-300 focus:outline-none focus:ring"
-            />
-          </div>
+        
 
-          <div>
-            <label
-              className="text-gray-700 dark:text-gray-200"
-              htmlFor="lastname"
-            >
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastname"
-              placeholder="Last Name"
-              value={userInfo.lastname}
-              onChange={(e) => handleInputChange(e, "lastname")}
-              className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
-                            dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
-                            focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
-                            dark:focus:border-blue-300 focus:outline-none focus:ring"
-            />
-          </div>
+        
 
-          <div>
-            <label
-              className="text-gray-700 dark:text-gray-200"
-              htmlFor="email_id"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="emailid"
-              placeholder="Email"
-              value={userInfo.emailid}
-              onChange={(e) => handleInputChange(e, "emailid")}
-              className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
-                            dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
-                            focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
-                            dark:focus:border-blue-300 focus:outline-none focus:ring"
-            />
-          </div>
+          
 
           <div>
             <label
@@ -166,6 +140,50 @@ const StepTwo: ForwardRefRenderFunction<any, {}> = (_, ref) => {
             />
           </div>
 
+     <div className="mb-4">
+  <label htmlFor="work_experience" className="block mb-1 font-medium text-gray-700">
+    Work Experience
+  </label>
+  <select
+    id="work_experience"
+    name="work_experience"
+    value={userInfo.work_experience}
+    onChange={(e) => handleInputChange(e, "work_experience")}
+    className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
+               dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
+               focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
+               dark:focus:border-blue-300 focus:outline-none focus:ring"
+  >
+    <option value="">Select your experience</option>
+    <option value="0-1">0–1 years</option>
+    <option value="1-3">1–3 years</option>
+    <option value="3-5">3–5 years</option>
+    <option value="5+">5+ years</option>
+  </select>
+</div>
+
+
+{/* <div>
+  <label
+    className="text-gray-700 dark:text-gray-200"
+    htmlFor="role_based"
+  >
+    Current Role
+  </label>
+  <input
+    type="text"
+    id="role_based"
+    placeholder="role_based"
+    value={userInfo.role_based}
+    onChange={(e) => handleInputChange(e, "role_based")}
+    className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md 
+              dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 
+              focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
+              dark:focus:border-blue-300 focus:outline-none focus:ring"
+  />
+</div> */}
+
+
           <div>
             <label
               className="text-gray-700 dark:text-gray-200"
@@ -185,6 +203,8 @@ const StepTwo: ForwardRefRenderFunction<any, {}> = (_, ref) => {
                             dark:focus:border-blue-300 focus:outline-none focus:ring"
             />
           </div>
+
+   
         </div>
 
         {/* <div className="flex justify-end mt-6">

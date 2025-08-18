@@ -23,6 +23,8 @@ import ReusableTab from "@/components/NewPage/Homepage/ReusableTab";
 // import banner2 from '../../assets/banner2.png';
 import banner6 from "../../assets/banner6.png";
 import ProfileDropdown from "@/components/NewPage/ProfileDropdown";
+import StepTwoMentor from "@/components/NewPage/Homepage/MultiStepMentor/StepTwo";
+import StepThree from "@/components/NewPage/Homepage/MultiStep_Form/StepThree";
 
 interface MentorData {
   background: string;
@@ -68,16 +70,34 @@ const HomePage: React.FC = () => {
   const [allReviewData, setReviewData] = useState<ReviewData[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [step, setStep] = useState(1);
-  const handleNext = () => setStep((s) => s + 1);
+  //  const handleExpertNext = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => s - 1);
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [openLoginDialog, setOpenLoginDialog] = React.useState(false);
-  const [openRegisterDialog, setOpenRegisterDialog] = React.useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const[degree,setDegree]=useState({
+     emailid:"",
+    work_experience: "",
+    high_education: "",
+    interested_stream:"",
+    data_filed: false,
+      useruniqid: "",
+      firstname:"",
+      lastname:"",
+  });
+  const [openLoginDialog, setOpenLoginDialog] = useState(false);
+  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
+  const[OpenExpertDialog,setOpenExpertDialog]= useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [status, setStatus] = useState<Boolean>(false);
-
+  const [registerData,setRegisterData]=useState({
+    fullName:'',
+    email:'',
+    password:''
+  })
+// const[nextButton,setNextButton]=useState<Boolean>(false);
   const registerRef = useRef<any>(null);
   const stepTwoRef = useRef<any>(null);
+  const stepTwoMentorRef = useRef<any>(null);
+  const stepthreeRef=useRef<any>(null);
 
   const handleDialogClickOpen = () => {
     setOpenDialog(true);
@@ -98,8 +118,16 @@ const HomePage: React.FC = () => {
     setOpenRegisterDialog(true);
   };
 
+  const handleExpertDialogClickOpen = () => {
+    setOpenExpertDialog(true);
+  };
+
   const handleRegisterDialogClose = () => {
     setOpenRegisterDialog(false);
+  };
+
+   const handleExpertDialogClose = () => {
+    setOpenExpertDialog(false);
   };
 
   const navigate = useNavigate();
@@ -238,25 +266,154 @@ const HomePage: React.FC = () => {
     navigate("/contact");
   };
 
-  const stepsList = ["Login/Register", "Basic Info"];
+  const stepsList = ["Login/Register", "Basic Info","Dream Role"];
+  const stepsMentorList = ["Login/Register", "Basic Info"];
+
+
+   const fetchBasicInfo = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${baseURL}/api/basic-info`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    console.log("basicInformation---",response.data);
+  localStorage.setItem("degree", JSON.stringify(response.data));
+  
+          // setBasicInfo([response.data]);
+          // setDegree(response.data.interested_stream);
+          // setFormData(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+    const handleLogin = async (user: any) => {
+      console.log("userLogin",user);
+      const dataToLogin={
+        username:user.email,
+        password:user.password
+      }
+    try {
+      const response = await axios.post(`${baseURL}/login`, dataToLogin);
+console.log("responseLoginnnnn-------",response);
+      console.log("response", response.data.access_token);
+
+      const token = response.data.access_token;
+      document.cookie = `token=${token}; expires=${new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ).toUTCString()}; path=/`;
+      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("token", token);
+      localStorage.setItem("userlocaldata", JSON.stringify(user));
+
+      // dispatch(setUser(user));
+
+      // Show success toast
+      console.log("Login successful");
+      if (response.data.data_fill === true) {
+          console.log("---fetchbasicInfo-----");
+          fetchBasicInfo();
+        navigate("/dashboard");
+      }
+      // }else{
+      //   navigate('/basic-info');
+      // }
+    } catch (error) {
+      // notifyError(error); // Show error toast
+      console.error("Login failed:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(true);
-    if (registerRef.current?.handleSubmit) {
-      registerRef.current.handleSubmit(e);
-    }
+    // if (registerRef.current?.handleSubmit) {
+    //   registerRef.current.handleSubmit(e);
+    // }
 
-    if (stepTwoRef.current?.handleSubmit) {
-      stepTwoRef.current.handleSubmit(e);
+    if (stepthreeRef.current?.handleSubmit) {
+      stepthreeRef.current.handleSubmit(e);
+    
     }
+    setStatus(false);
 
     setTimeout(() => {
+      handleLogin(registerData);
       setStatus(false);
       setOpenRegisterDialog(false);
+      setOpenExpertDialog(false);
       setOpenDialog(false);
-      // console.log("handleSubmit-register&basicInfo logic");
+
     }, 2000);
+  };
+
+    const handleExpertSubmit =async (e: React.FormEvent) => {
+    e.preventDefault();
+    // setStatus(true);
+    if (registerRef.current?.handleSubmit) {
+      await registerRef.current.handleSubmit(e);
+    }
+
+    // if (stepTwoMentorRef.current?.handleSubmit) {
+    //  await stepTwoMentorRef.current.handleSubmit(e);
+    
+    // }
+    
+
+    // setTimeout(() => {
+    //   setStatus(false);
+    //   setOpenRegisterDialog(false);
+    //   setOpenExpertDialog(false);
+    //   setOpenDialog(false);
+
+    // }, 2000);
+  };
+
+    const handleExpertBasicInfoSubmit =async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus(true);
+    
+
+    if (stepTwoMentorRef.current?.handleSubmit) {
+     await stepTwoMentorRef.current.handleSubmit(e);
+    
+    }
+    
+
+    setTimeout(() => {
+      handleLogin(registerData);
+      setStatus(false);
+      setOpenRegisterDialog(false);
+      setOpenExpertDialog(false);
+      setOpenDialog(false);
+
+    }, 2000);
+  };
+
+
+    const handleUserSubmit =async (e: React.FormEvent) => {
+    e.preventDefault();
+    // setStatus(true);
+    if (registerRef.current?.handleSubmit) {
+      await registerRef.current.handleSubmit(e);
+     
+    }
+ 
+   
+  };
+
+   const handleUserStep2Submit =async (e: React.FormEvent) => {
+    e.preventDefault();
+    // setStatus(true);
+    if (stepTwoRef.current?.handleSubmit) {
+      await stepTwoRef.current.handleSubmit(e);
+    }
+
+   
   };
 
   const tabs = [
@@ -291,6 +448,65 @@ const HomePage: React.FC = () => {
     window.location.reload();
   };
 
+const handleExpert=(id:number)=>{
+  navigate(`/expert/${id}`);
+}
+
+const handleRegisterData=(data:any)=>{
+
+console.log("data----",data);
+setRegisterData({
+  fullName:data.fullName,
+  email:data.email,
+  password:data.password
+})
+}
+
+const handleNext2=()=>{
+    setStep((s) => s + 1);
+}
+
+const handleNext = async(type:string,step:any,e: React.FormEvent) => {
+   e.preventDefault();
+   
+   
+  if(type==="signUp" && step===1){
+  
+   await handleUserSubmit(e);
+ 
+   
+  }
+  if(type==="signUp" && step===2){
+    
+   handleUserStep2Submit(e);
+    
+   
+  }
+  
+ setTimeout(() => {
+  
+  setStep((s) => s + 1);
+  
+}, 1000); 
+
+}
+
+const handleExpertNext = (type:string,step:any,e: React.FormEvent) => {
+  if(type==="signUp" && step===1){
+   handleExpertSubmit(e);
+   
+  }
+
+
+
+  setStep((s) => s + 1);
+}
+
+
+const handlesetdegree=(data:any)=>{
+console.log("data degreee",data);
+setDegree(data);
+}
   return (
     <div className="min-h-screen  ">
       <div className="font-sans text-gray-800 ">
@@ -327,10 +543,18 @@ const HomePage: React.FC = () => {
                 >
                   Sign Up
                 </button>
+
+                   <button
+                  onClick={handleExpertDialogClickOpen}
+                  className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700"
+                >
+                  Join As Expert
+                </button>
               </>
             )}
+          
           </div>
-
+  
           {/**Login Button Modal */}
           <Dialog
             open={openLoginDialog}
@@ -391,17 +615,18 @@ const HomePage: React.FC = () => {
                     step === 1 ? "" : "hidden"
                   }`}
                 >
-                  <Register ref={registerRef} />
+                  <Register ref={registerRef} sendData={handleRegisterData}/>
                 </div>
 
                 {step === 2 && (
                   <div className=" flex flex-col justify-center py-5">
-                    <StepTwo ref={stepTwoRef} />
+                    <StepTwo ref={stepTwoRef} formData={registerData} degree={handlesetdegree} />
                   </div>
                 )}
                 {step === 3 && (
-                  <div className="flex flex-col justify-center py-5">
-                    <Login type="" />
+                  <div className="flex flex-col justify-center py-5 px-10">
+                    {/* <Login type="" /> */}
+           <StepThree ref={stepthreeRef} degree={degree}/>
                   </div>
                 )}
               </div>
@@ -417,9 +642,18 @@ const HomePage: React.FC = () => {
                     Back
                   </button>
                 )}
-                {step < 2 && (
+                 {step ===1 && (
                   <button
-                    onClick={handleNext}
+                    // onClick={handleUserSubmit}
+                    onClick={(e)=>handleNext("signUp",step,e)}
+                    className={`px-4 py-2 text-white rounded !bg-blue-600`}
+                  >
+                  Next
+                  </button>
+                )}
+                {step ===2 && (
+                  <button
+                    onClick={(e)=>handleNext("signUp",step,e)}
                     // className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
                     className={`px-4 py-2 text-white rounded !bg-blue-600`}
                     // disabled={!moveNext}
@@ -428,7 +662,7 @@ const HomePage: React.FC = () => {
                   </button>
                 )}
 
-                {step == 2 && (
+                {step == 3 && (
                   <button
                     onClick={handleSubmit}
                     className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -446,6 +680,89 @@ const HomePage: React.FC = () => {
             </DialogActions>
           </Dialog>
 
+{/**Expert Modal */}
+   <Dialog
+            open={OpenExpertDialog}
+            slots={{
+              transition: Transition,
+            }}
+            keepMounted
+            onClose={handleExpertDialogClose}
+            aria-describedby="alert-dialog-slide-description"
+            PaperProps={{
+              style: {
+                width: "90vw",
+                minHeight: "100vh",
+                // maxWidth: "none", // Override default maxWidth
+                // maxHeight: "none", // Override default maxHeight
+              },
+            }}
+          >
+            <DialogContent className="flex flex-col items-content justify-center">
+              <div className="bg-white  rounded shadow-md  min-w-full">
+                {/**Modal Pages */}
+                <Stepper1 step={step} steps={stepsMentorList} />
+                {/* {step === 1 && (
+                 <div className="flex flex-col justify-center py-5">
+                     
+                      <Register ref={registerRef}/>
+                     </div>)} */}
+                <div
+                  className={`flex flex-col justify-center py-5 ${
+                    step === 1 ? "" : "hidden"
+                  }`}
+                >
+                  <Register ref={registerRef} sendData={handleRegisterData}/>
+                </div>
+
+                {step === 2 && (
+                  <div className=" flex flex-col justify-center pb-5">
+                    <StepTwoMentor ref={stepTwoMentorRef} formData={registerData} />
+                  </div>
+                )}
+              
+              </div>
+            </DialogContent>
+            <DialogActions>
+              {/* <Button onClick={handleDialogClose}> */}
+              <div className="flex gap-5 mt-3">
+                {step > 1 && (
+                  <button
+                    onClick={prevStep}
+                    className="px-4 py-2 bg-gray-300 rounded"
+                  >
+                    Back
+                  </button>
+                )}
+                {step === 1 && (
+                  <button
+                   onClick={(e)=>handleExpertNext("signUp",step,e)}
+                    // className={`px-4 py-2 text-white rounded ${moveNext ? '!bg-blue-600' : '!bg-slate-400'}`}
+                    className={`px-4 py-2 text-white rounded !bg-blue-600`}
+                    // disabled={!moveNext}
+                  >
+                    Next
+                  </button>
+                )}
+
+                {step == 2 && (
+                  <button
+                    // onClick={handleExpertSubmit}
+                    onClick={(e)=>handleExpertBasicInfoSubmit(e)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                  >
+                    {status ? "Submitting..." : "Submit"}
+                  </button>
+                )}
+              </div>
+              {/* </Button> */}
+            </DialogActions>
+            <DialogActions className="absolute top-0 right-2">
+              <Button onClick={handleExpertDialogClose}>
+                <X size={40} color="black" />
+              </Button>
+            </DialogActions>
+          </Dialog>
           {/* Mobile menu button */}
           <button
             className="md:hidden"
@@ -616,7 +933,7 @@ const HomePage: React.FC = () => {
                         Schedule First Call
                       </button>
 
-                      <button className="bg-white text-blue-400 w-[130px] rounded-xl hover:bg-blue-700 hover:text-white text-sm border-2 border-blue-400 py-2">
+                      <button onClick={()=>handleExpert(item.user_id)} className="bg-white text-blue-400 w-[130px] rounded-xl hover:bg-blue-700 hover:text-white text-sm border-2 border-blue-400 py-2">
                         Learn More
                       </button>
                     </div>
@@ -663,7 +980,7 @@ const HomePage: React.FC = () => {
                 </div>
                 {/* } */}
 
-                {step === 2 && <StepTwo ref={stepTwoRef} />}
+                {step === 2 && <StepTwo ref={stepTwoRef} formData={registerData}/>}
                 {/* {step === 3 && <StepThree />} */}
               </div>
             </DialogContentText>
@@ -681,7 +998,7 @@ const HomePage: React.FC = () => {
               )}
               {step < 2 && (
                 <button
-                  onClick={handleNext}
+                  onClick={handleNext2}
                   className={`px-4 py-2 text-white rounded !bg-blue-600`}
                 >
                   Next
