@@ -28,6 +28,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
     { title: 'My Profile', icon: <User /> },
     // { title: 'My Experts', icon: <GraduationCap /> },
     { title: 'Trial Meetings', icon: <CalendarX2 /> },
+     { title: 'Mentors', icon: <CalendarX2 /> },
+    
   ];
 
   const handleItemClick = (title: string) => {

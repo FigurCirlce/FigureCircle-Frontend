@@ -12,6 +12,7 @@ import TrialMeeting from './TrialMeeting.tsx';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import NewRecommendMentor from './NewRecommendMentor.tsx';
 
 export interface Mentor {
   name: string;
@@ -69,6 +70,9 @@ const Dashboard: React.FC = () => {
       case "Trial Meetings":
         //@ts-ignore
         return <div> <TrialMeeting allMentorData={recommendedMentors}/></div>;
+         case "Mentors":
+        //@ts-ignore
+        return <div> <NewRecommendMentor/></div>;
       default:
         return <div>Welcome to the Dashboard!</div>;
     }
