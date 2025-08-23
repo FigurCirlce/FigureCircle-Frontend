@@ -6,7 +6,7 @@ import ScheduleMeeting from '../../components/NewPage/ScheduleMeeting/scheduleMe
 import Profile from './Profile.tsx';
 //@ts-ignore
 import LandingDashboard from './landingDashboard.tsx';
-import TrialMeeting from './TrialMeeting.tsx';
+// import TrialMeeting from './TrialMeeting.tsx';
 //@ts-ignore
 // import pic from '../../assets/pic.jpg';
 import axios from 'axios';
@@ -67,9 +67,9 @@ const Dashboard: React.FC = () => {
         return <div><Profile/></div>;
       // case "My Experts":
       //   return <div>My Experts Content</div>;
-      case "Trial Meetings":
-        //@ts-ignore
-        return <div> <TrialMeeting allMentorData={recommendedMentors}/></div>;
+      // case "Trial Meetings":
+      //   //@ts-ignore
+      //   return <div> <TrialMeeting allMentorData={recommendedMentors}/></div>;
          case "Mentors":
         //@ts-ignore
         return <div> <NewRecommendMentor/></div>;

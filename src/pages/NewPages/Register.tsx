@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User, Lock, Mail } from "lucide-react";
+import { User, Lock, Mail, Phone } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -15,6 +15,7 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
+  phone?:string;
 }
 
 interface FormErrors {
@@ -22,6 +23,8 @@ interface FormErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  phone?:string;
+  
 }
 
 interface sendData{
@@ -41,7 +44,7 @@ interface RegisterProps {
 //@ts-ignore
 const Register: ForwardRefRenderFunction<any, RegisterProps> = (
   // { type, setTabIndex, onRegisterSuccess },
-  { setTabIndex ,sendData},
+  { setTabIndex ,sendData,type},
   ref
 ) => {
   const [formData, setFormData] = useState<FormData>({
@@ -49,6 +52,7 @@ const Register: ForwardRefRenderFunction<any, RegisterProps> = (
     email: "",
     password: "",
     confirmPassword: "",
+    phone:""
   });
 
  
@@ -102,7 +106,8 @@ const Register: ForwardRefRenderFunction<any, RegisterProps> = (
         //  localStorage.setItem('registerStatus', response.data.register);
         // console.log("Calling onRegisterSuccess:", typeof onRegisterSuccess);
         //  onRegisterSuccess?.();
-        //  localStorage.setItem("token")
+        // localStorage.setItem("token",)
+
         notifySuccess();
 
         // Redirect after a short delay
@@ -135,7 +140,8 @@ useEffect(() => {
   const dataTosend={
     fullName: formData.fullName,
     email: formData.email,
-    password:formData.password
+    password:formData.password,
+    phone:formData.phone,
   }
     sendData?.(dataTosend);
   }, [formData.fullName,formData.email,formData.password]);
@@ -184,6 +190,24 @@ useEffect(() => {
               <p className="text-red-500 text-sm">{errors.email}</p>
             )}
           </div>
+          {type==="mentor"?(
+             <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+              <Phone className="w-5 h-5" />
+            </span>
+            <input
+              type="text"
+              name="phone"
+              placeholder="Mob No."
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 pl-10 border border-gray-300 rounded-2xl bg-slate-100"
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
+          </div>
+          ):""}
 
           {/* Password */}
           <div className="relative">

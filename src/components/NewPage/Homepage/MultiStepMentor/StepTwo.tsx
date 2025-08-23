@@ -8,43 +8,35 @@ import baseURL from "@/config/config";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// type FormData = {
-//   degree:string;
-//   background:string;
-//   resume:File | null;
-//   current_role: string;
-//    work_experience: string,
-//   interested_field: string,
-//   expertise: string;
-//   linkedin: string;
-//   profile_picture:File | null;
-//   phone:string;
-//  fee: string;
-//   milestones: string,
-
-//   availability: string[],
-
-// };
-type FormData = {
-  degree: any;
-  background: any;
-  resume: any;
-  current_role: any;
-  work_experience: any;
-  interested_field: any;
-  expertise: any;
-  linkedin: any;
-  profile_picture: any;
-  phone: any;
-  fee: any;
-  milestones: any;
-  availability: any;
+interface FormData {
+  linkedin: string;
+  expertise: string;
+  degree: string;
+  background: string;
+  fee: string;
+  milestones: number;
+  profile_picture: File | null;
+  resume:File | null;
+  availability: {
+    day: string;
+    startTime: string;
+    endTime: string;
+  }[];
+  current_role: string;
+  work_experience: string;
+  interested_field: string;
+  intent_price: {
+    intent: string;
+    price: number;
+  }[];
 };
+
 
 interface StepTwoProps {
   formData: {
     fullName: string;
     email: string;
+    phone:string;
   };
 }
 
@@ -62,7 +54,6 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
     work_experience: "",
     interested_field: "",
     profile_picture: null,
-    phone: "",
     fee: "100",
     milestones: 5,
     availability: [
@@ -72,7 +63,12 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
         endTime: "12:00",
       },
     ],
+    intent_price:[],
   });
+// State for intent_price array
+const [intentPrice, setIntentPrice] = useState< { intent: string; price: number }[]>([
+  { intent: "", price: 0 }, // initial row
+]);
 
   // const [errors, setErrors] = useState<Errors>({});
 
@@ -130,6 +126,13 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
       email: formData.email,
       profile_picture: profileImageUrl,
       resume: resumeUrl,
+      interested_field:"N/A",
+      phone:formData.phone,
+      intent_price: form.intent_price.map(item => ({
+    ...item,
+    price: parseFloat(item.price.toFixed(2)), // ensures float
+  }))
+
     };
 
     //   const newMentorData={
@@ -164,7 +167,7 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
     //   }
     // setUserInfo(prev => ({ ...prev, data_filed: true }));
     console.log("newUSERINFO----------", newMentorData);
-    const token = localStorage.getItem("token");
+     const token = localStorage.getItem("token");
     try {
       const response = await axios.post(
         `${baseURL}/add_new_mentor`,
@@ -182,7 +185,7 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
         //   setStatus("success");
         notifySuccess();
         // navigate('/dashboard');
-        alert("mentor created successfully");
+        // alert("mentor created successfully");
       }
     } catch (error) {
       alert("Submission failed. Please try again.");
@@ -257,7 +260,7 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
 
         <div className="flex gap-3 w-full">
           <div>
-            <label className="block text-sm font-medium mb-1">Expertise</label>
+            <label className="block text-sm font-medium mb-1">Subject Expertise</label>
             <select
               name="expertise"
               value={form.expertise}
@@ -316,7 +319,104 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
 
             {/* {errors.profile_picture && <p className="text-xs text-red-600 mt-1">{errors.profile_picture}</p>} */}
           </div>
+          
+   
+
         </div>
+           <div className="">
+  <h1 className="mb-2 font-semibold">Share Your Expertise</h1>
+  {intentPrice.map((item, index) => (
+    <div key={index} className="flex space-x-3 mb-2">
+      {/* Intent Name */}
+      <input
+        type="text"
+        name={`intent${index}`}
+        value={item.intent}
+        onChange={(e) => {
+          const updated = [...intentPrice];
+          updated[index].intent = e.target.value;
+          setIntentPrice(updated);
+
+          // Update parent form data
+          setForm({
+      ...form,
+      intent_price: updated,
+    });
+        }}
+        placeholder="e.g. Career Guidance"
+        className="w-1/2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      {/* Price */}
+      {/* <input
+        type="number"
+        name={`price${index}`}
+        value={item.price}
+        onChange={(e) => {
+          const updated = [...intentPrice];
+          updated[index].price = Number(e.target.value);
+          setIntentPrice(updated);
+
+          // Update parent form data
+          setForm({
+      ...form,
+      intent_price: updated,
+    });
+        }}
+        placeholder="Enter Price"
+        className="w-1/3 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      /> */}
+
+
+<input
+  type="number"
+  step="0.01"   // ✅ allows decimals
+  min="0"
+  name={`price${index}`}
+  value={item.price === 0 ? "" : item.price}
+  onChange={(e) => {
+    const val = e.target.value;
+    const updated = [...intentPrice];
+    updated[index].price = val === "" ? 0.0 : parseFloat(val);
+    setIntentPrice(updated);
+    setForm({ ...form, intent_price: updated });
+  }}
+  placeholder="Enter Price"
+  className="w-1/3 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+/>
+
+
+      {/* Add / Remove Button */}
+     {index === intentPrice.length - 1 ? (
+  <button
+    type="button"
+    onClick={() => {
+      const updated = [...intentPrice, { intent: "", price: 0 }];
+      setIntentPrice(updated);
+      setForm({ ...form, intent_price: updated });
+    }}
+    className="px-3 py-2 h-[40px] bg-green-500 text-white rounded hover:bg-green-600"
+  >
+    +
+  </button>
+) : (
+  <button
+    type="button"
+    onClick={() => {
+      const filtered = intentPrice.filter((_, i) => i !== index);
+      setIntentPrice(filtered);
+      setForm({ ...form, intent_price: filtered });
+    }}
+    className="px-2 py-2 h-[40px] bg-red-500 text-white rounded hover:bg-red-600"
+  >
+    ❌
+  </button>
+)}
+
+    </div>
+  ))}
+</div>
+
       </form>
     </div>
   );

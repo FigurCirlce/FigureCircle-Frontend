@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+
 import { toast } from "react-toastify";
 import { Dialog, DialogActions, DialogContent, Slide, Button } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import { X } from "lucide-react";
 import baseURL from "@/config/config";
 import CryptoJS from "crypto-js";
+import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
 
 
 interface Schedule {
@@ -23,41 +24,110 @@ interface Schedule {
   timezone?: string;
 }
 
-interface AvailabilitySlot {
+// interface AvailabilitySlot {
+//   day: string;
+//   startTime: string;
+//   endTime: string;
+// }
+
+// type SupportOption =
+//   | "Strategic advice"
+//   | "Skill development roadmap"
+//   | "Portfolio or profile feedback"
+//   | "Industry insights"
+//   | "Connections or opportunities"
+//   | "Something else";
+
+type FormState = {
+  area_exploring: string;
+  goal_challenge: string;
+  support_types: IntentPrice[];
+};
+
+// interface Mentor {
+//   linkedin: string;
+//   expertise: string;
+//   degree: string;
+//   background: string;
+//   fee: string;
+//   milestones: number;
+//   profile_picture: File | null;
+//   resume:File | null;
+//   availability: {
+//     day: string;
+//     startTime: string;
+//     endTime: string;
+//   }[];
+//   current_role: string;
+//   work_experience: string;
+//   interested_field: string;
+//   intent_price: {
+//     intent: string;
+//     price: number;
+//   }[];
+// };
+
+
+// interface Mentor {
+//   background: string;
+//   degree: string;
+//   email: string;
+//   expertise: string;
+//   fee: string;
+//   linkedin: string;
+//   mentor_id: number;
+//   milestones: number;
+//   name: string;
+//   phone: string;
+//   profile_picture: string;
+//   resume: string;
+//   availability: AvailabilitySlot[];
+// }
+
+// type IntentPrice = {
+//   intent: string;
+//   price: number;
+// };
+
+// interface Intent {
+  
+//   intent_price: IntentPrice[];
+// }
+
+interface IntentPrice {
+  intent: string;
+  price: number;
+}
+
+interface Availability {
   day: string;
   startTime: string;
   endTime: string;
 }
 
-type SupportOption =
-  | "Strategic advice"
-  | "Skill development roadmap"
-  | "Portfolio or profile feedback"
-  | "Industry insights"
-  | "Connections or opportunities"
-  | "Something else";
-
-type FormState = {
-  area_exploring: string;
-  goal_challenge: string;
-  support_types: SupportOption[];
-};
-
 interface Mentor {
   background: string;
+  created_at: string; // or Date if you parse it
   degree: string;
   email: string;
   expertise: string;
-  fee: string;
+  fee: string; // it's string in your JSON
+  intent_price: IntentPrice[];
   linkedin: string;
   mentor_id: number;
   milestones: number;
   name: string;
   phone: string;
-  profile_picture: string;
-  resume: string;
-  availability: AvailabilitySlot[];
+  profile_picture: File | null;
+  resume: File | null;
+  availability?: Availability[]; // optional, as some payloads have it
 }
+
+// interface MentorResponse {
+//   mentors: Mentor[];
+// }
+
+
 
 
 const Transition = React.forwardRef(function Transition(
@@ -78,6 +148,7 @@ const NewRecommendMentor = () => {
   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(null);
   
   const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
+  const[selectedMentorIntent,setSelectedMentorIntent]=useState<IntentPrice[]>([]);
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [page, setPage] = useState(1);
@@ -102,22 +173,28 @@ const NewRecommendMentor = () => {
       mentor_linkedin: "",
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
+    /**@ts-ignore */
+    const [mentorId,setMentorId]=useState<string | number>("");
+    const [userId,setUserId]=useState<string | number>("");
+     const [mentorUserId,setmentorUserId]=useState<string | number>("");
+    //  const [paymentOpen,setPaymentOpen]=useState<Boolean>(false);
+        
 
   const token = localStorage.getItem("token");
    const userData2 = localStorage.getItem("degree");
   const user = localStorage.getItem("user");
   const parsedUser = user ? JSON.parse(user) : null;
   const parsedUserData2 = userData2 ? JSON.parse(userData2) : null;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const supportOptions: SupportOption[] = [
-    "Strategic advice",
-    "Skill development roadmap",
-    "Portfolio or profile feedback",
-    "Industry insights",
-    "Connections or opportunities",
-    "Something else",
-  ];
+  // const supportOptions: SupportOption[] = [
+  //   "Strategic advice",
+  //   "Skill development roadmap",
+  //   "Portfolio or profile feedback",
+  //   "Industry insights",
+  //   "Connections or opportunities",
+  //   "Something else",
+  // ];
 
   const notifySuccess = (msg = "Intent Submitted Successfully!") => {
     toast.success(msg, { position: "top-right", autoClose: 3000, theme: "colored" });
@@ -135,6 +212,16 @@ const NewRecommendMentor = () => {
     });
   };
 
+
+  const handleSuccess = () => {
+    console.log("✅ Payment flow finished successfully!");
+    // You can trigger a state update, navigate, or show toast here
+  };
+
+  const handleFailure = (error: any) => {
+    console.error("❌ Payment failed:", error);
+    // Show error toast or log error
+  };
   const handleSubmit = async () => {
       console.log("formdata----", formData);
   
@@ -338,6 +425,7 @@ const NewRecommendMentor = () => {
         const recommendedRes = await axios.get(`${baseURL}/api/recommend-mentors?allmentor=false`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("recommendedRes--recommendedRes",recommendedRes.data);
         if (recommendedRes.data?.recommended_mentors?.length) {
           setAssignedMentorData(recommendedRes.data.recommended_mentors);
           setSelectedExpertKey(recommendedRes.data.recommended_mentors[0].mentor_id);
@@ -347,8 +435,9 @@ const NewRecommendMentor = () => {
         const allRes = await axios.get(`${baseURL}/api/recommend-mentors?allmentor=true`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (allRes.data?.mentors?.length) {
-          setAllMentorsData(allRes.data.mentors);
+        console.log("allRes--allRes",allRes.data);
+        if (allRes.data?.recommended_mentors?.length) {
+          setAllMentorsData(allRes.data.recommended_mentors);
           if (!recommendedRes.data?.recommended_mentors?.length) {
             setSelectedExpertKey(allRes.data.mentors[0].mentor_id);
           }
@@ -388,6 +477,7 @@ const NewRecommendMentor = () => {
       );
       if (selected) {
         setSelectedExpertData(selected);
+        setSelectedMentorIntent(selected?.intent_price);
       }
     }
   }, [selectedExpertKey, mentorList]);
@@ -396,8 +486,11 @@ const NewRecommendMentor = () => {
     setPage(1); 
   }, [searchTerm, filterType]);
 
-  const handleExpert = (id: number) => {
-    navigate(`/expert/${id}`);
+  const handleExpert = async(id: number) => {
+  // navigate(`/expert/${id}`);
+    // await fetchMentorData(id);
+    setmentorUserId(id);
+    setUserId(parsedUser.user_id);
   };
 
   const handleNextPage = () => {
@@ -407,6 +500,31 @@ const NewRecommendMentor = () => {
   const handlePrevPage = () => {
     if (page > 1) setPage((prev) => prev - 1);
   };
+
+  // const fetchMentorData = async (id:number) => {
+  //   const token = localStorage.getItem("token");
+  //   try {
+  //     const response = await axios.get(
+  //       `${baseURL}/api/mentor/details?user_id=${id}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.data) {
+  //       console.log("response--data---fetchMentor-dattttaa---", response.data);
+  //       setMentorId(response.data.mentor_id);
+       
+  //       // setAssignedMentorData(response.data.mentors);
+  //     } else {
+  //       console.log("No Mentors found.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching Assigned Mentors:", error);
+  //   }
+  // };
 
   return (
     <section id="mentor" className="py-10 bg-gray-50">
@@ -455,7 +573,9 @@ const NewRecommendMentor = () => {
                   }`}
                 >
                   <img
-                    src={mentor.profile_picture || "https://via.placeholder.com/150"}
+                    // src={mentor.profile_picture ||  undefined}
+                    //convert file into string as src takes only string or undefined
+                    src={mentor.profile_picture ? URL.createObjectURL(mentor.profile_picture) : "/default-profile.png"}
                     alt="mentor"
                     className="w-14 h-14 rounded-full object-cover"
                   />
@@ -499,7 +619,8 @@ const NewRecommendMentor = () => {
             <div className="space-y-4 text-gray-800">
               <div className="flex items-center gap-4">
                 <img
-                  src={selectedExpertData.profile_picture || "https://via.placeholder.com/150"}
+                  // src={selectedExpertData.profile_picture || "https://via.placeholder.com/150"}
+                  src={selectedExpertData.profile_picture ? URL.createObjectURL(selectedExpertData.profile_picture) : "/default-profile.png"}
                   alt="mentor"
                   className="w-20 h-20 rounded-full object-cover"
                 />
@@ -519,6 +640,7 @@ const NewRecommendMentor = () => {
                   <strong>LinkedIn:</strong>{" "}
                   <a
                     href={`https://${selectedExpertData.linkedin}`}
+                   
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"
@@ -529,7 +651,7 @@ const NewRecommendMentor = () => {
                 <p>
                   <strong>Resume:</strong>{" "}
                   <a
-                    href={selectedExpertData.resume}
+                    href={selectedExpertData.resume?URL.createObjectURL(selectedExpertData.resume):"/default-profile.png"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"
@@ -539,6 +661,22 @@ const NewRecommendMentor = () => {
                 </p>
               </div>
 
+{selectedExpertData.intent_price !==null?   ( <div className="flex gap-4 mt-4">
+                <button
+                  // onClick={() => setOpenDialog(true)}
+                  className="bg-slate-200 text-slate-400 px-4 py-2 rounded "
+                  disabled={true}
+                >
+                  Schedule Call
+                </button>
+                <button
+                  // onClick={() => handleExpert(selectedExpertData.mentor_id)}
+                   onClick={() => handleExpert(selectedExpertData.mentor_id)}
+                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Pay Now
+                </button>
+              </div>):(
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={() => setOpenDialog(true)}
@@ -550,15 +688,26 @@ const NewRecommendMentor = () => {
                   onClick={() => handleExpert(selectedExpertData.mentor_id)}
                   className="border border-blue-500 text-blue-500 px-4 py-2 rounded hover:bg-blue-50"
                 >
-                  Learn More
+                  Pay Now
                 </button>
-              </div>
+              </div>)
+}
             </div>
           ) : (
             <p className="text-center text-gray-500">Select a mentor to view details</p>
           )}
         </div>
       </div>
+
+      {userId && mentorUserId ? 
+       <RazorpayPayment
+        mentorId={mentorUserId}
+        userId={userId}
+        // mentorUserId={mentorUserId}
+        autoOpen={true}  
+        onSuccess={handleSuccess}
+        onFailure={handleFailure}
+      />:""}
 
     
       <Dialog
@@ -597,26 +746,32 @@ const NewRecommendMentor = () => {
                 <label className="font-semibold">
                   What kind of support are you looking for?
                 </label>
-                {supportOptions.map((option) => (
-                  <div key={option} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={form.support_types.includes(option)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setForm({ ...form, support_types: [...form.support_types, option] });
-                        } else {
-                          setForm({
-                            ...form,
-                            support_types: form.support_types.filter((item) => item !== option),
-                          });
-                        }
-                      }}
-                    />
-                    <span>{option}</span>
-                  </div>
-                ))}
+                {selectedMentorIntent?.map((option,index) => (
+  <div key={index}>
+    <input
+      type="checkbox"
+      className="mr-2"
+      checked={form.support_types.some((item) => item.intent === option.intent)}
+      onChange={(e) => {
+        if (e.target.checked) {
+          setForm({
+            ...form,
+            support_types: [...form.support_types, option], // add full object
+          });
+        } else {
+          setForm({
+            ...form,
+            support_types: form.support_types.filter(
+              (item) => item.intent !== option.intent
+            ),
+          });
+        }
+      }}
+    />
+    {/* <span>{option.intent} - {option.price.toFixed(2)}</span> */}
+     <span>{option.intent}</span>
+  </div>
+))}
               </div>
               <div className="flex justify-center">
                 <button
