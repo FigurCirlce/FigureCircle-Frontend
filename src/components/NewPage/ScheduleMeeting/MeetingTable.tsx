@@ -3,7 +3,6 @@ import axios from "axios";
 import baseURL from "@/config/config";
 import FeedbackPopup from "../FeedbackPopup.tsx";
 
-
 // interface FeedbackData {
 //   check_id: number;
 //   check_meeting_id: number;
@@ -25,8 +24,6 @@ import FeedbackPopup from "../FeedbackPopup.tsx";
 //   feedbackData: FeedbackData[];
 //   // meetingId: number;
 // }
-
-
 
 interface Meeting {
   user_id: number;
@@ -57,71 +54,23 @@ function convertDateTime(datetimeStr: string | number | Date): string {
   const minutes = String(dateObj.getMinutes()).padStart(2, "0");
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
-  
 
-  
   const time = `${hours}:${minutes} ${ampm}`;
   const formattedDate = `${day}/${month}/${year}`;
 
   return `${formattedDate} ${time}`;
 }
 
-const feedbackdataSchedule=
-[
-    {
-        "check_id": 40,
-        "check_meeting_id": 984,
-        "created_at": "Tue, 22 Apr 2025 14:38:15 GMT",
-        "feedback_id": 8,
-        "mentor_id": 2,
-        "mentor_responsibility": true,
-        "milestone": "milestone added",
-        "milestone_achieved": true,
-        "next_steps_identified": true,
-        "progress_rating": 100,
-        "user_id": 40,
-        "user_responsibility": true
-    },
-    {
-        "check_id": 40,
-        "check_meeting_id": 600,
-        "created_at": "Tue, 22 Apr 2025 16:09:55 GMT",
-        "feedback_id": 10,
-        "mentor_id": 2,
-        "mentor_responsibility": true,
-        "milestone": "project discussion",
-        "milestone_achieved": true,
-        "next_steps_identified": true,
-        "progress_rating": 5,
-        "user_id": 40,
-        "user_responsibility": true
-    },
-    {
-        "check_id": 40,
-        "check_meeting_id": 1011,
-        "created_at": "Tue, 08 Jul 2025 06:16:56 GMT",
-        "feedback_id": 11,
-        "mentor_id": 40,
-        "mentor_responsibility": true,
-        "milestone": "Complete project draft",
-        "milestone_achieved": true,
-        "next_steps_identified": true,
-        "progress_rating": 4,
-        "user_id": 40,
-        "user_responsibility": true
-    }
-]
-
-
 type MeetingTableProps = {
   user_id: number;
   refreshKey?: number;
 };
 //@ts-ignore
-const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
+const MeetingTable: React.FC<MeetingTableProps> = ({ user_id, refreshKey }) => {
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedfeedbackData, setSelectedFeedbackData] = useState<any>([]);
 
   const pageSize = 5;
 
@@ -131,15 +80,26 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
     currentPage * pageSize
   );
 
+  function extractMeetingId(url: string) {
+    const match = url.match(/\/v2\/meetingcall\/(\d+)/); //return an array
+    if (match) {
+      return Number(match[1]);
+    } else {
+      return null; // return null if no meeting ID found
+    }
+  }
+
   const fetchMeetingData = async () => {
-     const user=localStorage.getItem("user");
-     const parsedUserData = user?JSON.parse(user):null;
-       
+    const user = localStorage.getItem("user");
+    const parsedUserData = user ? JSON.parse(user) : null;
+
     console.log("user_id FetchMeetingData----", user_id);
     try {
       const response = await axios.get(`${baseURL}/api/schedules`, {
         // params: { user_id: 3},
-        params: parsedUserData.is_mentor? {mentor_id: user_id}:{user_id:user_id},
+        params: parsedUserData.is_mentor
+          ? { mentor_id: user_id }
+          : { user_id: user_id },
       });
 
       if (response.data) {
@@ -161,14 +121,34 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id ,refreshKey}) => {
   useEffect(() => {
     fetchMeetingData();
     console.log("refreshkey---");
-  }, [user_id,refreshKey]);
+  }, [user_id, refreshKey]);
 
-  const handleFeedbackPopup=(user_id:number,mentor_id:number)=>{
-console.log("user_id",user_id);
-console.log("mentor_id",mentor_id);
-//fetch feedback API here
-  }
-
+  const handleFeedbackPopup = async (
+    user_id: number,
+    mentor_id: number,
+    meetingId: number
+  ) => {
+    console.log("user_id", user_id);
+    console.log("mentor_id", mentor_id);
+    console.log("meeting_id", meetingId);
+    const token = localStorage.getItem("token");
+    //fetch feedback API here
+    try {
+      const response = await axios.get(
+        `${baseURL}/feedback?user_id=${user_id}&mentor_id=${mentor_id}&check_meeting_id=${meetingId}`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+          },
+        }
+      );
+      console.log("res-----data-------", response.data);
+      setSelectedFeedbackData(response.data);
+      setIsPopupOpen(true);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
       <div className="flex justify-between items-center mb-4">
@@ -226,6 +206,7 @@ console.log("mentor_id",mentor_id);
                       Link
                     </a>
                   </td>
+
                   <td className="p-2 border">
                     <a
                       href={meeting.milestoneLink}
@@ -238,8 +219,24 @@ console.log("mentor_id",mentor_id);
                   </td>
                   <td className="p-2 border">
                     <button
-                     onClick={()=>handleFeedbackPopup(meeting.user_id,meeting.mentor_id)} //in this i have to send user_id and mentor_id to fetch feedback then I have to fetch feedback data and there I should also set meeting id
+                      // onClick={() =>
+                      //   handleFeedbackPopup(
+                      //     meeting.user_id,
+                      //     meeting.mentor_id,
+                      //     extractMeetingId(meeting.link)
+                      //   )
+                      // } //in this i have to send user_id and mentor_id to fetch feedback then I have to fetch feedback data and there I should also set meeting id
                       className="text-blue-600 underline hover:text-blue-800"
+                      onClick={() => {
+  const meetingId = extractMeetingId(meeting.link);
+  if (meeting.user_id && meeting.mentor_id && meetingId !== null) {
+    handleFeedbackPopup(
+      Number(meeting.user_id),   // in case these are strings
+      Number(meeting.mentor_id),
+      meetingId                  // already a number
+    );
+  }
+}}
                     >
                       Feedback
                     </button>
@@ -273,13 +270,10 @@ console.log("mentor_id",mentor_id);
           </button>
         </div>
       </div>
-       <FeedbackPopup
+      <FeedbackPopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
-        // feedbackData={selectedFeedback}
-         feedbackData={feedbackdataSchedule}
-      //  meetingId={selectedMeetingId}
-        // meetingId={600}
+        feedbackData={selectedfeedbackData}
       />
     </div>
   );

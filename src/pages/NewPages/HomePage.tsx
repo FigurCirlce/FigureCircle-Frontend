@@ -26,6 +26,7 @@ import ProfileDropdown from "@/components/NewPage/ProfileDropdown";
 import StepTwoMentor from "@/components/NewPage/Homepage/MultiStepMentor/StepTwo";
 import StepThree from "@/components/NewPage/Homepage/MultiStep_Form/StepThree";
 
+
 interface MentorData {
   background: string;
   created_at: string;
@@ -91,7 +92,8 @@ const HomePage: React.FC = () => {
   const [registerData,setRegisterData]=useState({
     fullName:'',
     email:'',
-    password:''
+    password:'',
+    phone:'',
   })
 // const[nextButton,setNextButton]=useState<Boolean>(false);
   const registerRef = useRef<any>(null);
@@ -270,24 +272,24 @@ const HomePage: React.FC = () => {
   const stepsMentorList = ["Login/Register", "Basic Info"];
 
 
-   const fetchBasicInfo = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await axios.get(`${baseURL}/api/basic-info`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-    console.log("basicInformation---",response.data);
-  localStorage.setItem("degree", JSON.stringify(response.data));
+  //  const fetchBasicInfo = async () => {
+  //       try {
+  //         const token = localStorage.getItem('token');
+  //         const response = await axios.get(`${baseURL}/api/basic-info`, {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         });
+  //   console.log("basicInformation---",response.data);
+  // localStorage.setItem("degree", JSON.stringify(response.data));
   
-          // setBasicInfo([response.data]);
-          // setDegree(response.data.interested_stream);
-          // setFormData(response.data);
-        } catch (error) {
-          console.log(error);
-        }
-      };
+  //         // setBasicInfo([response.data]);
+  //         // setDegree(response.data.interested_stream);
+  //         // setFormData(response.data);
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     };
 
     const handleLogin = async (user: any) => {
       console.log("userLogin",user);
@@ -312,11 +314,11 @@ console.log("responseLoginnnnn-------",response);
 
       // Show success toast
       console.log("Login successful");
-      if (response.data.data_fill === true) {
-          console.log("---fetchbasicInfo-----");
-          fetchBasicInfo();
-        navigate("/dashboard");
-      }
+      // if (response.data.data_fill === true ) {
+      //     console.log("---fetchbasicInfo-----");
+      //     fetchBasicInfo();
+      //   navigate("/dashboard");
+      // }
       // }else{
       //   navigate('/basic-info');
       // }
@@ -356,7 +358,9 @@ console.log("responseLoginnnnn-------",response);
     // setStatus(true);
     if (registerRef.current?.handleSubmit) {
       await registerRef.current.handleSubmit(e);
+        await handleLogin(registerData);
     }
+
 
     // if (stepTwoMentorRef.current?.handleSubmit) {
     //  await stepTwoMentorRef.current.handleSubmit(e);
@@ -373,27 +377,55 @@ console.log("responseLoginnnnn-------",response);
     // }, 2000);
   };
 
-    const handleExpertBasicInfoSubmit =async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus(true);
+  //   const handleExpertBasicInfoSubmit =async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setStatus(true);
+     
+
+  //   if (stepTwoMentorRef.current?.handleSubmit) {
+  //     // await handleLogin(registerData);\
+  //     const token=loc
+  //    await stepTwoMentorRef.current.handleSubmit(e,token);
+    
+  //   }
     
 
+  //   setTimeout(() => {
+  //      handleLogin(registerData);
+  //    setStatus(false);
+  //     setOpenRegisterDialog(false);
+  //     setOpenExpertDialog(false);
+  //     setOpenDialog(false);
+
+  //   }, 2000);
+  // };
+
+const handleExpertBasicInfoSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setStatus(true);
+
+  try {
+    // 1️⃣ login first and wait for token
+    // await handleLogin(registerData);
+
+    // 2️⃣ then run step two with that token
     if (stepTwoMentorRef.current?.handleSubmit) {
-     await stepTwoMentorRef.current.handleSubmit(e);
-    
+      // const token=localStorage.getItem("token");
+      await stepTwoMentorRef.current.handleSubmit(e);
     }
-    
 
-    setTimeout(() => {
-      handleLogin(registerData);
-      setStatus(false);
-      setOpenRegisterDialog(false);
-      setOpenExpertDialog(false);
-      setOpenDialog(false);
+    // 3️⃣ cleanup dialogs
+    setStatus(false);
+    setOpenRegisterDialog(false);
+    setOpenExpertDialog(false);
+    setOpenDialog(false);
+    navigate(`/dashboard`);
 
-    }, 2000);
-  };
-
+  } catch (error) {
+    console.error("Error in expert registration flow:", error);
+    setStatus(false);
+  }
+};
 
     const handleUserSubmit =async (e: React.FormEvent) => {
     e.preventDefault();
@@ -458,7 +490,8 @@ console.log("data----",data);
 setRegisterData({
   fullName:data.fullName,
   email:data.email,
-  password:data.password
+  password:data.password,
+  phone:data?.phone,
 })
 }
 
@@ -712,7 +745,7 @@ setDegree(data);
                     step === 1 ? "" : "hidden"
                   }`}
                 >
-                  <Register ref={registerRef} sendData={handleRegisterData}/>
+                  <Register ref={registerRef} sendData={handleRegisterData} type="mentor"/>
                 </div>
 
                 {step === 2 && (

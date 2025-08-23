@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { IconButton } from '@mui/material';
-import { Menu, Calendar, User, CalendarX2 } from 'lucide-react';
+import { Menu, Calendar, User, CalendarX2} from 'lucide-react';
 import logo from "../../assets/image (1).png";
 import pic from '../../assets/pic.jpg';
 import { LayoutDashboard } from 'lucide-react';
@@ -27,7 +27,9 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
     { title: 'Schedule Meeting', icon: <Calendar /> },
     { title: 'My Profile', icon: <User /> },
     // { title: 'My Experts', icon: <GraduationCap /> },
-    { title: 'Trial Meetings', icon: <CalendarX2 /> },
+    // { title: 'Trial Meetings', icon: <CalendarX2 /> },
+     { title: 'Mentors', icon: <CalendarX2 /> },
+    
   ];
 
   const handleItemClick = (title: string) => {

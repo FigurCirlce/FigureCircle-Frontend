@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -9,16 +8,14 @@ import { toast } from "react-toastify";
 import pic from "../../../assets/pic.jpg";
 import baseURL from "@/config/config";
 import { TransitionProps } from "@mui/material/transitions";
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 // interface User {
-//   access_token:string; 
+//   access_token:string;
 // data_fill:boolean;
 // is_mentor2:boolean;
 // user_id:number;
 // }
-
-
 
 interface Schedule {
   id: number;
@@ -69,7 +66,6 @@ interface Mentor {
   availability: AvailabilitySlot[];
 }
 
-
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>;
@@ -79,79 +75,81 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-
-
 const ITEMS_PER_PAGE = 3;
-
 
 const RecommendMentor = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
-  const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(null);
-  const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
-   // @ts-ignore
+  const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
+    null
+  );
+  const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(
+    null
+  );
+  // @ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [page, setPage] = useState(1);
-  const [form,setForm]=useState<FormState>({
-    area_exploring:"",
-    goal_challenge:"",
-    support_types:[]
+  const [form, setForm] = useState<FormState>({
+    area_exploring: "",
+    goal_challenge: "",
+    support_types: [],
   });
-    const [formData, setFormData] = useState<Schedule>({
-      id: 0,
-      name: "",
-      email: "",
-      start_date: "",
-      duration: "30",
-      //@ts-ignore
-      mentor_id: null,
-      user_id: "",
-      mentor_email: "",
-      mentor_phone: "",
-      mentor_linkedin: "",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+  const [formData, setFormData] = useState<Schedule>({
+    id: 0,
+    name: "",
+    email: "",
+    start_date: "",
+    duration: "30",
+    //@ts-ignore
+    mentor_id: null,
+    user_id: "",
+    mentor_email: "",
+    mentor_phone: "",
+    mentor_linkedin: "",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  });
 
-    const supportOptions: SupportOption[] = [
-  "Strategic advice",
-  "Skill development roadmap",
-  "Portfolio or profile feedback",
-  "Industry insights",
-  "Connections or opportunities",
-  "Something else",
-];
-
+  const supportOptions: SupportOption[] = [
+    "Strategic advice",
+    "Skill development roadmap",
+    "Portfolio or profile feedback",
+    "Industry insights",
+    "Connections or opportunities",
+    "Something else",
+  ];
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-   const userData2 = localStorage.getItem("degree");
-      const user =localStorage.getItem("user");
-       const parsedUser =user?JSON.parse(user):null;
-      const parsedUserData2 = userData2?JSON.parse(userData2):null;
+  const userData2 = localStorage.getItem("degree");
+  const user = localStorage.getItem("user");
+  //@ts-ignore
+  const parsedUser = user ? JSON.parse(user) : null;
+  const parsedUserData2 = userData2 ? JSON.parse(userData2) : null;
 
   const notifySuccess = (msg = "Intent Submitted Successfully!") => {
-      toast.success(msg, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-    };
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+  };
 
-    const notifyMeetingScheduledSuccess = (msg = "Meeting Scheduled Successfully!") => {
-      toast.success(msg, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-    };
-
+  const notifyMeetingScheduledSuccess = (
+    msg = "Meeting Scheduled Successfully!"
+  ) => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+  };
 
   useEffect(() => {
     const fetchAssignedMentors = async () => {
@@ -215,190 +213,201 @@ const RecommendMentor = () => {
     if (page > 1) setPage((prev) => prev - 1);
   };
 
-  const handleSubmitIntent=async(mentor_id: number | undefined,user_id:number)=>{
-    const token=localStorage.getItem("token");
+  //@ts-ignore
+  const handleSubmitIntent = async (
+    mentor_id: number | undefined,
+    user_id: number
+  ) => {
+    const token = localStorage.getItem("token");
 
-    const dataToSubmit={
+    const dataToSubmit = {
       ...form,
-      user_id:user_id,
-      mentor_id:mentor_id
-    }
- try {
-      const response = await axios.post(`${baseURL}/api/intent`, dataToSubmit,
-        {
+      user_id: user_id,
+      mentor_id: mentor_id,
+    };
+    try {
+      const response = await axios.post(`${baseURL}/api/intent`, dataToSubmit, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
-      );
+      });
       if (response.status === 201) {
-    notifySuccess();
+        notifySuccess();
         setForm({
-    area_exploring:"",
-    goal_challenge:"",
-    support_types:[]
+          area_exploring: "",
+          goal_challenge: "",
+          support_types: [],
         });
         setOpenDialog(false);
         handleSubmit();
-        
       }
     } catch (error) {
       console.log("error");
     }
-  }
+  };
 
- const handleSubmit = async () => {
+  const handleSubmit = async () => {
+    console.log("formdata----", formData);
 
-  console.log("formdata----", formData);
+    // if (!tempSelectedDate || !tempSelectedTime) {
+    //   alert("Please select date and time");
+    //   return;
+    // }
 
-  // if (!tempSelectedDate || !tempSelectedTime) {
-  //   alert("Please select date and time");
-  //   return;
-  // }
+    try {
+      // const startDateISO = convertDateAndTimeToISO(
+      //   tempSelectedDate,
+      //   tempSelectedTime
+      // );
 
-  try {
-    // const startDateISO = convertDateAndTimeToISO(
-    //   tempSelectedDate,
-    //   tempSelectedTime
-    // );
-
-    const updatedFormData = {
-      ...formData,
-      // start_date: startDateISO,
-      start_date:new Date().toISOString(),
-    };
-
-    
-   
-
-    // console.log("userData---", userData);
-    console.log("userData2", userData2);
-
-    if (user && userData2) {
-      // const parsedUserData = JSON.parse(userData);
-      // const parsedUserData2 = JSON.parse(userData2);
-      const parsedUser=JSON.parse(user);
-      // console.log("parsedUserData---", parsedUserData);
-      console.log("parsedUserData2----", parsedUserData2);
-
-      const randomId = Math.floor(Math.random() * 1000);
-      const roomid = Math.floor(Math.random() * 1000);
-      const password = Math.random().toString(36).substring(2, 8);
-      console.log("randomId---", randomId);
-      console.log("roomid----", roomid);
-      console.log("password----", password);
-
-      const secretKey = "meetingkeys";
-      console.log("secretKey----", secretKey);
-
-      const startDate = updatedFormData.start_date;
-      console.log("startDate----", startDate);
-
-      // Always fixed 60-minute meeting
-      const duration = 60;
-      const calculateEndDate = (startDateISO: string, durationMinutes: number): string => {
-        const start = new Date(startDateISO);
-        start.setMinutes(start.getMinutes() + durationMinutes);
-        return start.toISOString();
+      const updatedFormData = {
+        ...formData,
+        // start_date: startDateISO,
+        start_date: new Date().toISOString(),
       };
 
-      const endDate = calculateEndDate(startDate, duration);
-      console.log("endDate----", endDate);
+      // console.log("userData---", userData);
+      console.log("userData2", userData2);
 
-      // Encrypt values
-      const encryptedStartDate = CryptoJS.AES.encrypt(startDate, secretKey).toString();
-      console.log("encryptedStartDate----", encryptedStartDate);
+      if (user && userData2) {
+        // const parsedUserData = JSON.parse(userData);
+        // const parsedUserData2 = JSON.parse(userData2);
+        const parsedUser = JSON.parse(user);
+        // console.log("parsedUserData---", parsedUserData);
+        console.log("parsedUserData2----", parsedUserData2);
 
-      const encryptedEndDate = CryptoJS.AES.encrypt(endDate, secretKey).toString();
-      console.log("encryptedEndDate----", encryptedEndDate);
+        const randomId = Math.floor(Math.random() * 1000);
+        const roomid = Math.floor(Math.random() * 1000);
+        const password = Math.random().toString(36).substring(2, 8);
+        console.log("randomId---", randomId);
+        console.log("roomid----", roomid);
+        console.log("password----", password);
 
-      const encryptedRoomId = CryptoJS.AES.encrypt(roomid.toString(), secretKey).toString();
-      console.log("encryptedRoomId----", encryptedRoomId);
+        const secretKey = "meetingkeys";
+        console.log("secretKey----", secretKey);
 
-      const encryptedPassword = CryptoJS.AES.encrypt(password, secretKey).toString();
-      console.log("encryptedPassword----", encryptedPassword);
+        const startDate = updatedFormData.start_date;
+        console.log("startDate----", startDate);
 
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      console.log("timeZone----", timeZone);
+        // Always fixed 60-minute meeting
+        const duration = 60;
+        const calculateEndDate = (
+          startDateISO: string,
+          durationMinutes: number
+        ): string => {
+          const start = new Date(startDateISO);
+          start.setMinutes(start.getMinutes() + durationMinutes);
+          return start.toISOString();
+        };
 
-      const meetingLink = `/v2/meetingcall/${randomId}?start=${encodeURIComponent(
-        encryptedStartDate
-      )}&end=${encodeURIComponent(
-        encryptedEndDate
-      )}&roomid=${encodeURIComponent(
-        encryptedRoomId
-      )}&password=${encodeURIComponent(
-        encryptedPassword
-      )}&timezone=${encodeURIComponent(timeZone)}`;
+        const endDate = calculateEndDate(startDate, duration);
+        console.log("endDate----", endDate);
 
-      console.log("meetingLink----", meetingLink);
+        // Encrypt values
+        const encryptedStartDate = CryptoJS.AES.encrypt(
+          startDate,
+          secretKey
+        ).toString();
+        console.log("encryptedStartDate----", encryptedStartDate);
 
-      // Prepare schedule data
-      const scheduleData = {
-        name: parsedUserData2.firstname || "",
-        email: parsedUserData2.emailid || "",
-        start_datetime: startDate,
-        end_datetime: endDate,
-        duration: duration, // always 60
-        link: meetingLink,
-        user_id: parsedUser.user_id,
-        mentor_id: selectedExpertData?.mentor_id,//Take from handleClick
-        mentor_name:selectedExpertData?.name,
-         
-        mentor_email: selectedExpertData?.email,
-        roomid: roomid,
-        password: password,
-        timezone: timeZone,
-      };
+        const encryptedEndDate = CryptoJS.AES.encrypt(
+          endDate,
+          secretKey
+        ).toString();
+        console.log("encryptedEndDate----", encryptedEndDate);
 
-      console.log("scheduleData-----", scheduleData);
+        const encryptedRoomId = CryptoJS.AES.encrypt(
+          roomid.toString(),
+          secretKey
+        ).toString();
+        console.log("encryptedRoomId----", encryptedRoomId);
 
-      const response = await axios.post<{ message: string; id: number }>(
-        `${baseURL}/api/trial_ schedule`,
-        scheduleData
-      );
+        const encryptedPassword = CryptoJS.AES.encrypt(
+          password,
+          secretKey
+        ).toString();
+        console.log("encryptedPassword----", encryptedPassword);
 
-      notifyMeetingScheduledSuccess();
-      // setDurationOpen(false);
-      // setSelectedMentorId(null);
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log("timeZone----", timeZone);
 
-      // setRefreshKey(Date.now());
-      setSchedules((prev) => [
-        ...prev,
-        {
-          ...formData,
-          id: response.data.id,
-          user_id:parsedUser.user_id,
-        },
-      ]);
+        const meetingLink = `/v2/meetingcall/${randomId}?start=${encodeURIComponent(
+          encryptedStartDate
+        )}&end=${encodeURIComponent(
+          encryptedEndDate
+        )}&roomid=${encodeURIComponent(
+          encryptedRoomId
+        )}&password=${encodeURIComponent(
+          encryptedPassword
+        )}&timezone=${encodeURIComponent(timeZone)}`;
 
-      setFormData({
-        id: 0,
-        name: "",
-        email: "",
-        start_date: "",
-        duration: "60", // default reset
-        mentor_id: 0,
-        user_id: "",
-        mentor_email: "",
-        mentor_phone: "",
-        mentor_linkedin: "",
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      });
-    } else {
+        console.log("meetingLink----", meetingLink);
+
+        // Prepare schedule data
+        const scheduleData = {
+          name: parsedUserData2.firstname || "",
+          email: parsedUserData2.emailid || "",
+          start_datetime: startDate,
+          end_datetime: endDate,
+          duration: duration, // always 60
+          link: meetingLink,
+          user_id: parsedUser.user_id,
+          mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
+          mentor_name: selectedExpertData?.name,
+
+          mentor_email: selectedExpertData?.email,
+          roomid: roomid,
+          password: password,
+          timezone: timeZone,
+        };
+
+        console.log("scheduleData-----", scheduleData);
+
+        const response = await axios.post<{ message: string; id: number }>(
+          `${baseURL}/api/trial_ schedule`,
+          scheduleData
+        );
+
+        notifyMeetingScheduledSuccess();
+        // setDurationOpen(false);
+        // setSelectedMentorId(null);
+
+        // setRefreshKey(Date.now());
+        setSchedules((prev) => [
+          ...prev,
+          {
+            ...formData,
+            id: response.data.id,
+            user_id: parsedUser.user_id,
+          },
+        ]);
+
+        setFormData({
+          id: 0,
+          name: "",
+          email: "",
+          start_date: "",
+          duration: "60", // default reset
+          mentor_id: 0,
+          user_id: "",
+          mentor_email: "",
+          mentor_phone: "",
+          mentor_linkedin: "",
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+      } else {
+        //@ts-ignore
+        // setError("User data not found in localStorage.");
+        console.log("User data not found in localStorage.");
+      }
+    } catch (err: any) {
       //@ts-ignore
-      // setError("User data not found in localStorage.");
-      console.log("User data not found in localStorage.");
+      // setError(err.response?.data?.error || "An error occurred");
+      console.log(err.response?.data?.error || "An error occurred");
+      alert("An error occurred");
     }
-  } catch (err: any) {
-    //@ts-ignore
-    // setError(err.response?.data?.error || "An error occurred");
-    console.log(err.response?.data?.error || "An error occurred")
-    alert("An error occurred");
-  } 
-};
-
+  };
 
   return (
     <section id="mentor" className="py-10 bg-gray-50">
@@ -475,7 +484,9 @@ const RecommendMentor = () => {
 
         {/* Detailed View */}
         <div className="bg-white rounded-2xl shadow p-6 flex-1">
-          <h2 className="text-2xl font-bold mb-4 text-center">Mentor Details</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">
+            Mentor Details
+          </h2>
           {selectedExpertData ? (
             <div className="space-y-4 text-gray-800">
               <div className="flex items-center gap-4">
@@ -485,8 +496,12 @@ const RecommendMentor = () => {
                   className="w-20 h-20 rounded-full object-cover"
                 />
                 <div>
-                  <h3 className="text-xl font-bold">{selectedExpertData.name}</h3>
-                  <p className="text-sm text-gray-500">{selectedExpertData.expertise}</p>
+                  <h3 className="text-xl font-bold">
+                    {selectedExpertData.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {selectedExpertData.expertise}
+                  </p>
                   <p className="text-sm">{selectedExpertData.degree}</p>
                 </div>
               </div>
@@ -540,7 +555,9 @@ const RecommendMentor = () => {
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-500">Select a mentor to view details</p>
+            <p className="text-center text-gray-500">
+              Select a mentor to view details
+            </p>
           )}
         </div>
       </div>
@@ -569,44 +586,60 @@ const RecommendMentor = () => {
                 className="w-full border border-gray-300 rounded-md p-2"
                 placeholder="What area are you exploring?"
                 value={form.area_exploring}
-  onChange={(e) => setForm({ ...form, area_exploring: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, area_exploring: e.target.value })
+                }
               />
               <textarea
                 rows={2}
                 className="w-full border border-gray-300 rounded-md p-2"
                 placeholder="What is your goal or challenge?"
-                 value={form.goal_challenge}
-  onChange={(e) => setForm({ ...form, goal_challenge: e.target.value })}
+                value={form.goal_challenge}
+                onChange={(e) =>
+                  setForm({ ...form, goal_challenge: e.target.value })
+                }
               />
               <div className="space-y-2">
                 <label className="font-semibold">
                   What kind of support are you looking for?
                 </label>
                 {supportOptions.map((option) => (
-  <div key={option} className="flex items-center">
-    <input
-      type="checkbox"
-      className="mr-2"
-      checked={form.support_types.includes(option)}
-      onChange={(e) => {
-        if (e.target.checked) {
-          
-          setForm({ ...form, support_types: [...form.support_types, option] });
-        } else {
-          setForm({
-            ...form,
-            support_types: form.support_types.filter((item) => item !== option),
-          });
-        }
-      }}
-    />
-    <span>{option}</span>
-  </div>
-))}
-
+                  <div key={option} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={form.support_types.includes(option)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setForm({
+                            ...form,
+                            support_types: [...form.support_types, option],
+                          });
+                        } else {
+                          setForm({
+                            ...form,
+                            support_types: form.support_types.filter(
+                              (item) => item !== option
+                            ),
+                          });
+                        }
+                      }}
+                    />
+                    <span>{option}</span>
+                  </div>
+                ))}
               </div>
               <div className="flex justify-center">
-                <button className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700" onClick={()=>handleSubmitIntent(selectedExpertData?.mentor_id,parsedUser?.user_id)}>
+                <button
+                  className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+                  // onClick={() =>
+                  //   handleSubmitIntent(
+                  //     selectedExpertData?.mentor_id,
+                  //     parsedUser?.user_id
+                  //   )
+                  // }
+                  onClick={handleSubmit}
+                >
                   Submit
                 </button>
               </div>
@@ -625,4 +658,3 @@ const RecommendMentor = () => {
 };
 
 export default RecommendMentor;
-

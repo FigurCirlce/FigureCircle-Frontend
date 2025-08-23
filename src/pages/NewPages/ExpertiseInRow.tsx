@@ -12,20 +12,25 @@ const cardData = [
       <div className="flex flex-col gap-2">
         <label className="inline-flex items-center">
           <input type="checkbox" className="form-checkbox text-blue-600" />
-          <span className="ml-2">Analyst – Auto Insurance</span>
+          <span className="ml-2">Strategic Advice</span>
         </label>
         <label className="inline-flex items-center">
           <input type="checkbox" className="form-checkbox text-blue-600" />
-          <span className="ml-2">Business Intelligence Consultant</span>
+          <span className="ml-2">Skill Development Roadmap</span>
         </label>
         <label className="inline-flex items-center">
           <input type="checkbox" className="form-checkbox text-blue-600" />
-          <span className="ml-2">General Strategy / Consulting</span>
+          <span className="ml-2">Portfolio Or Profile Feedback</span>
         </label>
         <label className="inline-flex items-center">
           <input type="checkbox" className="form-checkbox text-blue-600" />
-          <span className="ml-2">Data-driven Product Manager</span>
+          <span className="ml-2">Industry Insights</span>
         </label>
+         <label className="inline-flex items-center">
+          <input type="checkbox" className="form-checkbox text-blue-600" />
+          <span className="ml-2">Connections And Opportunities</span>
+        </label>
+      
       </div>
  </>
     ),
