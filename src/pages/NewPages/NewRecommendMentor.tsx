@@ -575,7 +575,7 @@ const NewRecommendMentor = () => {
                   <img
                     // src={mentor.profile_picture ||  undefined}
                     //convert file into string as src takes only string or undefined
-                    src={mentor.profile_picture ? URL.createObjectURL(mentor.profile_picture) : "/default-profile.png"}
+                    src={mentor.profile_picture instanceof File ? URL.createObjectURL(mentor.profile_picture) : "/default-profile.png"}
                     alt="mentor"
                     className="w-14 h-14 rounded-full object-cover"
                   />
@@ -619,8 +619,10 @@ const NewRecommendMentor = () => {
             <div className="space-y-4 text-gray-800">
               <div className="flex items-center gap-4">
                 <img
-                  // src={selectedExpertData.profile_picture || "https://via.placeholder.com/150"}
-                  src={selectedExpertData.profile_picture ? URL.createObjectURL(selectedExpertData.profile_picture) : "/default-profile.png"}
+                
+                  // src={selectedExpertData?.profile_picture || "https://via.placeholder.com/150"}
+                  src={selectedExpertData.profile_picture instanceof File ? 
+                    URL.createObjectURL(selectedExpertData.profile_picture) : "/default-profile.png"}
                   alt="mentor"
                   className="w-20 h-20 rounded-full object-cover"
                 />
@@ -651,7 +653,8 @@ const NewRecommendMentor = () => {
                 <p>
                   <strong>Resume:</strong>{" "}
                   <a
-                    href={selectedExpertData.resume?URL.createObjectURL(selectedExpertData.resume):"/default-profile.png"}
+               
+                    href={selectedExpertData.resume instanceof File ?URL.createObjectURL(selectedExpertData.resume):"/default-profile.png"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"
