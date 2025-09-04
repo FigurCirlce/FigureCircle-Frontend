@@ -13,6 +13,7 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewRecommendMentor from './NewRecommendMentor.tsx';
+import baseURL from '@/config/config.tsx';
 
 export interface Mentor {
   name: string;
@@ -28,7 +29,11 @@ const Dashboard: React.FC = () => {
     const [activePage, setActivePage] = useState("Dashboard");
      {/*@ts-ignore*/}
     const[recommendedMentors,getRecommendedMentors]=useState<Mentor[]>([]);
+    // @ts-ignore
+    const[meetingData,setMeetingData]=useState([]);
     const token=localStorage.getItem('token');
+    // @ts-ignore
+    const[close,setClose]=useState(false);
     const navigate=useNavigate();
 
     const fetchRecommendedMentor = async () => {
@@ -42,8 +47,8 @@ const Dashboard: React.FC = () => {
     
           if (response.status==200) {
     
-            console.log("response--data",response.data.recommended_mentors);
-            // getRecommendedMentors(response.data.recommended_mentors);
+            console.log("response--data",response.data?.recommended_mentors);
+            getRecommendedMentors(response.data?.recommended_mentors);
           } else {
             console.log("No Mentors found.");
           }
@@ -51,18 +56,64 @@ const Dashboard: React.FC = () => {
           console.error("Error fetching Assigned Mentors:", error);
         }
       };
+ const fetchMeetingData = async () => {
+    const user = localStorage.getItem("user");
+    const parsedUserData = user ? JSON.parse(user) : null;
+
+    console.log("user_id FetchMeetingData----", parsedUserData.user_id);
+    try {
+      const response = await axios.get(`${baseURL}/api/schedules`, {
+        // params: { user_id: 3},
+        params: parsedUserData.is_mentor
+          ? { mentor_id: parsedUserData.user_id }
+          : { user_id: parsedUserData.user_id },
+      });
+
+      if (response.data) {
+        
+        
+        setMeetingData(response.data);
+      } else {
+        console.log("No meetings found.");
+      }
+    } catch (error) {
+      console.error("Error fetching meeting data:", error);
+    }
+  };
+
     
       useEffect(() => {
         fetchRecommendedMentor();
+        fetchMeetingData();
       }, []);
+
+      //  useEffect(() => {
+        
+      //   fetchMeetingData();
+      // }, [meetingData || close]);
 
     const renderContent = () => {
     switch (activePage) {
       case "Dashboard":
         return <div><LandingDashboard/></div>;
+
+        
       case "Schedule Meeting":
         //@ts-ignore
-        return <div><ScheduleMeeting/> </div>;
+         return <div><ScheduleMeeting/> </div>;
+    // if(meetingData.length !== 0){
+    //   setClose(true);
+    //      return <div><ScheduleMeeting/> </div>;
+    // }
+    // else{
+    //   return [];
+    // }
+      //   if (meetingData.length === 0) {
+      //   return <div>No mentors available to schedule a meeting.</div>;
+      // }
+      
+     
+    
       case "My Profile":
         return <div><Profile/></div>;
       // case "My Experts":
@@ -92,7 +143,7 @@ const Dashboard: React.FC = () => {
    
     <div className="flex h-screen w-screen bg-slate-100 overflow-hidden">
       {/* Sidebar */}
-      <Sidebar setActivePage={setActivePage} />
+      <Sidebar setActivePage={setActivePage} close={close}/>
 
       
       <div className="flex flex-col w-full h-screen overflow-hidden">

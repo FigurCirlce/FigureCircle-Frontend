@@ -314,6 +314,7 @@ console.log("responseLoginnnnn-------",response);
 
       // Show success toast
       console.log("Login successful");
+      navigate(`/dashboard`);
       // if (response.data.data_fill === true ) {
       //     console.log("---fetchbasicInfo-----");
       //     fetchBasicInfo();
@@ -330,27 +331,27 @@ console.log("responseLoginnnnn-------",response);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit =async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus(true);
+    // setStatus(true);
     // if (registerRef.current?.handleSubmit) {
     //   registerRef.current.handleSubmit(e);
     // }
 
     if (stepthreeRef.current?.handleSubmit) {
-      stepthreeRef.current.handleSubmit(e);
-    
+     await stepthreeRef.current.handleSubmit(e);
+     await handleLogin(registerData);
     }
-    setStatus(false);
+    // setStatus(false);
 
-    setTimeout(() => {
-      handleLogin(registerData);
-      setStatus(false);
-      setOpenRegisterDialog(false);
-      setOpenExpertDialog(false);
-      setOpenDialog(false);
+    // setTimeout(() => {
+    //   handleLogin(registerData);
+    //   setStatus(false);
+    //   setOpenRegisterDialog(false);
+    //   setOpenExpertDialog(false);
+    //   setOpenDialog(false);
 
-    }, 2000);
+    // }, 2000);
   };
 
     const handleExpertSubmit =async (e: React.FormEvent) => {
@@ -405,16 +406,16 @@ const handleExpertBasicInfoSubmit = async (e: React.FormEvent) => {
   setStatus(true);
 
   try {
-    // 1️⃣ login first and wait for token
+    // login first and wait for token
     // await handleLogin(registerData);
 
-    // 2️⃣ then run step two with that token
+    // then run step two with that token
     if (stepTwoMentorRef.current?.handleSubmit) {
       // const token=localStorage.getItem("token");
       await stepTwoMentorRef.current.handleSubmit(e);
     }
 
-    // 3️⃣ cleanup dialogs
+    // cleanup dialogs
     setStatus(false);
     setOpenRegisterDialog(false);
     setOpenExpertDialog(false);
