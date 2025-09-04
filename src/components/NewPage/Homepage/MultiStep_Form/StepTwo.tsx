@@ -621,7 +621,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
         <option value="Data Science">Data Science</option>
       </select>
     </div> */}
-      <div>
+      {/* <div>
           <label
             htmlFor="expertise"
             className="text-gray-700 font-medium block"
@@ -639,7 +639,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
                       focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
                       dark:focus:border-blue-300 focus:outline-none focus:ring"
           />
-        </div>
+        </div> */}
   </>
 )}
 
@@ -934,7 +934,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
         <option value="Data Science">Data Science</option>
       </select>
     </div> */}
-      <div>
+      {/* <div>
           <label
             htmlFor="expertise"
             className="text-gray-700 font-medium block"
@@ -952,7 +952,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
                       focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 
                       dark:focus:border-blue-300 focus:outline-none focus:ring"
           />
-        </div>
+        </div> */}
   </>
 )}
 
@@ -977,7 +977,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
                  dark:focus:border-blue-300 focus:outline-none focus:ring"
     />
   </div> */}
-  <div className="flex-1 min-w-0">
+  {/* <div className="flex-1 min-w-0">
   <label
     className="text-gray-700 font-medium block"
     htmlFor="interested_stream"
@@ -1001,7 +1001,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
     <option value="Mechanical Engineering">Mechanical Engineering</option>
     <option value="Business Management">Business Management</option>
   </select>
-</div>
+</div> */}
 
   </div>
 </form>
