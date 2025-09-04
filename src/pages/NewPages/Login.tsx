@@ -113,7 +113,7 @@ updateUser(response.data);
 
         if (response.data.data_fill === true) {
           console.log("---fetchbasicInfo-----");
-          fetchBasicInfo();
+          await fetchBasicInfo();
           // fetchMentorBasicInfo();
           navigate("/dashboard");
         } else {

@@ -307,13 +307,13 @@ console.log("user_id",user_id);
   }, []);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen font-sans">
+    <div className=" min-h-screen font-sans">
       <div className="flex flex-col gap-6">
         <div className="bg-white rounded-2xl p-6 flex-1 shadow">
-          <h2 className="text-2xl font-bold mb-4 ">Recommended for You</h2>
+          <h2 className="text-2xl font-bold  ">Recommended for You</h2>
 
           {/* Courses */}
-          <h3 className="py-7 pt-3 text-xl font-bold flex justify-center">
+          <h3 className="py-4 pt-3 text-xl font-bold flex justify-center">
             Recommended Courses
           </h3>
           <div className="flex flex-wrap gap-x-3 gap-y-5">
@@ -321,13 +321,13 @@ console.log("user_id",user_id);
               course.map((item, i) => (
                 <div
                   key={i}
-                  className="border-2 border-slate-200 w-[250px] rounded-lg shadow-lg"
+                  className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
                 >
                   <img src={coding} alt="Course" className="mb-2" />
                   <button className="bg-orange-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
                     Course
                   </button>
-                  <h3 className="font-semibold text-gray-800 px-4 pb-2">
+                  <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
                     {item}
                   </h3>
                 </div>
@@ -340,7 +340,7 @@ console.log("user_id",user_id);
           </div>
 
           {/* Certifications */}
-          <h3 className="py-7 text-xl font-bold flex justify-center">
+          <h3 className="py-4 text-xl font-bold flex justify-center">
             Recommended Certifications
           </h3>
           <div className="flex flex-wrap gap-x-3 gap-y-5">
@@ -348,13 +348,13 @@ console.log("user_id",user_id);
               certificate.map((item, i) => (
                 <div
                   key={i}
-                  className="border-2 border-slate-200 w-[250px] rounded-lg shadow-lg"
+                  className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
                 >
                   <img src={coding} alt="Certification" className="mb-2" />
                   <button className="bg-blue-500 text-white px-2 rounded-2xl text-xs my-2 mx-4">
                     Certification
                   </button>
-                  <h3 className="font-semibold text-gray-800 px-4 py-2">
+                  <h3 className="font-semibold text-gray-800 px-4 py-2 text-sm">
                     {item}
                   </h3>
                 </div>
@@ -365,7 +365,7 @@ console.log("user_id",user_id);
           </div>
 
           {/* Competitions */}
-          <h3 className="py-7 text-xl font-bold flex justify-center">
+          <h3 className="py-4 text-xl font-bold flex justify-center">
             Recommended Competitions
           </h3>
           <div className="flex flex-wrap gap-x-3 gap-y-5">
@@ -373,13 +373,13 @@ console.log("user_id",user_id);
               competition.map((item, i) => (
                 <div
                   key={i}
-                  className="border-2 border-slate-200 w-[250px] rounded-lg shadow-lg"
+                  className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
                 >
                   <img src={coding} alt="Competition" className="mb-2" />
                   <button className="bg-green-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
                     Competition
                   </button>
-                  <h3 className="font-semibold text-gray-800 px-4 pb-2">
+                  <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
                     {item}
                   </h3>
                 </div>

@@ -32,10 +32,10 @@ interface Schedule {
   timezone?: string;
 }
 
-interface ScheduleMeetingProps {
-  setCount: (value: any) => void;
-  count: any;
-}
+// interface ScheduleMeetingProps {
+//   setCount: (value: any) => void;
+//   count: any;
+// }
 
 interface Slot {
   day: string;
@@ -73,7 +73,7 @@ export interface MentorResponse {
 // });
 
 
-const ScheduleMeeting: React.FC<ScheduleMeetingProps> = () => {
+const ScheduleMeeting: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [refreshKey, setRefreshKey] = useState(0);
   //  const[selectedMentor,setSelectedMentor]=useState<>()

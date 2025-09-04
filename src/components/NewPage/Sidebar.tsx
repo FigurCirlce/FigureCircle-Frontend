@@ -6,31 +6,47 @@ import logo from "../../assets/image (1).png";
 import pic from '../../assets/pic.jpg';
 import { LayoutDashboard } from 'lucide-react';
 
+
 interface MenuItem {
-  title: string;
-  icon: React.ReactElement;
+  title?: string;
+  icon?: React.ReactElement;
 }
 
 interface SidebarProps {
   setActivePage: (page: string) => void;
+  close:Boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
+const Sidebar: React.FC<SidebarProps> = ({ setActivePage ,close}) => {
   const [isOpen, setIsOpen] = useState(true);
 //@ts-ignore
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(true);
   const [activeItem, setActiveItem] = useState<string>('Dashboard');
 
   const toggleSidebar = () => setIsOpen(!isOpen);
-  const HomeMenu: MenuItem[] = [
+  const HomeMenu:MenuItem[]= [
     { title: 'Dashboard', icon: <LayoutDashboard /> },
-    { title: 'Schedule Meeting', icon: <Calendar /> },
+    // (close ? ([{ title: 'Schedule Meeting', icon: <Calendar /> }])
+    // : ""),
+     { title: 'Schedule Meeting', icon: <Calendar /> },
     { title: 'My Profile', icon: <User /> },
     // { title: 'My Experts', icon: <GraduationCap /> },
     // { title: 'Trial Meetings', icon: <CalendarX2 /> },
      { title: 'Mentors', icon: <CalendarX2 /> },
     
   ];
+
+    const HomeMenuNEW:MenuItem[]= [
+    { title: 'Dashboard', icon: <LayoutDashboard /> },
+    // (close ? ([{ title: 'Schedule Meeting', icon: <Calendar /> }])
+    // : ""),
+    { title: 'My Profile', icon: <User /> },
+    // { title: 'My Experts', icon: <GraduationCap /> },
+    // { title: 'Trial Meetings', icon: <CalendarX2 /> },
+     { title: 'Mentors', icon: <CalendarX2 /> },
+    
+  ];
+
 
   const handleItemClick = (title: string) => {
     setActiveItem(title);           
@@ -64,26 +80,46 @@ const username = userData.firstname;
         </div>
 
         <div className="flex-grow px-4 overflow-hidden">
-          <div className="mt-6">
-            {isMainMenuOpen && (
-              <div className="mt-2 space-y-3">
-                {HomeMenu.map((item, index) => {
-                  const isActive = activeItem === item.title;
-                  return (
-                    <div
-                      key={index}
-                      onClick={() => handleItemClick(item.title)}
-                      className={`flex items-center gap-3 p-2 rounded cursor-pointer transition 
-                        ${isActive ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-700'}`}
-                    >
-                      <div className={`${isActive ? 'text-blue-700' : ''}`}>{item.icon}</div>
-                      <span>{item.title}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+       <div className="mt-6">
+  {isMainMenuOpen ? (
+    !close ? (
+      <div className="mt-2 space-y-3">
+        {HomeMenu.map((item, index) => {
+          const isActive = activeItem === item.title;
+          return (
+            <div
+              key={index}
+              onClick={() => handleItemClick(item.title ?? "")}
+              className={`flex items-center gap-3 p-2 rounded cursor-pointer transition 
+                ${isActive ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-700'}`}
+            >
+              <div className={`${isActive ? 'text-blue-700' : ''}`}>{item.icon}</div>
+              <span>{item.title}</span>
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <div className="mt-2 space-y-3">
+        {HomeMenuNEW.map((item, index) => {
+          const isActive = activeItem === item.title;
+          return (
+            <div
+              key={index}
+              onClick={() => handleItemClick(item.title??"")}
+              className={`flex items-center gap-3 p-2 rounded cursor-pointer transition 
+                ${isActive ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-700'}`}
+            >
+              <div className={`${isActive ? 'text-blue-700' : ''}`}>{item.icon}</div>
+              <span>{item.title}</span>
+            </div>
+          );
+        })}
+      </div>
+    )
+  ) : null}
+</div>
+
         </div>
       </div>
     </>
