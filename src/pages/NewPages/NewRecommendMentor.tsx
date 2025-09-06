@@ -127,6 +127,23 @@ interface Mentor {
 //   mentors: Mentor[];
 // }
 
+interface Meeting {
+  user_id: number;
+  mentorName: string;
+  milestoneLink: string;
+  feedbackLink: string;
+  mentor_email: string;
+  email: string;
+  link: string;
+  mentor_name: string;
+  start_datetime: string;
+  name: string;
+  mentor_id: number;
+  id: number;
+  end_datetime: string;
+  duration: string;
+  created_at: string;
+}
 
 
 
@@ -146,7 +163,8 @@ const NewRecommendMentor = () => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [allMentorsData, setAllMentorsData] = useState<Mentor[]>([]);
   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(null);
-  
+  const [meetingData, setMeetingData] = useState<Meeting[]>([]);
+  const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
   const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
   const[selectedMentorIntent,setSelectedMentorIntent]=useState<IntentPrice[]>([]);
   //@ts-ignore
@@ -214,12 +232,12 @@ const NewRecommendMentor = () => {
 
 
   const handleSuccess = () => {
-    console.log("✅ Payment flow finished successfully!");
+    console.log("Payment flow finished successfully!");
     // You can trigger a state update, navigate, or show toast here
   };
 
   const handleFailure = (error: any) => {
-    console.error("❌ Payment failed:", error);
+    console.error("Payment failed:", error);
     // Show error toast or log error
   };
   const handleSubmit = async () => {
@@ -404,6 +422,7 @@ const NewRecommendMentor = () => {
           });
           if (response.status === 201) {
             notifySuccess();
+          
             setForm({
               area_exploring: "",
               goal_challenge: "",
@@ -411,6 +430,7 @@ const NewRecommendMentor = () => {
             });
             setOpenDialog(false);
             handleSubmit();
+             fetchMeetingData();
           }
         } catch (error) {
           console.log("error");
@@ -448,6 +468,8 @@ const NewRecommendMentor = () => {
     };
 
     fetchMentors();
+    fetchMeetingData();
+    
   }, [token]);
 
   
@@ -480,6 +502,7 @@ const NewRecommendMentor = () => {
         setSelectedMentorIntent(selected?.intent_price);
       }
     }
+    
   }, [selectedExpertKey, mentorList]);
 
   useEffect(() => {
@@ -525,6 +548,46 @@ const NewRecommendMentor = () => {
   //     console.error("Error fetching Assigned Mentors:", error);
   //   }
   // };
+
+    const fetchMeetingData = async () => {
+      const user = localStorage.getItem("user");
+      const parsedUserData = user ? JSON.parse(user) : null;
+  
+      // console.log("user_id FetchMeetingData----", user_id);
+      try {
+        const response = await axios.get(`${baseURL}/api/schedules`, {
+          // params: { user_id: 3},
+          params: parsedUserData.is_mentor
+            ? { mentor_id: parsedUserData?.user_id }
+            : { user_id: parsedUserData?.user_id },
+        });
+  
+        if (response.data) {
+          const sortedData = [...response.data].sort(
+            (a, b) =>
+              new Date(b.start_datetime).getTime() -
+              new Date(a.start_datetime).getTime()
+          );
+          console.log("sortedData-----", sortedData);
+          setMeetingData(sortedData);
+          
+        } else {
+          console.log("No meetings found.");
+        }
+      } catch (error) {
+        console.error("Error fetching meeting data:", error);
+      }
+    };
+
+   useEffect(() => {
+  const result = meetingData.some(
+    (schedule: Meeting) =>
+      schedule.mentor_id === selectedExpertData?.mentor_id &&
+      schedule.user_id === parsedUser?.user_id
+  );
+  setHasMeetingScheduled(result);
+}, [meetingData, selectedExpertData, parsedUser]);
+   
 
   return (
     <section id="mentor" className="py-10 bg-gray-50">
@@ -664,7 +727,7 @@ const NewRecommendMentor = () => {
                 </p>
               </div>
 
-{selectedExpertData.intent_price !==null?   ( <div className="flex gap-4 mt-4">
+{hasMeetingScheduled?   ( <div className="flex gap-4 mt-4">
                 <button
                   // onClick={() => setOpenDialog(true)}
                   className="bg-slate-200 text-slate-400 px-4 py-2 rounded "

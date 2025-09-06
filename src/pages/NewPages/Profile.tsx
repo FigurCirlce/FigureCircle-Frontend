@@ -21,6 +21,9 @@ interface BasicInfo {
   useruniqid: string;
   work_experience: string;
   role_based: string;
+  industry:string;
+  role:string;
+  intent:string[];
 }
 
 export interface MentorDetails {
@@ -581,7 +584,7 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                       className="border p-1 rounded"
                     />
                   </div>
-
+{formData.work_experience?
                   <p>
                     <label className="font-semibold mr-2">
                       Work Experience:
@@ -593,9 +596,12 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                       onChange={handleChange}
                       className="border p-1 rounded"
                     />
-                  </p>
+                  
+                  </p>:""
+}
+
                   <p>
-                    <label className="font-semibold mr-2">Role:</label>
+                    <label className="font-semibold mr-2">Dream Role:</label>
                     <input
                       type="text"
                       name="role_based"
@@ -646,20 +652,48 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                     </span>
                     {item.high_education}
                   </p>
+                   {item.industry?
+                  <p>
+                    <span className="font-semibold mr-2">Industry:</span>
+                    {item.industry}
+                  </p>:''
+}
+ {item.role?
+                  <p>
+                    <span className="font-semibold mr-2">Job Role:</span>
+                    {item.role}
+                  </p>:''
+}
+
+                  {item.work_experience?
                   <p>
                     <span className="font-semibold mr-2">Work Experience:</span>
-                    {item.work_experience}
-                  </p>
+                    {item.work_experience}<span className="ml-1">years</span>
+                  </p>:''
+}
                   <p>
-                    <span className="font-semibold mr-2">Role:</span>
+                    <span className="font-semibold mr-2">Dream Role:</span>
                     {item.role_based}
                   </p>
-                  <p>
+                  
+            <p>
+  <span className="font-semibold mr-2">Intent:</span>
+  {/* {item.intent.length > 1 ? (
+    item.intent.map((i, idx) => (
+      <span key={idx} className="block">{i}</span>
+    ))
+  ) : (
+    <span>{item.intent}</span>
+  )} */}
+  {item.intent}
+</p>
+
+                  {/* <p>
                     <span className="font-semibold mr-2">
                       Field Interested:
                     </span>
                     {item.interested_stream}
-                  </p>
+                  </p> */}
                   {/* <p>
                     <span className="font-semibold mr-2">Email:</span>
                     {item.useruniqid}

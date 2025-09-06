@@ -291,6 +291,25 @@ const HomePage: React.FC = () => {
   //       }
   //     };
 
+  const fetchBasicInfo = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${baseURL}/api/basic-info`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    console.log("basicInformation---",response.data);
+  localStorage.setItem("degree", JSON.stringify(response.data));
+  
+          // setBasicInfo([response.data]);
+          // setDegree(response.data.interested_stream);
+          // setFormData(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
     const handleLogin = async (user: any) => {
       console.log("userLogin",user);
       const dataToLogin={
@@ -314,15 +333,15 @@ console.log("responseLoginnnnn-------",response);
 
       // Show success toast
       console.log("Login successful");
-      navigate(`/dashboard`);
-      // if (response.data.data_fill === true ) {
-      //     console.log("---fetchbasicInfo-----");
-      //     fetchBasicInfo();
-      //   navigate("/dashboard");
-      // }
-      // }else{
-      //   navigate('/basic-info');
-      // }
+      // navigate(`/dashboard`);
+      if (response.data.data_fill === true ) {
+          console.log("---fetchbasicInfo-----");
+       await fetchBasicInfo();
+        navigate("/dashboard");
+      }
+      else{
+        navigate('/basic-info');
+      }
     } catch (error) {
       // notifyError(error); // Show error toast
       console.error("Login failed:", error);
