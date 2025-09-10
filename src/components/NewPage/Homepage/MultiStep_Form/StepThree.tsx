@@ -225,6 +225,18 @@ const StepThree: ForwardRefRenderFunction<any, stepProp> = (
             <span className="ml-2">{item?.matched_role}</span>
           </label>
         ))}
+        <input
+      type="text"
+      placeholder="Other"
+      
+      className={`ml-2 px-2 py-1 border rounded ${
+       "bg-white border-gray-300 !w-1/2"
+      }`}
+      onChange={(e) => {
+        // Handle the text input value if needed
+        console.log(e.target.value);
+      }}
+    />
       </div>
     </div>
   );
