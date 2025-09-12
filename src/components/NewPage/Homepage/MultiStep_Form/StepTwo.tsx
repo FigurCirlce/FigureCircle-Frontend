@@ -33,6 +33,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
     role_based:"",
     intent:[],
     expertise:"",
+    bachelors_degree:"btech"
 
 // industry_role:"",
   });
@@ -50,6 +51,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
 
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("userInfo-------",userInfo);
      const nameParts = formData.fullName.trim().split(/\s+/);
   const firstname = nameParts[0] || "";
   const lastname = nameParts.slice(1).join(" ") || "";
@@ -291,7 +293,7 @@ const StepTwo: ForwardRefRenderFunction<any, StepTwoProps> = ({formData,degree},
         <option value="">Select Education</option>
         <option value="High School">High School</option>
         <option value="Diploma">Diploma</option>
-        <option value="Bachelors">Bachelors</option>
+        <option value="Bachelors">Bachelors In Technology</option>
         <option value="Masters">Masters</option>
       </select>
     </div>

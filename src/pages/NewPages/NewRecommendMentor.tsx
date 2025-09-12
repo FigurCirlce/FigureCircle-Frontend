@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
 import { toast } from "react-toastify";
 import { Dialog, DialogActions, DialogContent, Slide, Button } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
@@ -8,6 +7,7 @@ import { X } from "lucide-react";
 import baseURL from "@/config/config";
 import CryptoJS from "crypto-js";
 import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
+import CustomCalendar from "@/components/NewPage/customCalendar";
 
 
 interface Schedule {
@@ -107,11 +107,11 @@ interface Availability {
 
 interface Mentor {
   background: string;
-  created_at: string; // or Date if you parse it
+  created_at: string;
   degree: string;
   email: string;
   expertise: string;
-  fee: string; // it's string in your JSON
+  fee: string; 
   intent_price: IntentPrice[];
   linkedin: string;
   mentor_id: number;
@@ -120,7 +120,7 @@ interface Mentor {
   phone: string;
   profile_picture: File | null;
   resume: File | null;
-  availability?: Availability[]; // optional, as some payloads have it
+  availability?: Availability[]; 
 }
 
 // interface MentorResponse {
@@ -160,6 +160,7 @@ const ITEMS_PER_PAGE = 3;
 const NewRecommendMentor = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const[openTime,setOpenTime]=useState(false);
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [allMentorsData, setAllMentorsData] = useState<Mentor[]>([]);
   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(null);
@@ -170,12 +171,16 @@ const NewRecommendMentor = () => {
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [page, setPage] = useState(1);
-  const [filterType, setFilterType] = useState<"all" | "recommended">("all"); 
+  const [filterType, setFilterType] = useState<"all" | "recommended">("recommended"); 
+  const[selectedSlot,setSelectedSlot]=useState("");
   const [form, setForm] = useState<FormState>({
     area_exploring: "",
     goal_challenge: "",
     support_types: [],
   });
+
+ 
+
 
    const [formData, setFormData] = useState<Schedule>({
       id: 0,
@@ -231,33 +236,37 @@ const NewRecommendMentor = () => {
   };
 
 
-  const handleSuccess = () => {
-    console.log("Payment flow finished successfully!");
-    // You can trigger a state update, navigate, or show toast here
-  };
+ 
+//convert date and Time Format
+ const convertDateAndTimeToISO = (dateStr: string, timeStr: string): string => {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const [hour, minute] = timeStr.split(":").map(Number);
 
-  const handleFailure = (error: any) => {
-    console.error("Payment failed:", error);
-    // Show error toast or log error
-  };
-  const handleSubmit = async () => {
-      console.log("formdata----", formData);
-  
-      // if (!tempSelectedDate || !tempSelectedTime) {
-      //   alert("Please select date and time");
-      //   return;
-      // }
+  const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
+
+  return utcDate.toISOString();
+};
+
+
+const handleSuccess=()=>{
+  console.log("Payment Completed");
+}
+
+const handleFailure=()=>{
+  console.log("Payment Failed");
+}
+
+  const handleSubmit = async (selectedSlot: any) => {
+      // console.log("formdata----", formData);
+  setOpenTime(true);
+  // console.log("SelectedTiemSlot",selectedSlot);
   
       try {
-        // const startDateISO = convertDateAndTimeToISO(
-        //   tempSelectedDate,
-        //   tempSelectedTime
-        // );
-  
+        
         const updatedFormData = {
           ...formData,
           // start_date: startDateISO,
-          start_date: new Date().toISOString(),
+          start_date: convertDateAndTimeToISO(selectedSlot.date, selectedSlot.start),
         };
   
         // console.log("userData---", userData);
@@ -273,28 +282,18 @@ const NewRecommendMentor = () => {
           const randomId = Math.floor(Math.random() * 1000);
           const roomid = Math.floor(Math.random() * 1000);
           const password = Math.random().toString(36).substring(2, 8);
-          console.log("randomId---", randomId);
-          console.log("roomid----", roomid);
-          console.log("password----", password);
+          // console.log("randomId---", randomId);
+          // console.log("roomid----", roomid);
+          // console.log("password----", password);
   
           const secretKey = "meetingkeys";
-          console.log("secretKey----", secretKey);
+          // console.log("secretKey----", secretKey);
   
           const startDate = updatedFormData.start_date;
-          console.log("startDate----", startDate);
+          // console.log("startDate----", startDate);
   
-          // Always fixed 60-minute meeting
-          const duration = 60;
-          const calculateEndDate = (
-            startDateISO: string,
-            durationMinutes: number
-          ): string => {
-            const start = new Date(startDateISO);
-            start.setMinutes(start.getMinutes() + durationMinutes);
-            return start.toISOString();
-          };
   
-          const endDate = calculateEndDate(startDate, duration);
+          const endDate = convertDateAndTimeToISO(selectedSlot.date, selectedSlot.end);
           console.log("endDate----", endDate);
   
           // Encrypt values
@@ -343,7 +342,7 @@ const NewRecommendMentor = () => {
             email: parsedUserData2.emailid || "",
             start_datetime: startDate,
             end_datetime: endDate,
-            duration: duration, // always 60
+            duration: 60, // always 60
             link: meetingLink,
             user_id: parsedUser.user_id,
             mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
@@ -381,7 +380,7 @@ const NewRecommendMentor = () => {
             name: "",
             email: "",
             start_date: "",
-            duration: "60", // default reset
+            duration: "60", 
             mentor_id: 0,
             user_id: "",
             mentor_email: "",
@@ -389,6 +388,7 @@ const NewRecommendMentor = () => {
             mentor_linkedin: "",
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           });
+          setOpenTime(false);
         } else {
           //@ts-ignore
           // setError("User data not found in localStorage.");
@@ -397,7 +397,7 @@ const NewRecommendMentor = () => {
       } catch (err: any) {
         //@ts-ignore
         // setError(err.response?.data?.error || "An error occurred");
-        console.log(err.response?.data?.error || "An error occurred");
+        console.log(err|| "An error occurred");
         alert("An error occurred");
       }
     };
@@ -429,7 +429,8 @@ const NewRecommendMentor = () => {
               support_types: [],
             });
             setOpenDialog(false);
-            handleSubmit();
+            //  handleSubmit();
+            setOpenTime(true);
              fetchMeetingData();
           }
         } catch (error) {
@@ -725,6 +726,18 @@ const NewRecommendMentor = () => {
                     View PDF
                   </a>
                 </p>
+          <p className="flex gap-2 flex-wrap mt-2">
+            {selectedExpertData.intent_price !=null?
+  (selectedExpertData.intent_price.map((option, index) => (
+    <span
+      key={index}
+      className="px-3 py-1 rounded-full bg-gray-200 text-sm text-gray-700"
+    >
+      {option.intent}
+    </span>
+  )))
+  :""}
+</p>
               </div>
 
 {hasMeetingScheduled?   ( <div className="flex gap-4 mt-4">
@@ -797,14 +810,14 @@ const NewRecommendMentor = () => {
               <textarea
                 rows={2}
                 className="w-full border border-gray-300 rounded-md p-2"
-                placeholder="What area are you exploring?"
+                placeholder="What are the key objectives you aim to achieve during this session?"
                 value={form.area_exploring}
                 onChange={(e) => setForm({ ...form, area_exploring: e.target.value })}
               />
               <textarea
                 rows={2}
                 className="w-full border border-gray-300 rounded-md p-2"
-                placeholder="What is your goal or challenge?"
+                placeholder="What obstacles are you currently facing?"
                 value={form.goal_challenge}
                 onChange={(e) => setForm({ ...form, goal_challenge: e.target.value })}
               />
@@ -836,6 +849,7 @@ const NewRecommendMentor = () => {
     />
     {/* <span>{option.intent} - {option.price.toFixed(2)}</span> */}
      <span>{option.intent}</span>
+     
   </div>
 ))}
               </div>
@@ -864,6 +878,95 @@ const NewRecommendMentor = () => {
           </Button>
         </DialogActions>
       </Dialog>
+        {/* <Dialog
+        open={openTime}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={() => setOpenTime(false)}
+        aria-describedby="schedule-call-dialog"
+        PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
+      >
+        <DialogContent>
+          <div className="w-full bg-white rounded-xl p-4">
+            <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
+              Select the time-
+              <div className="space-y-4">
+  {selectedExpertData?.availability?.map((slot, index) => {
+    const timeSlots = generateTimeSlots(slot.startTime, slot.endTime);
+
+    return (
+      <div key={index} className="mb-4">
+        <p className="font-semibold">{slot.day}</p>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {timeSlots.map((t, idx) => (
+            <button
+              key={idx}
+              className={`px-3 py-1 rounded-full border ${
+                selectedSlot === `${t.start}-${t.end}`
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 hover:bg-blue-50"
+              }`}
+              onClick={() =>
+                setSelectedSlot(`${t.start}-${t.end}`)
+              }
+            >
+              {t.start} - {t.end}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+            </div>
+
+         
+          </div>
+        </DialogContent>
+
+        <DialogActions className="absolute top-0 right-2">
+          <Button onClick={() => setOpenDialog(false)}>
+            <X size={30} color="black" />
+          </Button>
+        </DialogActions>
+      </Dialog> */}
+      <Dialog
+  open={openTime}
+  TransitionComponent={Transition}
+  keepMounted
+  onClose={() => setOpenTime(false)}
+  aria-describedby="schedule-call-dialog"
+  PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
+>
+<DialogContent>
+  <div className="w-full bg-white rounded-xl p-4">
+    <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
+      Select the time
+    </div>
+
+    <CustomCalendar onSelect={(slot) => setSelectedSlot(slot)} availability={selectedExpertData?.availability ?? []} />
+
+    <div className="flex justify-center mt-4">
+      <button
+        className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+        onClick={() => handleSubmit(selectedSlot)}
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</DialogContent>
+
+  <DialogActions className="absolute top-0 right-2">
+    <Button onClick={() => setOpenTime(false)}>
+      <X size={30} color="black" />
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
+
     </section>
   );
 };
