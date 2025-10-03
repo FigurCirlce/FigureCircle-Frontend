@@ -110,6 +110,7 @@ const [intentPrice, setIntentPrice] = useState< { intent: string; price: number 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
     console.log("-------formdata------", formData);
 
@@ -128,6 +129,7 @@ const [intentPrice, setIntentPrice] = useState< { intent: string; price: number 
       resume: resumeUrl,
       interested_field:"N/A",
       phone:formData.phone,
+    
       intent_price: form.intent_price.map(item => ({
     ...item,
     price: parseFloat(item.price.toFixed(2)), // ensures float
@@ -370,7 +372,7 @@ const [intentPrice, setIntentPrice] = useState< { intent: string; price: number 
 
 <input
   type="number"
-  step="0.01"   // ✅ allows decimals
+  step="0.01"   // allows decimals
   min="0"
   name={`price${index}`}
   value={item.price === 0 ? "" : item.price}

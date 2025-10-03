@@ -14,6 +14,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NewRecommendMentor from './NewRecommendMentor.tsx';
 import baseURL from '@/config/config.tsx';
+import NotificationBell from '@/components/NewPage/NotificationBell.tsx';
+import ChatWidget from '@/components/NewPage/ChatBox.tsx';
 
 export interface Mentor {
   name: string;
@@ -154,6 +156,9 @@ const Dashboard: React.FC = () => {
           <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
             Home
           </button>
+               <div className="mr-3">
+          <NotificationBell/>
+          </div>
            <button
             className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700" onClick={handleLogout}>
               Log Out
@@ -166,7 +171,7 @@ const Dashboard: React.FC = () => {
         </main>
       </div>
     </div>
-
+<ChatWidget/>
 
     </>
   );

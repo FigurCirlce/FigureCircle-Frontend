@@ -9,7 +9,7 @@ import { useUserContext } from "../../components/context/userContext";
 import { Check } from "lucide-react";
 import { X } from "lucide-react";
 import { Linkedin } from "lucide-react";
-import ExpertiseInfoRow from "../../pages/NewPages/ExpertiseInRow";
+
 
 interface BasicInfo {
   emailid: string;
@@ -796,7 +796,7 @@ const Profile = () => {
         <InfoCard setDegree={setDegree} />
         {userData.is_mentor ? "" : <DreamProfileCard degree={degree} />}
       </div>
-      {userData.is_mentor ? <ExpertiseInfoRow /> : ""}
+      {/* {userData.is_mentor ? <ExpertiseInfoRow /> : ""} */}
     </div>
   );
 };
