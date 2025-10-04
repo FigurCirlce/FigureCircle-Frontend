@@ -8,6 +8,11 @@ import baseURL from "@/config/config";
 import CryptoJS from "crypto-js";
 import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
 import CustomCalendar from "@/components/NewPage/customCalendar";
+import { Card, CardContent } from "@/components/ui/card"
+
+import { Input } from "@/components/ui/input"
+import { Wrench, MessageSquare } from "lucide-react"
+
 
 
 interface Schedule {
@@ -38,10 +43,11 @@ interface Schedule {
 //   | "Connections or opportunities"
 //   | "Something else";
 
+//@ts-ignore
 type FormState = {
-  area_exploring: string;
+  // area_exploring: string;
   goal_challenge: string;
-  support_types: IntentPrice[];
+  support_types: string;
 };
 
 // interface Mentor {
@@ -167,17 +173,24 @@ const NewRecommendMentor = () => {
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
   const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
+  //@ts-ignore
   const[selectedMentorIntent,setSelectedMentorIntent]=useState<IntentPrice[]>([]);
+  //  const [selected, setSelected] = useState<Number |null>(null);
+
+ 
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [page, setPage] = useState(1);
   const [filterType, setFilterType] = useState<"all" | "recommended">("recommended"); 
   const[selectedSlot,setSelectedSlot]=useState("");
-  const [form, setForm] = useState<FormState>({
-    area_exploring: "",
-    goal_challenge: "",
-    support_types: [],
-  });
+  // const [form, setForm] = useState<FormState>({
+  //   // area_exploring: "",
+  //   goal_challenge: "",
+  //   support_types: "",
+  // });
+  const[support,setSupport]=useState("");
+  const[goalChallenge,setGoalChallenge]=useState("");
+
 
  
 
@@ -218,6 +231,11 @@ const NewRecommendMentor = () => {
   //   "Connections or opportunities",
   //   "Something else",
   // ];
+
+   const intents = [
+    { id: 1, title: "Skill Roadmapping", desc: "I want to know the skills I need for my target role and how to build them.", icon: Wrench },
+    { id: 2, title: "Career Clarity, Insights & Connections", desc: "I want expert advice, profile feedback, industry insights, and networking opportunities to guide my career decisions.", icon: MessageSquare },
+  ]
 
   const notifySuccess = (msg = "Intent Submitted Successfully!") => {
     toast.success(msg, { position: "top-right", autoClose: 3000, theme: "colored" });
@@ -404,12 +422,13 @@ const handleFailure=()=>{
   
       const handleSubmitIntent = async (
         mentor_id: number | undefined,
-        user_id: number
+        user_id: number | string
       ) => {
         const token = localStorage.getItem("token");
     
         const dataToSubmit = {
-          ...form,
+          goal_challenge:goalChallenge,
+          support_types:support,
           user_id: user_id,
           mentor_id: mentor_id,
         };
@@ -422,12 +441,8 @@ const handleFailure=()=>{
           });
           if (response.status === 201) {
             notifySuccess();
-          
-            setForm({
-              area_exploring: "",
-              goal_challenge: "",
-              support_types: [],
-            });
+          setSupport("");
+          setGoalChallenge("");
             setOpenDialog(false);
             //  handleSubmit();
             setOpenTime(true);
@@ -795,81 +810,45 @@ const handleFailure=()=>{
         keepMounted
         onClose={() => setOpenDialog(false)}
         aria-describedby="schedule-call-dialog"
-        PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
+        PaperProps={{ style: { minWidth: "50vw", maxHeight: "90vh" } }}
       >
         <DialogContent>
-          <div className="w-full bg-white rounded-xl p-4">
-            <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
-              Share Your Intent
-              <div className="text-sm font-normal text-gray-500">
-                Help your mentor understand what you're looking for
-              </div>
-            </div>
+         
+              <div className="flex flex-col items-center p-8 space-y-6 max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold text-center">What do you want to focus on right now?</h1>
 
-            <div className="space-y-4">
-              <textarea
-                rows={2}
-                className="w-full border border-gray-300 rounded-md p-2"
-                placeholder="What are the key objectives you aim to achieve during this session?"
-                value={form.area_exploring}
-                onChange={(e) => setForm({ ...form, area_exploring: e.target.value })}
-              />
-              <textarea
-                rows={2}
-                className="w-full border border-gray-300 rounded-md p-2"
-                placeholder="What obstacles are you currently facing?"
-                value={form.goal_challenge}
-                onChange={(e) => setForm({ ...form, goal_challenge: e.target.value })}
-              />
-              <div className="space-y-2">
-                <label className="font-semibold">
-                  What kind of support are you looking for?
-                </label>
-                {selectedMentorIntent?.map((option,index) => (
-  <div key={index}>
-    <input
-      type="checkbox"
-      className="mr-2"
-      checked={form.support_types.some((item) => item.intent === option.intent)}
-      onChange={(e) => {
-        if (e.target.checked) {
-          setForm({
-            ...form,
-            support_types: [...form.support_types, option], // add full object
-          });
-        } else {
-          setForm({
-            ...form,
-            support_types: form.support_types.filter(
-              (item) => item.intent !== option.intent
-            ),
-          });
-        }
-      }}
-    />
-    {/* <span>{option.intent} - {option.price.toFixed(2)}</span> */}
-     <span>{option.intent}</span>
-     
-  </div>
-))}
-              </div>
-              <div className="flex justify-center">
-                <button
-                  className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
-                
-                 onClick={() =>
-                    handleSubmitIntent(
-                      selectedExpertData?.mentor_id,
-                      parsedUser?.user_id
-                    )
-                  }
-                // onClick={handleSubmit}
-                >
-                  Submit
-                </button>
-              </div>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+        {intents.map((intent) => (
+          <Card
+            key={intent.id}
+            onClick={() => setSupport(intent.title)}
+            className={`cursor-pointer transition border-2 ${support === intent.title ? "border-blue-500" : "border-gray-200"}`}
+          >
+            <CardContent className="flex flex-col items-start space-y-2 p-4">
+              <intent.icon className="h-6 w-6 text-blue-500" />
+              <h2 className="font-semibold text-lg">{intent.title}</h2>
+              <p className="text-sm text-gray-600">{intent.desc}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="w-full">
+        <label className="block text-lg font-medium mb-2">What challenges are you facing?</label>
+        <Input placeholder="e.g., I’m confused between data science and product management" value={goalChallenge}
+  onChange={(e) => setGoalChallenge(e.target.value)}/>
+      </div>
+
+     <Button
+  
+  className="w-full sm:w-auto !bg-blue-600 hover:bg-blue-700 !text-white font-medium shadow-md"
+  onClick={()=>handleSubmitIntent(selectedExpertData?.mentor_id,parsedUser?.user_id)}
+>
+  Continue
+</Button>
+
+    </div>
+  
         </DialogContent>
 
         <DialogActions className="absolute top-0 right-2">

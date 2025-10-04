@@ -19,15 +19,19 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ setActivePage ,close}) => {
   const [isOpen, setIsOpen] = useState(true);
+  
 //@ts-ignore
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(true);
   const [activeItem, setActiveItem] = useState<string>('Dashboard');
 
+  // const user=localStorage.getItem("userData");
+  // const parsedUser=JSON.parse(user);
   const toggleSidebar = () => setIsOpen(!isOpen);
   const HomeMenu:MenuItem[]= [
     { title: 'Dashboard', icon: <LayoutDashboard /> },
     // (close ? ([{ title: 'Schedule Meeting', icon: <Calendar /> }])
     // : ""),
+    
      { title: 'Schedule Meeting', icon: <Calendar /> },
     { title: 'My Profile', icon: <User /> },
     // { title: 'My Experts', icon: <GraduationCap /> },
@@ -55,7 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage ,close}) => {
 
   // const userData = JSON.parse(localStorage.getItem("userlocaldata") || "{}");
     const userData = JSON.parse(localStorage.getItem("degree") || "{}");
-const username = userData.firstname;
+const username = userData?.firstname || userData?.name;
 
   return (
     <>

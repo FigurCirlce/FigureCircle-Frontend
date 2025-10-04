@@ -1,0 +1,525 @@
+import React, { useEffect, useState } from "react"
+import { Briefcase, GraduationCap, User, Wrench, MessageSquare } from "lucide-react";
+import axios from "axios";
+import { toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import baseURL from "../../../config/config";
+import { useNavigate } from "react-router-dom";
+
+interface FormData {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone?:string;
+}
+
+interface FormErrors {
+  fullName?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  phone?:string;
+  
+}
+const RegistrationFlow:React.FC<any>=() =>{
+  const [step, setStep] = useState(1)
+  const [profileType, setProfileType] = useState<string | null>(null)
+  const [supportType, setSupportType] = useState<string | null>(null)
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const[degree,setDegree]=useState("");
+  const[Recommendations,setRecommendations]=useState([]);
+  const[selectedRole,setSelectedRole]=useState("");
+  //@ts-ignore
+  const[basicInfo,setBasicInfo]=useState({});
+    const [formData, setFormData] = useState<FormData>({
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      // phone:""
+    });
+     const [userInfo, setUserInfo] = useState({
+        emailid:"",
+      
+       industry:"",
+        work_experience: "",
+        high_education: "",
+        interested_stream: "",
+        data_filed: false,
+        role:"",
+        role_based:"",
+        intent:"",
+        expertise:"",
+        bachelors_degree:"btech"
+    
+    // industry_role:"",
+      });
+
+      const navigate=useNavigate();
+
+      const handleInputChange = (
+          e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+          field: string
+        ) => {
+          const value = e.target.value;
+          setUserInfo((prev) => ({ ...prev, [field]: value }));
+        };
+      
+
+  const next = () => setStep((s) => s + 1)
+  const back = () => setStep((s) => s - 1)
+  const finishInfo = () => setShowRecommendations(true)
+
+   const [errors, setErrors] = useState<FormErrors>({});
+    // const [loading, setLoading] = useState(false);
+  
+    const notifySuccess = () => toast.success("Registration successful!");
+    const notifyError = (error: any) =>
+      toast.error(`Registration failed: ${error}`);
+  
+    const validate = (): FormErrors => {
+      const newErrors: FormErrors = {};
+      if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+      if (!formData.email) newErrors.email = "Email is required";
+      else if (!/\S+@\S+\.\S+/.test(formData.email))
+        newErrors.email = "Email is invalid";
+      if (!formData.password) newErrors.password = "Password is required";
+      else if (formData.password.length < 6)
+        newErrors.password = "Password must be at least 6 characters";
+      if (formData.confirmPassword !== formData.password)
+        newErrors.confirmPassword = "Passwords do not match";
+      return newErrors;
+    };
+  
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+  const SupportCards = () => (
+    <div className="space-y-4">
+      <h3 className="text-sm font-medium">What do you want to focus on right now?</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Roadmap */}
+        <div
+          onClick={() => setSupportType("Skill Roadmapping")}
+          className={`cursor-pointer border rounded-lg p-3 transition ${
+            supportType === "Skill Roadmapping" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+          }`}
+        >
+          <div className="flex flex-col items-start space-y-2">
+            <Wrench className="h-6 w-6" />
+            <h4 className="font-semibold text-base">Skill Roadmapping</h4>
+            <p className="text-xs text-gray-600">Learn the skills for your target role.</p>
+          </div>
+        </div>
+
+        {/* Clarity */}
+        <div
+          onClick={() => setSupportType("Career Clarity & Connections")}
+          className={`cursor-pointer border rounded-lg p-3 transition ${
+            supportType === "Career Clarity & Connections" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+          }`}
+        >
+          <div className="flex flex-col items-start space-y-2">
+            <MessageSquare className="h-6 w-6" />
+            <h4 className="font-semibold text-base">Career Clarity & Connections</h4>
+            <p className="text-xs text-gray-600">Get advice, insights, and networking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+   const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    console.log("emailregister---", formData.email);
+    console.log("passregister---", formData.password);
+
+    if (Object.keys(validationErrors).length === 0) {
+      // setLoading(true);
+      try {
+        const { email, password } = formData;
+        const response = await axios.post(`${baseURL}/register`, {
+          username: email,
+          password,
+        });
+        console.log("Registration successful:", response.data);
+       
+        notifySuccess();
+        if(response.status===201){
+           localStorage.setItem('registerStatus', response.data.register);
+           next();
+        }
+      } catch (error: any) {
+        console.error("Registration failed:", error);
+        notifyError(error?.response?.data?.message || error.message);
+      } finally {
+        // setLoading(false);
+      }
+    }
+  };
+
+
+   const handleLogin = async () => {
+      const dataToLogin={
+        username:formData.email,
+        password:formData.password
+      }
+    try {
+      const response = await axios.post(`${baseURL}/login`, dataToLogin);
+console.log("responseLoginnnnn-------",response);
+      console.log("response", response.data.access_token);
+
+      const token = response.data.access_token;
+      document.cookie = `token=${token}; expires=${new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ).toUTCString()}; path=/`;
+      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("token", token);
+      const user=response.data;
+      localStorage.setItem("userlocaldata", JSON.stringify(user));
+
+      // dispatch(setUser(user));
+
+      // Show success toast
+      console.log("Login successful");
+      // navigate(`/dashboard`);
+//       if(type!=="mentor"){
+//       if (response.data.data_fill === true ) {
+//           console.log("---fetchbasicInfo-----");
+//        await fetchBasicInfo();
+//         navigate("/dashboard");
+//       }
+//       else{
+//         navigate('/basic-info');
+//       }
+//     }
+//     else{
+//       console.log("mentor--loginnnn");
+// fetchMentorInfo();
+
+//     }
+  //  if (response.data.is_mentor) {
+  //     console.log("Mentor login detected");
+     
+  //   } else {
+      // if (response.data.data_fill === true) {
+        
+        await fetchBasicInfo();
+        
+      
+    // }
+  }
+     catch (error) {
+      // notifyError(error); // Show error toast
+      console.error("Login failed:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+
+     const handleInfoSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      console.log("userInfo-------",userInfo);
+       const nameParts = formData.fullName.trim().split(/\s+/);
+    const firstname = nameParts[0] || "";
+    const lastname = nameParts.slice(1).join(" ") || "";
+      const newUserInfo = {
+        ...userInfo,
+        data_filed: true,
+        emailid:formData.email,
+        useruniqid: formData.email,
+        firstname,
+        lastname,
+        intent:supportType,
+  role_based:selectedRole
+      };
+      setBasicInfo(newUserInfo);
+     
+     try {
+                const response = await axios.post(`${baseURL}/api/basic-info`, newUserInfo );
+                console.log("response---data-----",response.data);
+                await fetchBasicInfo();
+                navigate(`/dashboard`);
+     }
+
+      catch(e){
+
+      }
+
+      // setRecommendations(newUserInfo?.high_education);
+      // handleLogin();
+      }
+
+
+      const handleInfoDetail=async()=>{
+         setDegree(userInfo?.high_education);
+         await handleLogin();
+      setTimeout(() => {
+  next();
+  finishInfo();
+}, 1000);
+      }
+
+      useEffect(() => {
+        const token=localStorage.getItem("token");
+          const fetchDreamProfiles = async () => {
+            try {
+              const res = await axios.get(
+                `${baseURL}/dream-list?degree=${degree}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+      
+              console.log("dream Profiles", res.data);
+              const roles =  res.data.matched_roles.map((r: any) => r.matched_role);
+              console.log("roles----",roles);
+              
+              setRecommendations(roles);
+            } catch (error) {
+              console.error("Error fetching dream profiles", error);
+            }
+          };
+      
+          fetchDreamProfiles();
+        }, [degree]);
+
+//    const handleUserBasicInfo = async (newUserInfo: any) => {
+//   try {
+//     const response = await axios.post(`${baseURL}/api/basic-info`, newUserInfo);
+//     console.log("response----userBasicInfo", response.data);
+//   } catch (error) {
+//     console.error("Error saving basic info:", error);
+//   }
+// };
+
+      //  useEffect(() => {
+      //     const fetchDreamProfiles = async () => {
+      //       try {
+      //         const res = await axios.get(
+      //           `${baseURL}/dream-list?degree=${degree.high_education}`,
+      //           {
+      //             headers: { Authorization: `Bearer ${token}` },
+      //           }
+      //         );
+      
+      //         console.log("dream Profiles", res.data);
+      //         const roles = res.data.matched_roles;
+      //         setMatchedRoles(roles);
+      //       } catch (error) {
+      //         console.error("Error fetching dream profiles", error);
+      //       }
+      //     };
+      
+      //     fetchDreamProfiles();
+      //   }, [degree]);
+
+       const fetchBasicInfo = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${baseURL}/api/basic-info`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    console.log("basicInformation---",response.data);
+  localStorage.setItem("degree", JSON.stringify(response.data));
+  
+          // setBasicInfo([response.data]);
+          // setDegree(response.data.interested_stream);
+          // setFormData(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+  return (
+    <div className="flex flex-col items-center p-6 space-y-6 max-w-2xl mx-auto">
+      {/* Progress Bar */}
+      <div className="flex items-center space-x-4 w-full justify-center">
+        {["Login", "Info", "Recommendations"].map((label, index) => (
+          <div key={label} className="flex items-center space-x-2">
+            <div
+              className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
+                (showRecommendations ? 3 : step) === index + 1
+                  ? "border-blue-500 bg-blue-100 text-blue-600"
+                  : "border-gray-300 text-gray-400"
+              }`}
+            >
+              {index + 1}
+            </div>
+            <span
+              className={`text-sm ${
+                (showRecommendations ? 3 : step) === index + 1
+                  ? "text-blue-600 font-medium"
+                  : "text-gray-500"
+              }`}
+            >
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Step 1: Login/Register */}
+      {step === 1 && !showRecommendations && (
+        <div className="border rounded-lg shadow p-6 w-full max-w-md bg-white">
+          <h2 className="text-xl font-semibold text-center mb-4">Create Account</h2>
+          <div className="space-y-3">
+            <input className="border p-2 rounded w-full" placeholder="Full Name"  onChange={handleChange}  value={formData.fullName} name="fullName"/>
+             {errors.fullName && (
+              <p className="text-red-500 text-sm">{errors.fullName}</p>
+            )}
+            <input type="email" className="border p-2 rounded w-full" placeholder="Email"  onChange={handleChange} value={formData.email}name="email"/>
+             {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
+            
+            <input type="password" className="border p-2 rounded w-full" placeholder="Password"  onChange={handleChange} value={formData.password} name="password"/>
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
+            <input type="password" className="border p-2 rounded w-full" placeholder="Confirm Password"   onChange={handleChange} value={formData.confirmPassword} name="confirmPassword" /> {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+            )}
+            <button className="w-full bg-blue-600 text-white py-2 rounded" onClick={handleRegister}>
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Basic Info */}
+      {step === 2 && !showRecommendations && (
+        <div className="border rounded-lg shadow p-6 w-full max-w-2xl bg-white">
+          <h2 className="text-xl font-semibold text-center mb-6">Tell Us About You</h2>
+
+          {/* Profile Options */}
+          <div className="grid grid-cols-3 gap-4">
+            <div
+              onClick={() => setProfileType("student")}
+              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${
+                profileType === "student" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+              }`}
+            >
+              <GraduationCap />
+              <span className="text-sm">Student</span>
+            </div>
+
+            <div
+              onClick={() => setProfileType("professional")}
+              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${
+                profileType === "professional" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+              }`}
+            >
+              <Briefcase />
+              <span className="text-sm">Professional</span>
+            </div>
+
+            <div
+              onClick={() => setProfileType("other")}
+              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${
+                profileType === "other" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+              }`}
+            >
+              <User />
+              <span className="text-sm">Other</span>
+            </div>
+          </div>
+
+          {/* Conditional Fields */}
+          <div className="space-y-6 mt-6">
+            <select className="border p-2 rounded w-full" 
+              id="high_education"
+        value={userInfo.high_education}
+        onChange={(e) => handleInputChange(e, "high_education")}>
+              <option value="">Highest Education</option>
+              <option value="highschool">High School</option>
+              <option value="bachelors">Bachelor’s</option>
+              <option value="masters">Master’s</option>
+              <option value="phd">PhD</option>
+            </select>
+
+            {profileType !== null && (
+              <>
+                {profileType !== "student" && (
+                  <>
+                    <select className="border p-2 rounded w-full" id="industry"
+        value={userInfo.industry}
+        onChange={(e) => handleInputChange(e, "industry")}>
+                      <option value="">Industry</option>
+                      <option value="it">IT</option>
+                      <option value="finance">Finance</option>
+                      <option value="health">Healthcare</option>
+                    </select>
+
+                    <select className="border p-2 rounded w-full"  id="work_experience"
+        value={userInfo.work_experience}
+        onChange={(e) => handleInputChange(e, "work_experience")}>
+                      <option value="">Experience Level</option>
+                      <option value="0-2 yrs">0–2 yrs</option>
+                      <option value="3-6 yrs">3–6 yrs</option>
+                      <option value="7+ yrs">7+ yrs</option>
+                    </select>
+                  </>
+                )}
+
+                <SupportCards />
+              </>
+            )}
+          </div>
+
+          <div className="flex justify-between mt-6">
+            <button className="px-4 py-2 border rounded" onClick={back}>
+              Back
+            </button>
+            <button
+              className={`px-4 py-2 rounded text-white ${
+                !profileType || !supportType ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600"
+              }`}
+              onClick={handleInfoDetail}
+              disabled={!profileType || !supportType}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Recommendations */}
+      {showRecommendations && (
+        <div className="border rounded-lg shadow p-6 w-full max-w-2xl bg-white">
+          <h2 className="text-xl font-semibold text-center">Recommended Roles</h2>
+          <p className="text-sm text-gray-500 text-center mb-4">
+            Based on your information, here are some suggestions:
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {Recommendations?.map((role) => (
+              <button
+                key={role}
+                className="px-3 py-1 border rounded bg-gray-100 hover:bg-gray-200"
+                onClick={()=>setSelectedRole(role)}
+              >
+                {role}
+              </button>
+            ))}
+          </div>
+          <input className="border p-2 rounded w-full mt-4" placeholder="Or type your own role" />
+          <div className="flex justify-between mt-4">
+            <button className="px-4 py-2 border rounded" onClick={() => setShowRecommendations(false)}>
+              Back
+            </button>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={handleInfoSubmit}>Submit</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+export default RegistrationFlow;

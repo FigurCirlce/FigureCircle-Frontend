@@ -25,6 +25,8 @@ import banner6 from "../../assets/banner6.png";
 import ProfileDropdown from "@/components/NewPage/ProfileDropdown";
 import StepTwoMentor from "@/components/NewPage/Homepage/MultiStepMentor/StepTwo";
 import StepThree from "@/components/NewPage/Homepage/MultiStep_Form/StepThree";
+import NotificationBell from "@/components/NewPage/NotificationBell";
+import ChatWidget from "@/components/NewPage/ChatBox";
 
 
 interface MentorData {
@@ -310,7 +312,28 @@ const HomePage: React.FC = () => {
         }
       };
 
-    const handleLogin = async (user: any) => {
+      const fetchMentorInfo=async()=>{
+        const user=localStorage.getItem("user");
+        const parsedUser=user?JSON.parse(user):null;
+    try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${baseURL}/api/mentor/details?user_id=${parsedUser.user_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    console.log("basicInformation---",response.data);
+  localStorage.setItem("degree", JSON.stringify(response.data));
+  
+          // setBasicInfo([response.data]);
+          // setDegree(response.data.interested_stream);
+          // setFormData(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+    const handleLogin = async (user: any,type?:any) => {
       console.log("userLogin",user);
       const dataToLogin={
         username:user.email,
@@ -334,6 +357,7 @@ console.log("responseLoginnnnn-------",response);
       // Show success toast
       console.log("Login successful");
       // navigate(`/dashboard`);
+      if(type!=="mentor"){
       if (response.data.data_fill === true ) {
           console.log("---fetchbasicInfo-----");
        await fetchBasicInfo();
@@ -342,7 +366,27 @@ console.log("responseLoginnnnn-------",response);
       else{
         navigate('/basic-info');
       }
-    } catch (error) {
+    }
+    else{
+      console.log("mentor--loginnnn");
+fetchMentorInfo();
+
+    }
+  //  if (response.data.is_mentor) {
+  //     console.log("Mentor login detected");
+  //     await fetchMentorInfo(); // if you have this function
+  //     navigate("/dashboard"); // or wherever mentors should go
+  //   } else {
+  //     // if (response.data.data_fill === true) {
+  //       console.log("---fetchbasicInfo-----");
+  //       await fetchBasicInfo();
+  //       navigate("/dashboard");
+  //     // } else {
+  //     //   navigate("/basic-info");
+  //     // }
+  //   }
+  }
+     catch (error) {
       // notifyError(error); // Show error toast
       console.error("Login failed:", error);
     } finally {
@@ -378,7 +422,7 @@ console.log("responseLoginnnnn-------",response);
     // setStatus(true);
     if (registerRef.current?.handleSubmit) {
       await registerRef.current.handleSubmit(e);
-        await handleLogin(registerData);
+        await handleLogin(registerData,"mentor");
     }
 
 
@@ -432,6 +476,8 @@ const handleExpertBasicInfoSubmit = async (e: React.FormEvent) => {
     if (stepTwoMentorRef.current?.handleSubmit) {
       // const token=localStorage.getItem("token");
       await stepTwoMentorRef.current.handleSubmit(e);
+      // await fetchBasicInfo();
+      await fetchMentorInfo();
     }
 
     // cleanup dialogs
@@ -574,7 +620,9 @@ setDegree(data);
                 <div className="mr-3">
                   <ProfileDropdown />
                 </div>
-
+                 <div className="mr-3">
+<NotificationBell/>
+</div>
                 <button
                   onClick={handleLogout}
                   className="text-blue-600 hover:text-slate-400 text-sm md:text-lg font-semibold"
@@ -842,6 +890,7 @@ setDegree(data);
             </div>
           )}
         </header>
+       
 
         <section className="flex px-[5%] pt-[5%]">
           <div className="w-full relative ">
@@ -1159,6 +1208,7 @@ setDegree(data);
             © {new Date().getFullYear()} FigureCircle. All rights reserved.
           </p>
         </footer>
+         <ChatWidget/>
       </div>
     </div>
   );

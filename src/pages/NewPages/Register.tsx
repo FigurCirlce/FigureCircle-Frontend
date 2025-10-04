@@ -127,13 +127,35 @@ const Register: ForwardRefRenderFunction<any, RegisterProps> = (
   };
 
   //for ref in homepage
-  useImperativeHandle(ref, () => ({
-    handleSubmit,
-//    getFormData: () => ({
-//   fullName: formData.fullName,
-//   email: formData.email
-// }),
-  }));
+//   useImperativeHandle(ref, () => ({
+
+//     handleSubmit,
+// //    getFormData: () => ({
+// //   fullName: formData.fullName,
+// //   email: formData.email
+// // }),
+//   }));
+
+  useImperativeHandle(ref, () => {
+  if (type !== "mentor") {
+    // For user registration -> expose submit
+    return {
+      handleSubmit,
+    };
+  } else {
+    // For mentor registration -> expose only form data
+    return {
+       handleSubmit,
+      getFormData: () => ({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+      }),
+    };
+  }
+});
+
 
  
 useEffect(() => {

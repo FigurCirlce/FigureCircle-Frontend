@@ -90,6 +90,27 @@ localStorage.setItem("degree", JSON.stringify(response.data));
 //       } 
 //     }
 
+  const fetchMentorInfo=async()=>{
+        const user=localStorage.getItem("user");
+        const parsedUser=user?JSON.parse(user):null;
+    try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${baseURL}/api/mentor/details?user_id=${parsedUser.user_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    console.log("basicInformation---",response.data);
+  localStorage.setItem("degree", JSON.stringify(response.data));
+  
+          // setBasicInfo([response.data]);
+          // setDegree(response.data.interested_stream);
+          // setFormData(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -101,7 +122,7 @@ localStorage.setItem("degree", JSON.stringify(response.data));
         document.cookie = `token=${token}; expires=${new Date(
           Date.now() + 7 * 24 * 60 * 60 * 1000
         ).toUTCString()}; path=/`;
-
+console.log("login component---------");
         localStorage.setItem("user", JSON.stringify(response.data));
         localStorage.setItem("token", token);
         localStorage.setItem("userlocaldata", JSON.stringify(form));
@@ -111,14 +132,27 @@ localStorage.setItem("degree", JSON.stringify(response.data));
 updateUser(response.data);
         notifySuccess();
 
-        if (response.data.data_fill === true) {
-          console.log("---fetchbasicInfo-----");
-          await fetchBasicInfo();
-          // fetchMentorBasicInfo();
-          navigate("/dashboard");
-        } else {
-          navigate("/basic-info");
-        }
+        // if (response.data.data_fill === true) {
+        //   console.log("---fetchbasicInfo-----");
+        //   await fetchBasicInfo();
+        //   // fetchMentorBasicInfo();
+        //   navigate("/dashboard");
+        // } else {
+        //   navigate("/basic-info");
+        // }
+         if (response.data.is_mentor) {
+      console.log("Mentor login detected");
+      await fetchMentorInfo(); // if you have this function
+      navigate("/dashboard"); // or wherever mentors should go
+    } else {
+      // if (response.data.data_fill === true) {
+        console.log("---fetchbasicInfo-----");
+        await fetchBasicInfo();
+        navigate("/dashboard");
+      // } else {
+      //   navigate("/basic-info");
+      // }
+    }
       }
     } catch (error) {
       notifyError(error);
