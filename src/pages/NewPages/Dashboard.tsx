@@ -16,6 +16,7 @@ import NewRecommendMentor from './NewRecommendMentor.tsx';
 import baseURL from '@/config/config.tsx';
 import NotificationBell from '@/components/NewPage/NotificationBell.tsx';
 import ChatWidget from '@/components/NewPage/ChatBox.tsx';
+import MeetingSchedulerPreview from '@/pages/NewPages/NewMeetingScheduler.tsx';
 
 export interface Mentor {
   name: string;
@@ -102,7 +103,7 @@ const Dashboard: React.FC = () => {
         
       case "Schedule Meeting":
         //@ts-ignore
-         return <div><ScheduleMeeting/> </div>;
+         return <div><MeetingSchedulerPreview/> </div>;
     // if(meetingData.length !== 0){
     //   setClose(true);
     //      return <div><ScheduleMeeting/> </div>;

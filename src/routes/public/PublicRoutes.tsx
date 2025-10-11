@@ -13,6 +13,7 @@ import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 // import RecommendationsPanel from '@/pages/NewPages/CoursesRecommendation';
 // import NotificationBell from '@/components/NewPage/NotificationBell';
 import ChatWidget from '@/components/NewPage/ChatBox';
+import MeetingSchedulerPreview from '@/pages/NewPages/NewMeetingScheduler';
 
 // import Dashboard from '../../pages/NewPages/Dashboard'
 
@@ -74,6 +75,10 @@ const PublicRoutes = [
         {
             path:`/bell`,
             component:<ChatWidget/>
+        },
+        {
+            path:`/test`,
+            component:<MeetingSchedulerPreview/>
         }
 ]
 

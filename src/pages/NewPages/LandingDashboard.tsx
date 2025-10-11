@@ -561,7 +561,7 @@ import pic from "../../assets/pic.jpg";
 // import { Search } from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
-import { useUserContext } from "@/components/context/userContext";
+// import { useUserContext } from "@/components/context/userContext";
 import RecommendationsPanel from "./CoursesRecommendation";
 import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 import MilestoneFlowTimeline from "@/components/NewPage/Homepage/NewMilestoneUser";
@@ -632,10 +632,10 @@ const LandingDashboard: React.FC = () => {
   // const [user_id, setUser_id] = useState<string | null>(null);
   const token = localStorage.getItem("token");
   const degree = localStorage.getItem("degree");
-  const user = localStorage.getItem("userData");
+  const user = localStorage.getItem("user");
   const parseUser = user ? JSON.parse(user) : null;
 
-  const { userData } = useUserContext();
+  // const { userData } = useUserContext();
 
   //  const fetchBasicInfo = async () => {
   //     try {
@@ -774,34 +774,8 @@ const LandingDashboard: React.FC = () => {
 
   return (
     <div>
-      {parseUser?.is_mentor ? (
-        // <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-        //     <h1 className="text-3xl font-bold mb-6 text-gray-800 flex justify-center"> Getting Started Guide</h1>
-
-        //     <div className="space-y-10">
-        //       {steps.map((step, idx) => (
-        //         <div key={idx} className="flex items-start gap-8">
-        //           <CheckCircle className="text-green-500 mt-1" />
-        //           <div>
-        //             <h2 className="text-2xl font-semibold text-gray-700">{`Step ${idx + 1}: ${step.title}`}</h2>
-        //             <p className="text-gray-600 text-lg">{step.description}</p>
-        //           </div>
-        //         </div>
-        //       ))}
-        //     </div>
-
-        //     <div className="mt-8 flex gap-4 ml-12">
-        //       <button
-        //         onClick={() => navigate("/profile/edit")}
-        //         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        //       >
-        //         Go to Profile Setup
-        //       </button>
-
-        //     </div>
-        //   </div>
-        <MilestoneFlowExpertTimeline />
-      ) : (
+      <div>
+     
         <div className="flex flex-col gap-6">
           <div>
             {/* <h2 className="text-2xl font-bold  ">Recommended for You</h2> */}
@@ -882,27 +856,30 @@ const LandingDashboard: React.FC = () => {
               <p>No recommendations available</p>
             )}
           </div> */}
+          {parseUser?.is_mentor?"":
             <RecommendationsPanel
               course={course}
               certificate={certificate}
               competition={competition}
             />
+          }
           </div>
 
           {/* Expert Section */}
-          {assignedMentorData.length === 0 && parseUser?.is_mentor ? (
+          {assignedMentorData.length === 0  ? (parseUser?.is_mentor?(
             <div className="">
               <MilestoneFlowExpertTimeline/>
             </div>
-          ) : assignedMentorData.length === 0 ? (
+          ):
+           
             <MilestoneFlowTimeline />
-          ) : (
+        ): (
             <div className="flex flex-col lg:flex-row gap-5 w-full">
               {/* Expert List */}
 
               <div className="bg-white rounded-2xl shadow p-6 w-[400px]">
                 <h2 className="text-2xl font-bold mb-4">
-                  {userData.is_mentor ? "Your Mentees" : "Your Experts"}
+                  {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
                 </h2>
                 <div className="space-y-4 w-[350px]">
                   {assignedMentorData.length < 1
@@ -942,7 +919,7 @@ const LandingDashboard: React.FC = () => {
               {/* Expert Progress */}
               <div className="bg-white rounded-2xl shadow p-6 flex-1">
                 <h2 className="text-2xl mb-4 font-bold text-center">
-                  {userData.is_mentor
+                  {parseUser.is_mentor
                     ? "Progress with Mentees"
                     : "Progress with Experts"}
                 </h2>
@@ -1065,7 +1042,8 @@ const LandingDashboard: React.FC = () => {
             </div>
           )}
         </div>
-      )}
+      
+      </div>
     </div>
   );
 };

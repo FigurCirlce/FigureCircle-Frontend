@@ -94,7 +94,7 @@ const MilestoneFlowExpertTimeline=()=> {
   }
 
   return (
-    <div className="flex flex-col items-center p-6 max-w-4xl mx-auto">
+    <div className="flex flex-col items-center p-6 max-w-4xl mx-auto rounded-md bg-white">
       {/* Segmented toggle */}
       <div className="mb-4 inline-flex rounded-lg border bg-white p-1 shadow-sm">
         <Button variant={view === "skill" ? "default" : "ghost"} size="sm" className={`${view === "skill" ? "" : "text-gray-600"} rounded-md`} onClick={() => onSwitch("skill")}>

@@ -145,7 +145,7 @@ const Register: ForwardRefRenderFunction<any, RegisterProps> = (
   } else {
     // For mentor registration -> expose only form data
     return {
-       handleSubmit,
+      handleSubmit,
       getFormData: () => ({
         fullName: formData.fullName,
         email: formData.email,

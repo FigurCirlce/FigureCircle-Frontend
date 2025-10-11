@@ -173,7 +173,7 @@ const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
         {items.map((item, i) => (
           <div
             key={i}
-            className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
+            className="border-2 border-slate-200 w-[200px] max-h-[200px] rounded-lg shadow-lg"
           >
             <img src={coding} alt={typeLabel} className="mb-2" />
             <button
@@ -213,7 +213,8 @@ const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
         </div>
 
         {/* Cards inside the tab */}
-        {renderCards()}
+        <div className="w-full flex justify-center">  {renderCards()}</div>
+      
       </div>
     </div>
   )

@@ -140,6 +140,7 @@ const NewHomepage=()=> {
     window.location.reload();
   };
 
+  
   // const handleNext = async(type:string,step:any,e: React.FormEvent) => {
   //    e.preventDefault();
      
@@ -204,9 +205,6 @@ const NewHomepage=()=> {
        handleExpertSubmit(e);
        
       }
-    
-    
-    
       setStep((s) => s + 1);
     }
     
@@ -597,7 +595,7 @@ setDegree(data);
                   {/* </DialogActions> */}
                   <DialogActions className="absolute top-0 right-2">
                     <Button onClick={handleRegisterDialogClose}>
-                      <X size={40} color="black" />
+                      <X size={20}  />
                     </Button>
                   </DialogActions>
                 </Dialog>
@@ -681,7 +679,7 @@ setDegree(data);
                   </DialogActions>
                   <DialogActions className="absolute top-0 right-2">
                     <Button onClick={handleExpertDialogClose}>
-                      <X size={40} color="black" />
+                      <X size={20} />
                     </Button>
                   </DialogActions>
                 </Dialog>
