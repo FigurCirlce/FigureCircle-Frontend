@@ -5,10 +5,12 @@ import dream from "../../assets/dream.jpg";
 import baseURL from "@/config/config";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useUserContext } from "../../components/context/userContext";
+// import { useUserContext } from "../../components/context/userContext";
 import { Check } from "lucide-react";
 import { X } from "lucide-react";
 import { Linkedin } from "lucide-react";
+import { Phone } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 
 interface BasicInfo {
@@ -65,7 +67,9 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
 
   const token = localStorage.getItem("token");
   const notifySuccess = () => toast.success("Basic info updated successfully!");
-  const { userData } = useUserContext();
+  const user=localStorage.getItem("user");
+  const parsedUser=user?JSON.parse(user):null;
+  // const { userData } = useUserContext();
 
   // const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //     setSearchQuery(event.target.value);
@@ -144,8 +148,8 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
   // }
 
   const fetchBasicInfo = async () => {
-    const endpoint = userData.is_mentor
-      ? `${baseURL}/api/mentor/details?user_id=${userData.user_id}`
+    const endpoint = parsedUser.is_mentor
+      ? `${baseURL}/api/mentor/details?user_id=${parsedUser.user_id}`
       : `${baseURL}/api/basic-info`;
 
     try {
@@ -155,7 +159,7 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
         },
       });
       console.log("basicInformation---", response.data);
-      if (userData.is_mentor) {
+      if (parsedUser.is_mentor) {
         setMentorBasicInfo([response.data]);
         setmentorFormData(response.data);
       } else {
@@ -174,7 +178,7 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
   const updateBasicInfo = async () => {
     try {
       const token = localStorage.getItem("token");
-      const data = userData.is_mentor ? mentorformData : formData;
+      const data = parsedUser?.is_mentor ? mentorformData : formData;
       const response = await axios.put(`${baseURL}/api/basic-info`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -397,12 +401,21 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                         </label>
                         <h1 className=" text-lg text-center ">{item.name}</h1>
                       </div>
-                      <div className="flex gap-2 pt-2">
-                        <label className="font-bold text-lg ">Expertise:</label>
-                        <h2 className="text-lg text-center ">
-                          {item.expertise}
+                      <div className="">
+                       <div className="flex gap-2 pt-2">
+                        <label className="font-bold text-md "><Phone/></label>
+                        <h2 className="text-md text-center ">
+                          :{item.phone}
                         </h2>
                       </div>
+                       <div className="flex gap-2 pt-2">
+                        <label className="font-bold text-md "><Mail /></label>
+                        <h2 className="text-md text-center ">
+                         : {item.email}
+                        </h2>
+                      </div>
+                      </div>
+                    
 
                       <div className="flex items-center mt-2 pb-2">
                         {/* <div className="inline-flex items-center px-3 py-0 bg-white text-gray-800 text-sm font-medium rounded-full border-2 border-slate-300">
@@ -410,7 +423,7 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                                </div> */}
 
                         <div className="inline-flex items-center py-0 bg-white  text-sm font-medium ">
-                          <label className="font-bold text-lg pr-1 ">
+                          <label className="text-lg pr-1 ">
                             Degree:
                           </label>
                           <h2 className="text-lg">{item.degree}</h2>
@@ -419,16 +432,24 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                                <Banknote/>{item.fee}
                                </div> */}
                       </div>
-                      <div className="inline-flex items-center bg-white  text-sm font-medium">
-                        <label className="font-bold text-lg pr-1">Fees:</label>
-                        <h2 className="text-lg">{item.fee}</h2>
+                        <div className="flex gap-2 pt-2">
+                        <label className="font-bold text-md">Expertise:</label>
+                        <h2 className="text-md text-center ">
+                          {item.expertise}
+                        </h2>
                       </div>
+                     
 
                       <div className="px-5 mt-3 text-center line-clamp-3">
                         <label className="font-bold text-lg pr-1">
                           Background:
                         </label>
                         {item.background}
+                      </div>
+
+                       <div className="inline-flex items-center bg-white  text-sm font-medium">
+                        <label className="font-bold text-lg pr-1">Fees:</label>
+                        <h2 className="text-lg">{item.fee}</h2>
                       </div>
                       {/* <div className="mt-2 text-sm text-gray-600 text-center">
                                {item.availability.map((slot, index) => (
@@ -782,19 +803,21 @@ const DreamProfileCard = ({ degree }: { degree: string }) => {
 
 const Profile = () => {
   const [degree, setDegree] = useState("");
-  const { userData } = useUserContext();
+  const user=localStorage.getItem("user");
+  const parsedUser=user?JSON.parse(user):null;
+  // const { userData } = useUserContext();
 
   return (
     <div>
       <div
         className={`${
-          userData.is_mentor
+          parsedUser.is_mentor
             ? "flex justify-center"
             : "flex flex-col md:flex-row gap-6 p-6"
         } bg-gray-50 max-h-screen`}
       >
         <InfoCard setDegree={setDegree} />
-        {userData.is_mentor ? "" : <DreamProfileCard degree={degree} />}
+        {parsedUser.is_mentor ? "" : <DreamProfileCard degree={degree} />}
       </div>
       {/* {userData.is_mentor ? <ExpertiseInfoRow /> : ""} */}
     </div>

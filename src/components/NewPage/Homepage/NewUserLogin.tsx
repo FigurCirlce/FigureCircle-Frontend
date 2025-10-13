@@ -6,6 +6,97 @@ import "react-toastify/dist/ReactToastify.css";
 import baseURL from "../../../config/config";
 import { useNavigate } from "react-router-dom";
 
+interface SelectOption {
+  [key: string]: string | number;
+}
+
+interface SearchableSelectProps {
+  value: string | number | null;
+  onChange: (value: string | number) => void;
+  options: SelectOption[];
+  placeholder?: string;
+  labelKey?: string;
+  valueKey?: string;
+}
+
+const SearchableSelect: React.FC<SearchableSelectProps> = ({
+  value,
+  onChange,
+  options,
+  placeholder = 'Select an option',
+  labelKey = 'label',
+  valueKey = 'value',
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
+
+  useEffect(() => {
+      const selected = options.find(opt => opt[valueKey] === value);
+  if (selected) {
+    setSearchTerm(selected[labelKey] as string);
+  }
+  }, [value, options, labelKey, valueKey]);
+
+  const filteredOptions = options.filter(item =>{
+    const label = item[labelKey];
+  return (
+    typeof label === 'string' &&
+    label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+  );
+
+  const handleSelect = (selectedValue: string | number) => {
+    onChange(selectedValue);
+    const selected = options.find(opt => opt[valueKey] === selectedValue);
+    // setSearchTerm(selected?.[labelKey] || '');
+      setSearchTerm(
+    typeof selected?.[labelKey] === 'string'
+      ? selected[labelKey] as string
+      : String(selected?.[labelKey] ?? '')
+  );
+    setShowOptions(false);
+  };
+
+  return (
+    <div className="relative w-full">
+      <input
+        type="text"
+        className="border p-2 rounded w-full"
+        placeholder={placeholder}
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setShowOptions(true);
+        }}
+        onFocus={() => setShowOptions(true)}
+        onBlur={() => setTimeout(() => setShowOptions(false), 100)}
+      />
+      {showOptions && (
+        <ul className="absolute z-10 bg-white border rounded w-full max-h-60 overflow-y-auto">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((item, index) => (
+              <li
+                key={index}
+                className="p-2 hover:bg-gray-200 cursor-pointer"
+                onMouseDown={() => handleSelect(item[valueKey])}
+              >
+                {item[labelKey]}
+              </li>
+            ))
+          ) : (
+            <li className="p-2 text-gray-500">No matches found</li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+
+
+
+
 interface FormData {
   fullName: string;
   email: string;
@@ -22,10 +113,21 @@ interface FormErrors {
   phone?:string;
   
 }
+
+
+interface EducationItem {
+  id: number;
+  description: string;
+  name:string;
+  created_at:string;
+  updated_at:string;
+}
+
 const RegistrationFlow:React.FC<any>=() =>{
   const [step, setStep] = useState(1)
   const [profileType, setProfileType] = useState<string | null>(null)
-  const [supportType, setSupportType] = useState<string | null>(null)
+  // const [supportType, setSupportType] = useState<string | null>(null)
+   const [selectedSupports, setSelectedSupports] = useState<string[]>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const[degree,setDegree]=useState("");
   const[Recommendations,setRecommendations]=useState([]);
@@ -55,17 +157,24 @@ const RegistrationFlow:React.FC<any>=() =>{
     
     // industry_role:"",
       });
+      const[educationArray,setEducationArray]=useState<EducationItem[]>([]);
+          const[IndustryArray,setIndustryArray]=useState<EducationItem[]>([]);
+             const[ExperienceArray,setExperienceArray]=useState<EducationItem[]>([]);
 
       const navigate=useNavigate();
 
-      const handleInputChange = (
-          e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-          field: string
-        ) => {
-          const value = e.target.value;
-          setUserInfo((prev) => ({ ...prev, [field]: value }));
-        };
+      // const handleInputChange = (
+      //     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+      //     field: string
+      //   ) => {
+      //     const value = e.target.value;
+      //     setUserInfo((prev) => ({ ...prev, [field]: value }));
+      //   };
       
+      const handleInputChange = (field: string, value: string) => {
+  setUserInfo(prev => ({ ...prev, [field]: value }));
+};
+
 
   const next = () => setStep((s) => s + 1)
   const back = () => setStep((s) => s - 1)
@@ -97,40 +206,99 @@ const RegistrationFlow:React.FC<any>=() =>{
       setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-  const SupportCards = () => (
+  // const SupportCards = () => (
+  //   <div className="space-y-4">
+  //     <h3 className="text-sm font-medium">What do you want to focus on right now?</h3>
+  //     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  //       {/* Roadmap */}
+  //       <div
+  //         onClick={() => setSupportType("Skill Roadmapping")}
+  //         className={`cursor-pointer border rounded-lg p-3 transition ${
+  //           supportType === "Skill Roadmapping" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+  //         }`}
+  //       >
+  //         <div className="flex flex-col items-start space-y-2">
+  //           <Wrench className="h-6 w-6" />
+  //           <h4 className="font-semibold text-base">Skill Roadmapping</h4>
+  //           <p className="text-xs text-gray-600">Learn the skills for your target role.</p>
+  //         </div>
+  //       </div>
+
+  //       {/* Clarity */}
+  //       <div
+  //         onClick={() => setSupportType("Career Clarity & Connections")}
+  //         className={`cursor-pointer border rounded-lg p-3 transition ${
+  //           supportType === "Career Clarity & Connections" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+  //         }`}
+  //       >
+  //         <div className="flex flex-col items-start space-y-2">
+  //           <MessageSquare className="h-6 w-6" />
+  //           <h4 className="font-semibold text-base">Career Clarity & Connections</h4>
+  //           <p className="text-xs text-gray-600">Get advice, insights, and networking.</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </div>
+  // )
+
+const SupportCards = () => {
+  // const [selectedSupports, setSelectedSupports] = useState([]);
+
+  const toggleSupport = (type:any) => {
+    setSelectedSupports((prev:any) =>
+      prev.includes(type)
+        ? prev.filter((item:any) => item !== type)
+        : [...prev, type]
+    );
+  };
+
+  return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">What do you want to focus on right now?</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Roadmap */}
+        {/* Skill Roadmapping */}
         <div
-          onClick={() => setSupportType("Skill Roadmapping")}
+          onClick={() => toggleSupport("Skill Roadmapping")}
           className={`cursor-pointer border rounded-lg p-3 transition ${
-            supportType === "Skill Roadmapping" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+            selectedSupports.includes("Skill Roadmapping")
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-200"
           }`}
         >
           <div className="flex flex-col items-start space-y-2">
             <Wrench className="h-6 w-6" />
             <h4 className="font-semibold text-base">Skill Roadmapping</h4>
-            <p className="text-xs text-gray-600">Learn the skills for your target role.</p>
+            <p className="text-xs text-gray-600">
+              Learn the skills for your target role.
+            </p>
           </div>
         </div>
 
-        {/* Clarity */}
+        {/* Career Clarity & Connections */}
         <div
-          onClick={() => setSupportType("Career Clarity & Connections")}
+          onClick={() => toggleSupport("Career Clarity & Connections")}
           className={`cursor-pointer border rounded-lg p-3 transition ${
-            supportType === "Career Clarity & Connections" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+            selectedSupports.includes("Career Clarity & Connections")
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-200"
           }`}
         >
           <div className="flex flex-col items-start space-y-2">
             <MessageSquare className="h-6 w-6" />
-            <h4 className="font-semibold text-base">Career Clarity & Connections</h4>
-            <p className="text-xs text-gray-600">Get advice, insights, and networking.</p>
+            <h4 className="font-semibold text-base">
+              Career Clarity & Connections
+            </h4>
+            <p className="text-xs text-gray-600">
+              Get advice, insights, and networking.
+            </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
+};
+
+
 
    const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,6 +330,50 @@ const RegistrationFlow:React.FC<any>=() =>{
       }
     }
   };
+
+
+   const fetchEducationData = async () => {
+            try {
+                    const response = await axios.get(`${baseURL}/api/education`);
+                  console.log("response-data--education",response.data.education);
+                    setEducationArray(response.data.education);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+         const fetchIndustryData = async () => {
+            try {
+                    const response = await axios.get(`${baseURL}/api/industry`);
+                  console.log("response-data--industry",response.data.industry);
+                    setIndustryArray(response.data.industry);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+          const fetchExperienceData = async () => {
+            try {
+                    const response = await axios.get(`${baseURL}/api/experience-level`);
+                  console.log("response-data--api/experience-level",response.data.experience_level);
+                    setExperienceArray(response.data.experience_level);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+
+     useEffect(() => {
+  
+       
+
+        fetchEducationData();
+        fetchIndustryData();
+        fetchExperienceData();
+    }, []);
 
 
    const handleLogin = async () => {
@@ -236,7 +448,7 @@ console.log("responseLoginnnnn-------",response);
         useruniqid: formData.email,
         firstname,
         lastname,
-        intent:supportType,
+        intent:selectedSupports,
   role_based:selectedRole
       };
       setBasicInfo(newUserInfo);
@@ -435,38 +647,51 @@ console.log("responseLoginnnnn-------",response);
 
           {/* Conditional Fields */}
           <div className="space-y-6 mt-6">
-            <select className="border p-2 rounded w-full" 
-              id="high_education"
-        value={userInfo.high_education}
-        onChange={(e) => handleInputChange(e, "high_education")}>
-              <option value="">Highest Education</option>
-              <option value="highschool">High School</option>
-              <option value="bachelors">Bachelor’s</option>
-              <option value="masters">Master’s</option>
-              <option value="phd">PhD</option>
-            </select>
+          <SearchableSelect
+  value={userInfo.high_education}
+  onChange={(val: string | number) => handleInputChange('high_education', String(val))}
+  options={educationArray.map(item => ({
+    label: item.description,
+    value: item.description,
+  }))}
+  placeholder="Highest Education"
+/>
+
 
             {profileType !== null && (
               <>
                 {profileType !== "student" && (
                   <>
-                    <select className="border p-2 rounded w-full" id="industry"
-        value={userInfo.industry}
-        onChange={(e) => handleInputChange(e, "industry")}>
-                      <option value="">Industry</option>
-                      <option value="it">IT</option>
-                      <option value="finance">Finance</option>
-                      <option value="health">Healthcare</option>
-                    </select>
+                  
 
-                    <select className="border p-2 rounded w-full"  id="work_experience"
+                      <SearchableSelect
+  value={userInfo.industry}
+  onChange={(val: string | number) => handleInputChange('industry', String(val))}
+  options={IndustryArray.map(item => ({
+    label: item.description,
+    value: item.description,
+  }))}
+  placeholder="Industry"
+/>
+
+                    {/* <select className="border p-2 rounded w-full"  id="work_experience"
         value={userInfo.work_experience}
         onChange={(e) => handleInputChange(e, "work_experience")}>
                       <option value="">Experience Level</option>
                       <option value="0-2 yrs">0–2 yrs</option>
                       <option value="3-6 yrs">3–6 yrs</option>
                       <option value="7+ yrs">7+ yrs</option>
-                    </select>
+                    </select> */}
+
+                      <SearchableSelect
+  value={userInfo.work_experience}
+  onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
+  options={ExperienceArray.map(item => ({
+    label: item.description,
+    value: item.description,
+  }))}
+  placeholder="Work Experience"
+/>
                   </>
                 )}
 
@@ -481,10 +706,10 @@ console.log("responseLoginnnnn-------",response);
             </button>
             <button
               className={`px-4 py-2 rounded text-white ${
-                !profileType || !supportType ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600"
+                !profileType || !selectedSupports ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600"
               }`}
               onClick={handleInfoDetail}
-              disabled={!profileType || !supportType}
+              disabled={!profileType || !selectedSupports}
             >
               Next
             </button>
@@ -503,7 +728,12 @@ console.log("responseLoginnnnn-------",response);
             {Recommendations?.map((role) => (
               <button
                 key={role}
-                className="px-3 py-1 border rounded bg-gray-100 hover:bg-gray-200"
+               className={`px-3 py-1 border rounded transition
+      ${
+        selectedRole === role
+          ? "bg-blue-600 text-white border-blue-600"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+      }`}
                 onClick={()=>setSelectedRole(role)}
               >
                 {role}
@@ -512,7 +742,7 @@ console.log("responseLoginnnnn-------",response);
           </div>
           <input className="border p-2 rounded w-full mt-4" placeholder="Or type your own role" />
           <div className="flex justify-between mt-4">
-            <button className="px-4 py-2 border rounded" onClick={() => setShowRecommendations(false)}>
+            <button className="px-4 py-2 border rounded" onClick={() => {setShowRecommendations(false); setStep(2)}}>
               Back
             </button>
             <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={handleInfoSubmit}>Submit</button>
