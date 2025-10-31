@@ -1,5 +1,5 @@
 import React from 'react';
-import Sidebar from '../../components/NewPage/Sidebar.tsx';
+// import Sidebar from '../../components/NewPage/Sidebar.tsx';
 import { useState } from 'react';
 //@ts-ignore
 import ScheduleMeeting from '../../components/NewPage/ScheduleMeeting/scheduleMeeting.tsx';
@@ -17,6 +17,7 @@ import baseURL from '@/config/config.tsx';
 import NotificationBell from '@/components/NewPage/NotificationBell.tsx';
 import ChatWidget from '@/components/NewPage/ChatBox.tsx';
 import MeetingSchedulerPreview from '@/pages/NewPages/NewMeetingScheduler.tsx';
+import Navbar from '@/components/NewPage/Navbar.tsx';
 
 export interface Mentor {
   name: string;
@@ -146,14 +147,14 @@ const Dashboard: React.FC = () => {
    
     <div className="flex h-screen w-screen bg-slate-100 overflow-hidden">
       {/* Sidebar */}
-      <Sidebar setActivePage={setActivePage} close={close}/>
-
+      {/* <Sidebar setActivePage={setActivePage} close={close}/> */}
+<Navbar setActivePage={setActivePage} close={false} />
       
       <div className="flex flex-col w-full h-screen overflow-hidden">
         
     
         <header className="flex-shrink-0 flex justify-end items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
-          {/* <img alt="image" width={50} className="object-contain" /> */}
+        
           <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
             Home
           </button>

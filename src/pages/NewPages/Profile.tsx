@@ -43,6 +43,7 @@ export interface MentorDetails {
   profile_picture: string;
   resume: string;
   user_id: number;
+  current_role:string;
 }
 
 interface DreamProfileInfo {
@@ -350,6 +351,26 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
                       className="border p-1 rounded"
                     />
                   </div>
+                  <div>
+                    <label className="font-semibold mr-2">Current Role:</label>
+                    <input
+                      type="text"
+                      name="current_role"
+                      value={mentorformData.current_role|| ""}
+                      onChange={handleMentorChange}
+                      className="border p-1 rounded"
+                    />
+                  </div>
+                   {/* <div>
+                    <label className="font-semibold mr-2">Area Of Expertise:</label>
+                    <input
+                      type="text"
+                      name="current_role"
+                      value={mentorformData.current_role|| ""}
+                      onChange={handleMentorChange}
+                      className="border p-1 rounded"
+                    />
+                  </div> */}
                   <div>
                     <label className="font-semibold mr-2">fee:</label>
                     <input
