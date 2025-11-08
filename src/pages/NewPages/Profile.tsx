@@ -180,7 +180,8 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
     try {
       const token = localStorage.getItem("token");
       const data = parsedUser?.is_mentor ? mentorformData : formData;
-      const response = await axios.put(`${baseURL}/api/basic-info`, data, {
+      const url=parsedUser?.is_mentor ? `${baseURL}/update_mentor/${mentorformData.mentor_id}` : `${baseURL}/api/basic-info`;
+      const response = await axios.put(url, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -189,7 +190,9 @@ const InfoCard = ({ setDegree }: { setDegree: (degree: string) => void }) => {
       console.log("Update successful:", response.data);
       notifySuccess();
       setEditMode(false);
+  
       fetchBasicInfo(); // refresh data
+      
     } catch (error) {
       console.error("Error updating basic info:", error);
     }

@@ -399,7 +399,7 @@ const ExpertOnboardingPreview = () => {
       console.log("Login successful");
       // navigate(`/dashboard`);
       // if (type !== "mentor") {
-      if (response.data.data_fill === true) {
+      if (response.data.is_mentor === true) {
         console.log("---fetchbasicInfo-----");
         await fetchBasicInfo();
         navigate("/dashboard");

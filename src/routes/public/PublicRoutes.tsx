@@ -12,10 +12,12 @@ import MilestoneFlowTimeline from '@/components/NewPage/Homepage/NewMilestoneUse
 import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 // import RecommendationsPanel from '@/pages/NewPages/CoursesRecommendation';
 // import NotificationBell from '@/components/NewPage/NotificationBell';
-import ChatWidget from '@/components/NewPage/ChatBox';
+// import ChatWidget from '@/components/NewPage/ChatBox';
 // import ExpertOnboardingPreview from '@/components/NewPage/ExpertLogin';
-// import ExpertOnboardingCompact from '@/components/NewPage/ExpertUserFinalForm';
+ import ExpertOnboardingCompact from '@/components/NewPage/ExpertUserFinalForm';
 import SocketTest from '@/components/NewPage/Notification';
+import MentorsWireframe from '@/pages/NewPages/MentorNewPages';
+import MentorsWireframe1 from '@/pages/NewPages/MentorPages';
 
 
 // import Dashboard from '../../pages/NewPages/Dashboard'
@@ -75,17 +77,26 @@ const PublicRoutes = [
             path:`/new_milestone_expert`,
             component:<MilestoneFlowExpertTimeline/>
         },
-        {
-            path:`/bell`,
-            component:<ChatWidget/>
-        },
         // {
-        //     path:`/test`,
-        //     component:<ExpertOnboardingCompact/>
+        //     path:`/bell`,
+        //     component:<ChatWidget/>
         // },
+        {
+            path:`/test1`,
+            component:<MentorsWireframe/>
+        },
          {
             path:`/test`,
             component:<SocketTest/>
+        },
+        //shared by harsh
+         {
+            path:`/test2`,
+            component:<MentorsWireframe1/>
+        },
+        {
+            path:`/test3`,
+            component:<ExpertOnboardingCompact/>
         }
      
 ]

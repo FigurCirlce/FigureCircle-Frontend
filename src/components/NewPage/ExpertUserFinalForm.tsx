@@ -8,6 +8,7 @@ import axios from "axios";
 import baseURL from "@/config/config";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Clock } from 'lucide-react';
 
 // —— Simplified 3-step onboarding (Login → Profile & Expertise → Pricing)
 
@@ -15,7 +16,7 @@ interface FormData {
   fullName: string;
   email: string;
   password: string;
- 
+ confirmpassword:string;
 }
 
 interface ExpertData {
@@ -45,7 +46,7 @@ interface FormErrors {
   fullName?: string;
   email?: string;
   password?: string;
- 
+ confirmpassword?:string;
 }
 
 interface EducationItem {
@@ -120,7 +121,8 @@ const ExpertOnboardingCompact=() =>{
  const [formData, setFormData] = useState<FormData>({
       fullName: "",
       email: "",
-      password: ""
+      password: "",
+      confirmpassword:""
     });
     //@ts-ignore
      const [expertform, setExpertForm] = useState<ExpertData>({
@@ -135,13 +137,7 @@ const ExpertOnboardingCompact=() =>{
         profile_picture: null,
         fee: "100",
         milestones: 5,
-        availability: [
-          {
-            day: "Monday",
-            startTime: "10:00",
-            endTime: "12:00",
-          },
-        ],
+        availability: [],
         intent_price: [],
       });
     // const [intentPrice, setIntentPrice] = useState<
@@ -153,6 +149,37 @@ const ExpertOnboardingCompact=() =>{
       const navigate=useNavigate();
       //@ts-ignore
     const [errors, setErrors] = useState<FormErrors>({});
+    const [availability, setAvailability] = useState([
+    { day: "Monday", startTime: "10:00", endTime: "12:00" },
+  ]);
+
+ 
+
+ 
+  // ✅ Handles availability fields (day/start/end)
+  const handleAvailabilityChange = (index: number, field: string, value: string) => {
+    setAvailability((prev) =>
+      prev.map((slot, i) =>
+        i === index ? { ...slot, [field]: value } : slot
+      )
+    );
+  };
+
+  // ✅ Add new availability slot
+  const handleAddSlot = () => {
+    setAvailability((prev) => [
+      ...prev,
+      { day: "Monday", startTime: "", endTime: "" },
+    ]);
+  };
+
+  // ✅ Remove availability slot
+  const handleRemoveSlot = (index: number) => {
+    setAvailability((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  
+
 
   function toggle(list: string[], value: string, setter: (v: string[]) => void) {
     setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value])
@@ -208,13 +235,14 @@ const ExpertOnboardingCompact=() =>{
         console.log("Login successful");
         // navigate(`/dashboard`);
         // if (type !== "mentor") {
-        if (response.data.data_fill === true) {
+        if (response.data.is_mentor === true) {
           console.log("---fetchbasicInfo-----");
           await fetchBasicInfo();
           navigate("/dashboard");
-        } else {
-          navigate("/basic-info");
-        }
+        } 
+        // else {
+        //   navigate("/basic-info");
+        // }
         // } else {
         //   console.log("mentor--loginnnn");
         //   fetchMentorInfo();
@@ -252,6 +280,7 @@ const ExpertOnboardingCompact=() =>{
             // profile_picture: profileImageUrl,
             // resume: resumeUrl,
             interested_field:"N/A",
+            availability:availability,
             // phone:formData.phone,
           
         //     intent_price: expertform.intent_price.map(item => ({
@@ -397,6 +426,9 @@ const ExpertOnboardingCompact=() =>{
     if (!formData.password) newErrors.password = "Password is required";
     else if (formData.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
+     if (!formData.confirmpassword) newErrors.confirmpassword = "Confirm Password is required";
+    else if (formData.confirmpassword.length < 6)
+      newErrors.confirmpassword = "Confirm Password must be at least 6 characters";
    
     return newErrors;
   };
@@ -438,6 +470,7 @@ const ExpertOnboardingCompact=() =>{
       }
     };
 
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center gap-3 p-3 bg-gradient-to-b from-white to-slate-50">
       <header className="pt-1 text-center">
@@ -465,6 +498,11 @@ const ExpertOnboardingCompact=() =>{
             
                 name="password"
                 value={formData.password}
+                onChange={handleChange} />
+                 <Input placeholder="Confirm Password" type="password"
+            
+                name="confirmpassword"
+                value={formData.confirmpassword}
                 onChange={handleChange} />
             </div>
             <div className="flex justify-end">
@@ -588,6 +626,67 @@ const ExpertOnboardingCompact=() =>{
                 )
               })}
             </div>
+           <div>
+        <p className="text-sm text-slate-600 font-medium"><Clock/>Set Your Availability</p>
+        <div className="space-y-3 mt-2">
+          {availability.map((slot, index) => (
+            <div key={index} className="flex items-center gap-2 border p-2 rounded-lg">
+              <select
+                value={slot.day}
+                onChange={(e) =>
+                  handleAvailabilityChange(index, "day", e.target.value)
+                }
+                className="border p-2 rounded-md"
+              >
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+              </select>
+
+              <input
+                type="time"
+                value={slot.startTime}
+                onChange={(e) =>
+                  handleAvailabilityChange(index, "startTime", e.target.value)
+                }
+                className="border p-2 rounded-md"
+              />
+
+              <input
+                type="time"
+                value={slot.endTime}
+                onChange={(e) =>
+                  handleAvailabilityChange(index, "endTime", e.target.value)
+                }
+                className="border p-2 rounded-md"
+              />
+
+              <button
+                type="button"
+                onClick={() => handleRemoveSlot(index)}
+                className="text-red-600 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={handleAddSlot}
+            className="text-blue-600 text-sm"
+          >
+            + Add another slot
+          </button>
+        </div>
+      </div>
+
+            
+
             <div className="flex justify-between">
               <Button variant="outline" onClick={()=>setStep(2)}>Back</Button>
               <Button onClick={handleSubmit}>Submit</Button>

@@ -26,7 +26,7 @@ import ProfileDropdown from "@/components/NewPage/ProfileDropdown";
 import StepTwoMentor from "@/components/NewPage/Homepage/MultiStepMentor/StepTwo";
 import StepThree from "@/components/NewPage/Homepage/MultiStep_Form/StepThree";
 import NotificationBell from "@/components/NewPage/NotificationBell";
-import ChatWidget from "@/components/NewPage/ChatBox";
+// import ChatWidget from "@/components/NewPage/ChatBox";
 
 
 interface MentorData {
@@ -1208,7 +1208,7 @@ setDegree(data);
             © {new Date().getFullYear()} FigureCircle. All rights reserved.
           </p>
         </footer>
-         <ChatWidget/>
+         {/* <ChatWidget/> */}
       </div>
     </div>
   );

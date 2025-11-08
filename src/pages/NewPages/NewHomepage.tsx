@@ -417,24 +417,28 @@ const NewHomepage = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
-      <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2">
           <img src={logo} alt="Logo" width={50} />
-          <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">FigureCircle</h1>
+          <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">
+            FigureCircle
+          </h1>
         </div>
 
-<div>
-  {token?
-  (<div className="">
-                  <button
-                    className="px-2 py-2 border-2 border-black w-[150px] flex gap-1 rounded-lg bg-black text-white"
-                    onClick={handleDashboard}
-                  >
-                    My Dashboard
-                    <ArrowRight />
-                  </button>
-                </div>
-):""}
-</div>
+        <div>
+          {token ? (
+            <div className="">
+              <button
+                className="px-2 py-2 border-2 border-black w-[150px] flex gap-1 rounded-lg bg-black text-white"
+                onClick={handleDashboard}
+              >
+                My Dashboard
+                <ArrowRight />
+              </button>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
         <div className="hidden md:flex gap-2  ">
           {token ? (
             <>
@@ -442,7 +446,6 @@ const NewHomepage = () => {
                         <ProfileDropdown />
                       </div> */}
               <div className="flex">
-                
                 <div className="flex gap-2">
                   <div className="mr-3">
                     <NotificationBell />
@@ -653,7 +656,7 @@ const NewHomepage = () => {
           </DialogContent> */}
           <DialogContent>
             {/* <ExpertOnboardingPreview/> */}
-            <ExpertOnboardingCompact/>
+            <ExpertOnboardingCompact />
           </DialogContent>
           {/* <DialogActions>
           
@@ -731,12 +734,12 @@ const NewHomepage = () => {
             Our mentors don’t just teach you skills — they guide you toward the
             exact strategies and tools needed for your dream career.
           </p>
-          <Button
+          {/* <Button
             size="lg"
             className="px-8 py-6 text-lg rounded-xl shadow-md hover:scale-105 transition"
           >
             Talk to a Mentor
-          </Button>
+          </Button> */}
         </div>
         <div className="flex justify-center">
           <img
@@ -818,7 +821,8 @@ const NewHomepage = () => {
           <Button
             size="lg"
             className="bg-blue-600 text-white hover:bg-blue-700 px-10 py-6 text-lg rounded-xl shadow-lg"
-          >
+          onClick={handleExpertDialogClickOpen}
+         >
             Talk to a Mentor
           </Button>
         </div>

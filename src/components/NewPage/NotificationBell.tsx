@@ -1,23 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, X } from "lucide-react";
+import baseURL from "@/config/config";
+import axios from "axios";
 
 interface NotificationItem {
-  id: number;
-  message: string;
-  time: string;
+  id: number,
+  is_read: boolean,
+  mentor_id: null |number,
+    message:string,
+    message_type: "notification",
+    timestamp:string
 }
 
-const notificationsData: NotificationItem[] = [
-  { id: 1, message: "Meeting scheduled with Mentor", time: "Just now" },
-  { id: 2, message: "New message from Mentor", time: "10 mins ago" },
-];
+// const notificationsData: NotificationItem[] = [
+//   { id: 1, message: "Meeting scheduled with Mentor", time: "Just now" },
+//   { id: 2, message: "New message from Mentor", time: "10 mins ago" },
+// ];
 
 const NotificationBell: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState(notificationsData);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   const toggleDropdown = () => setOpen(!open);
+const user=localStorage.getItem("user");
+const parsedUser=user?JSON.parse(user):null;
 
+  const fetchNotificationData=async()=>{
+    const res=await axios.get(`${baseURL}/get_notifications/${parsedUser.user_id}`);
+    console.log("res.notification",res.data.notifications);
+    setNotifications(res.data.notifications);
+  }
+
+  useEffect(()=>{
+fetchNotificationData();
+  },[]);
   return (
     <div className="relative">
       {/* Bell Icon */}
@@ -47,7 +63,7 @@ const NotificationBell: React.FC = () => {
               notifications.map((n) => (
                 <li key={n.id} className="p-3 border-b border-gray-100 hover:bg-gray-50">
                   <p className="text-gray-700">{n.message}</p>
-                  <span className="text-xs text-gray-400">{n.time}</span>
+                  <span className="text-xs text-gray-400">{n?.timestamp}</span>
                 </li>
               ))
             )}

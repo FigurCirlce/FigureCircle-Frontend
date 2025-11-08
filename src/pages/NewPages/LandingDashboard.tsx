@@ -565,6 +565,7 @@ import baseURL from "@/config/config";
 import RecommendationsPanel from "./CoursesRecommendation";
 import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 import MilestoneFlowTimeline from "@/components/NewPage/Homepage/NewMilestoneUser";
+import ChatWidget from "@/components/NewPage/ChatBox";
 
 // Define Interfaces
 interface ProgressAPIResponse {
@@ -619,11 +620,45 @@ interface Mentor {
   resume: string;
 }
 
+export interface AssignedUser {
+  activity: string | null;
+  assigned_at: string; // ISO timestamp (e.g., "2025-10-03T07:39:29.446858")
+  bachelors_degree: string | null;
+  basic_info: BasicInfo;
+  certification: string | null;
+  country: string | null;
+  data_filled: boolean;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  masters_degree: string | null;
+  school_name: string | null;
+  stream_name: string | null;
+  user_id: number;
+  username: string;
+}
+
+export interface BasicInfo {
+  bachelor: string | null;
+  firstname: string;
+  high_education: string;
+  industry: string;
+  intent: string; // e.g. "Career Clarity & Connections" or serialized JSON string
+  interested_stream: string;
+  lastname: string;
+  role: string;
+  role_based: string;
+  work_experience: string;
+}
+
+
 const LandingDashboard: React.FC = () => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
+  const [assignedMenteesData, setAssignedMenteesData] = useState<AssignedUser[]>([]);
   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
     null
   );
+  const [openChatMentor, setOpenChatMentor] = useState<number | null>(null);
   const [selectedExpertData, setSelectedExpertData] =
     useState<ProgressAPIResponse | null>(null);
   const [course, setCourse] = useState<string[]>([]);
@@ -634,6 +669,7 @@ const LandingDashboard: React.FC = () => {
   const degree = localStorage.getItem("degree");
   const user = localStorage.getItem("user");
   const parseUser = user ? JSON.parse(user) : null;
+  const parsedDegree=degree?JSON.parse(degree):null;
 
   // const { userData } = useUserContext();
 
@@ -671,8 +707,30 @@ const LandingDashboard: React.FC = () => {
         console.error("Error fetching assigned mentors", error);
       }
     };
+      const fetchAssignedMentees = async () => {
+      try {
+        const res = await axios.get(`${baseURL}/mentor_assigned_users_count/${parsedDegree?.mentor_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data?.assigned_users?.length) {
+          console.log("res.data?.assigned_users?", res.data?.assigned_users);
+          setAssignedMenteesData(res.data.assigned_users);
 
-    fetchAssignedMentors();
+          setSelectedExpertKey(res.data.mentors[0].assigned_users);
+        }
+      } catch (error) {
+        console.error("Error fetching assigned mentors", error);
+      }
+    };
+
+    if(parsedDegree?.mentor_id){
+      fetchAssignedMentees();
+    }
+    else{
+       fetchAssignedMentors();
+    }
+
+   
     // fetchBasicInfo();
   }, []);
 
@@ -711,7 +769,8 @@ const LandingDashboard: React.FC = () => {
     const fetchAllData = async () => {
       const token = localStorage.getItem("token");
       const degreeData = degree ? JSON.parse(degree) : null;
-      const stream = degreeData.interested_stream;
+      console.log("degreeData",degreeData);
+      const stream = degreeData.role_based;
       console.log("Stream==--", stream);
 
       if (!stream) return;
@@ -866,14 +925,8 @@ const LandingDashboard: React.FC = () => {
           </div>
 
           {/* Expert Section */}
-          {assignedMentorData.length === 0  ? (parseUser?.is_mentor?(
-            <div className="">
-              <MilestoneFlowExpertTimeline/>
-            </div>
-          ):
-           
-            <MilestoneFlowTimeline />
-        ): (
+       
+            {assignedMenteesData.length>0 ||assignedMentorData.length>0? 
             <div className="flex flex-col lg:flex-row gap-5 w-full">
               {/* Expert List */}
 
@@ -882,7 +935,50 @@ const LandingDashboard: React.FC = () => {
                   {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
                 </h2>
                 <div className="space-y-4 w-[350px]">
-                  {assignedMentorData.length < 1
+                  {parseUser?.is_mentor?(assignedMenteesData.length < 1
+                    ? "No Assigned Mentor"
+                    : assignedMenteesData.map((user) => (
+                        <div
+                          key={user.user_id}
+                          onClick={() => setSelectedExpertKey(user?.user_id)}
+                          className={`border rounded-xl px-4 py-2 flex justify-betwe0en items-center cursor-pointer ${
+                            selectedExpertKey === user?.user_id
+                              ? "border-emerald-500"
+                              : ""
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full ">
+                            <img src={pic} alt="mentor" width={70} />
+                            <div className="flex flex-col justify-center">
+                              <p className="font-medium text-gray-800">
+                                {user?.basic_info.firstname
+}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {user.username}
+                              </p>
+                             
+                            </div>
+                             <div className="">
+                            <ChatWidget
+                              mentorName={user?.basic_info.firstname}
+                              mentorId={user.user_id}
+                      isOpen={openChatMentor === user.user_id}
+                      onToggle={() =>
+                        setOpenChatMentor(
+                          openChatMentor === user.user_id ? null : user.user_id
+                        )
+                      } 
+                      />
+
+                             </div>
+                            
+                          </div>
+                         
+                        </div>
+                       
+                      ))):
+                  (assignedMentorData.length < 1
                     ? "No Assigned Mentor"
                     : assignedMentorData.map((mentor) => (
                         <div
@@ -894,7 +990,7 @@ const LandingDashboard: React.FC = () => {
                               : ""
                           }`}
                         >
-                          <div className="flex gap-2">
+                          <div className="flex items-center justify-between w-full ">
                             <img src={pic} alt="mentor" width={70} />
                             <div className="flex flex-col justify-center">
                               <p className="font-medium text-gray-800">
@@ -903,10 +999,27 @@ const LandingDashboard: React.FC = () => {
                               <p className="text-sm text-gray-500">
                                 {mentor.expertise}
                               </p>
+                             
                             </div>
+                             <div className="">
+                            <ChatWidget
+                              mentorName={mentor.name}
+                              mentorId={mentor.mentor_id}
+                      isOpen={openChatMentor === mentor.mentor_id}
+                      onToggle={() =>
+                        setOpenChatMentor(
+                          openChatMentor === mentor.mentor_id ? null : mentor.mentor_id
+                        )
+                      } 
+                      />
+
+                             </div>
+                            
                           </div>
+                         
                         </div>
-                      ))}
+                       
+                      )))}
                 </div>
 
                 {/* <div className="mt-6 flex justify-center">
@@ -1039,8 +1152,8 @@ const LandingDashboard: React.FC = () => {
                   <p>Loading expert progress...</p>
                 )}
               </div>
-            </div>
-          )}
+            </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<MilestoneFlowExpertTimeline/>):<MilestoneFlowTimeline/>)
+}
         </div>
       
       </div>

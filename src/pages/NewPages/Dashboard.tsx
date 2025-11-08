@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import NewRecommendMentor from './NewRecommendMentor.tsx';
 import baseURL from '@/config/config.tsx';
 import NotificationBell from '@/components/NewPage/NotificationBell.tsx';
-import ChatWidget from '@/components/NewPage/ChatBox.tsx';
+// import ChatWidget from '@/components/NewPage/ChatBox.tsx';
 import MeetingSchedulerPreview from '@/pages/NewPages/NewMeetingScheduler.tsx';
 import Navbar from '@/components/NewPage/Navbar.tsx';
 
@@ -173,7 +173,7 @@ const Dashboard: React.FC = () => {
         </main>
       </div>
     </div>
-<ChatWidget/>
+{/* <ChatWidget/> */}
 
     </>
   );

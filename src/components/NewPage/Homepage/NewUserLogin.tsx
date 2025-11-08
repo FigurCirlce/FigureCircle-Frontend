@@ -651,8 +651,8 @@ console.log("responseLoginnnnn-------",response);
   value={userInfo.high_education}
   onChange={(val: string | number) => handleInputChange('high_education', String(val))}
   options={educationArray.map(item => ({
-    label: item.description,
-    value: item.description,
+    label: item.name,
+    value: item.name,
   }))}
   placeholder="Highest Education"
 />
@@ -668,8 +668,8 @@ console.log("responseLoginnnnn-------",response);
   value={userInfo.industry}
   onChange={(val: string | number) => handleInputChange('industry', String(val))}
   options={IndustryArray.map(item => ({
-    label: item.description,
-    value: item.description,
+    label: item.name,
+    value: item.name,
   }))}
   placeholder="Industry"
 />
@@ -687,8 +687,8 @@ console.log("responseLoginnnnn-------",response);
   value={userInfo.work_experience}
   onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
   options={ExperienceArray.map(item => ({
-    label: item.description,
-    value: item.description,
+    label: item.name,
+    value: item.name,
   }))}
   placeholder="Work Experience"
 />
@@ -734,7 +734,11 @@ console.log("responseLoginnnnn-------",response);
           ? "bg-blue-600 text-white border-blue-600"
           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
       }`}
-                onClick={()=>setSelectedRole(role)}
+                onClick={()=>{
+                  // setSelectedRole(role)
+                   setSelectedRole(selectedRole === role ? "" : role);
+                }
+                }
               >
                 {role}
               </button>
