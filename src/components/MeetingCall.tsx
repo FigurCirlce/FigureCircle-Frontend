@@ -39,6 +39,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
   const [schudle, setSchudle] = useState<any>();
   const [milestoneUrl, setMilestoneUrl] = useState("");
   const [feedbackUrl, setFeedbackUrl] = useState("");
+  const [milestoneUserId,setMilestoneUserId]=useState<number|null>(null);
 
    const { setSchedule } = useUserContext();
   
@@ -90,8 +91,9 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
     const pathSegments = url.pathname.split("/").filter(Boolean);
     // Split & remove empty values
     // console.log("pathSegments", pathSegmentUrl)
-    const lastSegment = pathSegments[pathSegments.length - 1]; // Get the last segment (e.g., "460")
-
+    const lastSegment = pathSegments[pathSegments.length - 2]; // Get the last segment (e.g., "460")
+const userIdSegment=Number(pathSegments[pathSegments.length - 1]);
+setMilestoneUserId(userIdSegment);
     const fetchvalidationmiletone = async () => {
       const token = localStorage.getItem('token');
 
@@ -110,7 +112,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
         if (response.data) {
           // setSchudle(response.data);
           console.log('milestones===>', response.data, response.data.user_id, response.data.mentor_id);
-          setMilestoneUrl(`/new-milestone/${response.data.user_id}-${response.data.mentor_id}`);
+          setMilestoneUrl(`/new-milestone/${response.data.user_id}/${response.data.mentor_id}`);
           // setMilestoneUrl(`/milestoneformAdd/${response.data.user_id}-${response.data.mentor_id}`);
           // setMilestoneUrl(`/new-milestone/$`)
           setFeedbackUrl(`/newFeedback/${lastSegment}`);
@@ -121,8 +123,9 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
         }
       } catch (error) {
         if (lastSegment) {
+          console.log(lastSegment);
           //  setMilestoneUrl(`/milestoneform/${lastSegment}`);
-             setMilestoneUrl(`/new-milestone/${lastSegment}`);
+             setMilestoneUrl(`/new-milestone/${lastSegment}/${milestoneUserId}`);
           //  setMilestoneUrl(`/new-milestone`);
           setFeedbackUrl(`/newFeedback/${lastSegment}`);
         }

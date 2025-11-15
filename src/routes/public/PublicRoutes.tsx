@@ -37,7 +37,7 @@ const PublicRoutes = [
         component: <Register />,
     },
     {
-        path: '/v2/meetingcall/:id',
+        path: '/v2/meetingcall/:id/:userId',
         component: <MeetingCalls/>,
     },
     // {
@@ -49,7 +49,7 @@ const PublicRoutes = [
         component:<ContactForm/>
     },
      {
-        path:'/new-milestone/:id',
+        path:'/new-milestone/:id/:userId',
         component:<MilestoneTimelineForm/>
     },
      {

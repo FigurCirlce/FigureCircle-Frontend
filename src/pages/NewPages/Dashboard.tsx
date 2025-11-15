@@ -3,7 +3,7 @@ import React from 'react';
 import { useState } from 'react';
 //@ts-ignore
 import ScheduleMeeting from '../../components/NewPage/ScheduleMeeting/scheduleMeeting.tsx';
-import Profile from './Profile.tsx';
+// import Profile from './Profile.tsx';
 //@ts-ignore
 import LandingDashboard from './landingDashboard.tsx';
 // import TrialMeeting from './TrialMeeting.tsx';
@@ -12,12 +12,14 @@ import LandingDashboard from './landingDashboard.tsx';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NewRecommendMentor from './NewRecommendMentor.tsx';
+// import NewRecommendMentor from './NewRecommendMentor.tsx';
 import baseURL from '@/config/config.tsx';
 import NotificationBell from '@/components/NewPage/NotificationBell.tsx';
 // import ChatWidget from '@/components/NewPage/ChatBox.tsx';
 import MeetingSchedulerPreview from '@/pages/NewPages/NewMeetingScheduler.tsx';
 import Navbar from '@/components/NewPage/Navbar.tsx';
+import ProfileRecWidget from '@/pages/NewPages/NewProfile.tsx';
+import MentorsWireframe2 from '@/pages/NewPages/NewMentor.tsx';
 
 export interface Mentor {
   name: string;
@@ -101,6 +103,11 @@ const Dashboard: React.FC = () => {
       case "Dashboard":
         return <div><LandingDashboard/></div>;
 
+      case "Mentors":
+        //@ts-ignore
+        // return <div> <NewRecommendMentor/></div>;
+        return <div><MentorsWireframe2/></div>;
+
         
       case "Schedule Meeting":
         //@ts-ignore
@@ -119,15 +126,14 @@ const Dashboard: React.FC = () => {
      
     
       case "My Profile":
-        return <div><Profile/></div>;
+        // return <div><Profile/></div>;
+        return <div><ProfileRecWidget/></div>
       // case "My Experts":
       //   return <div>My Experts Content</div>;
       // case "Trial Meetings":
       //   //@ts-ignore
       //   return <div> <TrialMeeting allMentorData={recommendedMentors}/></div>;
-         case "Mentors":
-        //@ts-ignore
-        return <div> <NewRecommendMentor/></div>;
+        
       default:
         return <div>Welcome to the Dashboard!</div>;
     }
@@ -138,9 +144,9 @@ const Dashboard: React.FC = () => {
     navigate('/');
   };
 
-  const handleHome=()=>{
-    navigate('/');
-  }
+  // const handleHome=()=>{
+  //   navigate('/');
+  // }
   
   return (
     <>
@@ -155,9 +161,9 @@ const Dashboard: React.FC = () => {
     
         <header className="flex-shrink-0 flex justify-end items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
         
-          <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
+          {/* <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
             Home
-          </button>
+          </button> */}
                <div className="mr-3">
           <NotificationBell/>
           </div>

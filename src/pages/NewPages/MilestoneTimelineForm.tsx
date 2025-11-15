@@ -37,7 +37,7 @@ const MilestoneTimelineForm: React.FC = () => {
     description: "",
     expectedCompletionDate: "",
   });
-  const { id } = useParams<{ id: string }>();
+  const { id,userId } = useParams<{ id: string, userId: string}>();
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
   const parsedUserData = user ? JSON.parse(user) : null;
@@ -89,7 +89,7 @@ console.log("mentor_id",mentorId);
             }
             try {
                 const response = await axios.get(`${baseURL}/api/milestone`, {
-                    params: { user_id: parsedUserData.user_id, mentor_id: mentorId },
+                    params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -163,7 +163,7 @@ setMilestoneData([response.data]);
       const token = localStorage.getItem("token");
       console.log("user_id", user_id);
       const dataToSend = {
-        user_id: parsedUserData.user_id,
+        user_id: parsedUserData.is_mentor?userId:id,
         mentor_id: mentorData.mentor_id,
         milestone: milestones,
         check_meeting_id: id,

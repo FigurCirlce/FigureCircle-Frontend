@@ -736,26 +736,31 @@ const LandingDashboard: React.FC = () => {
 
   useEffect(() => {
     if (selectedExpertKey == null) return;
-
+console.log("SelectedExpertKey",selectedExpertKey);
     // console.log("userDatttaDegree---", degree);
     const degree = localStorage.getItem("degree"); //degree has user_id
     const degreeData = degree ? JSON.parse(degree) : null;
     const user_id = degreeData?.id;
+    //  const user = localStorage.getItem("user"); //degree has user_id
+    // const parsedUser= user ? JSON.parse(user) : null;
+
     console.log("user_id", user_id);
     const fetchProgressData = async () => {
       try {
         const res = await axios.get(`${baseURL}/progress/enhanced`, {
           params: {
-            user_id: user_id,
+            user_id: parseUser.user_id,
             mentor_id: selectedExpertKey,
             // mentor_id:2
           },
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (Array.isArray(res.data) && res.data.length > 0) {
+        // if (Array.isArray(res.data) && res.data.length > 0) {
+        if(res.data){
           console.log("trueeeeeee");
-          setSelectedExpertData(res.data[0]);
+          console.log("res.data-------",res.data);
+          setSelectedExpertData(res.data);
         }
       } catch (error) {
         console.error("Error fetching progress data", error);
@@ -1044,15 +1049,15 @@ const LandingDashboard: React.FC = () => {
                           Milestones Completed:{" "}
                           <span>
                             {
-                              selectedExpertData.progress_summary
-                                .milestones_completed
+                              selectedExpertData?.progress_summary
+                               ?.milestones_completed
                             }
                           </span>
                         </div>
                         <div>
                           {
-                            selectedExpertData.progress_summary
-                              .progress_percentage
+                            selectedExpertData?.progress_summary
+                             ?.progress_percentage
                           }
                           %
                         </div>
@@ -1061,7 +1066,7 @@ const LandingDashboard: React.FC = () => {
                         <div
                           className="bg-green-500 h-2.5 rounded-full"
                           style={{
-                            width: `${selectedExpertData.progress_summary.progress_percentage}%`,
+                            width: `${selectedExpertData?.progress_summary?.progress_percentage}%`,
                           }}
                         ></div>
                       </div>
@@ -1072,7 +1077,7 @@ const LandingDashboard: React.FC = () => {
                         Latest Feedback
                       </div>
                       <div className="text-sm text-gray-500">
-                        {selectedExpertData.latest_feedback.milestone}
+                        {selectedExpertData?.latest_feedback?.milestone ||"Not Available"}
                       </div>
                     </div>
                     {/* Milestones */}
@@ -1086,7 +1091,8 @@ const LandingDashboard: React.FC = () => {
               </ul>
             </div> */}
                       <ul className="text-sm text-gray-600 list-disc ml-5">
-                        {selectedExpertData?.milestones?.completed?.map(
+                        {selectedExpertData?.milestones?.completed?.length>0?(
+                         selectedExpertData.milestones.completed.map(
                           (milestone, index) => (
                             <li key={index}>
                               {/* {milestone.milestone} - {milestone.completion_date} */}
@@ -1102,7 +1108,7 @@ const LandingDashboard: React.FC = () => {
                                 : "Not completed yet"}
                             </li>
                           )
-                        )}
+                        )):"Not Available"}
                       </ul>
                     </div>
 
@@ -1149,7 +1155,7 @@ const LandingDashboard: React.FC = () => {
                     {/* </div>    */}
                   </>
                 ) : (
-                  <p>Loading expert progress...</p>
+                  <p className="flex justify-center font-semibold text-lg">Not Available</p>
                 )}
               </div>
             </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<MilestoneFlowExpertTimeline/>):<MilestoneFlowTimeline/>)

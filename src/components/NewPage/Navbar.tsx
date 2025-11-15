@@ -537,9 +537,10 @@ const Navbar: React.FC<NavbarProps> = ({ setActivePage, close }) => {
 
   const HomeMenu: MenuItem[] = [
     { title: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+    { title: 'Mentors', icon: <CalendarX2 size={18} /> },
     { title: 'Schedule Meeting', icon: <Calendar size={18} /> },
     { title: 'My Profile', icon: <User size={18} /> },
-    { title: 'Mentors', icon: <CalendarX2 size={18} /> },
+    
   ]
 
   const HomeMenuNEW: MenuItem[] = [
@@ -564,9 +565,9 @@ const Navbar: React.FC<NavbarProps> = ({ setActivePage, close }) => {
     navigate('/');
   };
 
-  const handleHome=()=>{
-    navigate('/');
-  }
+  // const handleHome=()=>{
+  //   navigate('/');
+  // }
   
 
   return (
@@ -603,10 +604,7 @@ const Navbar: React.FC<NavbarProps> = ({ setActivePage, close }) => {
 
         {/* Right: Profile */}
         <div className="flex items-center gap-3">
-        <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
-          {/* <button className='mr-5 text-blue-600 font-semibold text-lg'> */}
-                   Home
-                 </button>
+       
                       <div className="mr-3">
                  <NotificationBell/>
                  </div>

@@ -11,6 +11,7 @@ import baseURL from "@/config/config";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
 import FeedbackPopup from "@/components/NewPage/FeedbackPopup";
+import MilestonePopup from "@/components/NewPage/MilestonePopup";
 
 // —— Types ——
 interface Mentor {
@@ -71,7 +72,9 @@ const MeetingSchedulerPreview = () => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [refreshKey, setRefreshKey] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+   const [isMilestonePopupOpen, setIsMilestonePopupOpen] = useState(false);
   const [selectedfeedbackData, setSelectedFeedbackData] = useState<any>([]);
+    const [selectedMilestoneData, setSelectedMilestoneData] = useState<any>([]);
   const [mentorId,setMentorId]=useState("");
   const token = localStorage.getItem("token");
 
@@ -321,8 +324,12 @@ const MeetingSchedulerPreview = () => {
         secretKey
       ).toString();
 
+      const userData = localStorage.getItem("user");
+      
+      const parsedUser =  userData?JSON.parse(userData):null;
+
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const meetingLink = `/v2/meetingcall/${randomId}?start=${encodeURIComponent(
+      const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
         encryptedStartDate
       )}&end=${encodeURIComponent(
         encryptedEndDate
@@ -333,14 +340,14 @@ const MeetingSchedulerPreview = () => {
       )}&timezone=${encodeURIComponent(timeZone)}`;
 
       // Fetch local user data
-      const userData = localStorage.getItem("user");
+      
       const userDegree = localStorage.getItem("degree");
       if (!userData || !userDegree) {
         alert("User data not found");
         return;
       }
 
-      const parsedUser = JSON.parse(userData);
+    
       const parsedDegree = JSON.parse(userDegree);
 
       // Prepare schedule data
@@ -488,6 +495,30 @@ const MeetingSchedulerPreview = () => {
     useEffect(() => {
       fetchMeetingData();
     }, [mentorId]);
+
+
+    const handleMilestone=async(mentorId:Number | null)=>{
+    try {
+      const response = await axios.get(`${baseURL}/api/milestone`,
+        
+         {
+          params:{
+            mentor_id:mentorId,
+            user_id:parsedUserData.user_id
+          },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("response-milestone---",response.data);
+       setSelectedMilestoneData(response.data);
+      setIsMilestonePopupOpen(true);
+    }
+    catch(e){
+console.log(e);
+    }
+    }
 
   return (
     <div className="mx-auto max-w-6xl p-3 space-y-5">
@@ -717,9 +748,16 @@ const MeetingSchedulerPreview = () => {
                   >
                     <Video className="h-4 w-4" /> Join
                   </a>
-                  <button className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50">
+                  <button className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
+                  onClick={()=>handleMilestone(m.mentor_id)}
+                  >
                     <ClipboardList className="h-4 w-4" /> Milestones
                   </button>
+                  <MilestonePopup
+        isOpen={isMilestonePopupOpen}
+        onClose={() => setIsMilestonePopupOpen(false)}
+        MilestoneData={selectedMilestoneData}
+      />
                   <button
                     className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
                     onClick={() => {
