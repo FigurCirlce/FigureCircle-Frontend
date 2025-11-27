@@ -821,7 +821,7 @@ const NewHomepage = () => {
           <Button
             size="lg"
             className="bg-blue-600 text-white hover:bg-blue-700 px-10 py-6 text-lg rounded-xl shadow-lg"
-          onClick={handleExpertDialogClickOpen}
+          onClick={handleRegisterDialogClickOpen}
          >
             Talk to a Mentor
           </Button>

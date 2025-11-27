@@ -749,8 +749,8 @@ console.log("SelectedExpertKey",selectedExpertKey);
       try {
         const res = await axios.get(`${baseURL}/progress/enhanced`, {
           params: {
-            user_id: parseUser.user_id,
-            mentor_id: selectedExpertKey,
+            user_id: parseUser.is_mentor?selectedExpertKey:parseUser.user_id,
+            mentor_id:parseUser.is_mentor?parsedDegree?.mentor_id: selectedExpertKey,
             // mentor_id:2
           },
           headers: { Authorization: `Bearer ${token}` },
@@ -1009,7 +1009,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
                              <div className="">
                             <ChatWidget
                               mentorName={mentor.name}
-                              mentorId={mentor.mentor_id}
+                              mentorId={parseUser?.is_mentor?parseUser?.user_id:mentor.mentor_id}
                       isOpen={openChatMentor === mentor.mentor_id}
                       onToggle={() =>
                         setOpenChatMentor(

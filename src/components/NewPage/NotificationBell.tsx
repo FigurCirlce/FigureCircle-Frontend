@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Bell, X } from "lucide-react";
 import baseURL from "@/config/config";
 import axios from "axios";
+import { Trash } from 'lucide-react';
 
 interface NotificationItem {
   id: number,
@@ -20,8 +21,11 @@ interface NotificationItem {
 const NotificationBell: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+ 
+   const degree=localStorage.getItem("degree");
+  const parsedDegree=degree?JSON.parse(degree):null;
 
-  const toggleDropdown = () => setOpen(!open);
+  // const toggleDropdown = () => setOpen(!open);
 const user=localStorage.getItem("user");
 const parsedUser=user?JSON.parse(user):null;
 
@@ -34,11 +38,41 @@ const parsedUser=user?JSON.parse(user):null;
   useEffect(()=>{
 fetchNotificationData();
   },[]);
+
+  const markAllRead=async()=>{
+    const id=parsedUser.is_mentor?parsedDegree?.mentor_id:parsedUser?.user_id;
+const res=await axios.put(`${baseURL}/user_notifications_mark_all_read/${id}`);
+console.log("res.data.markAllRead",res.data);
+setNotifications([]);
+setOpen(false);
+  }
+   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open, setOpen]);
+
+  const toggleDropdown = () =>{
+    setOpen((prev) => !prev);
+  };
+
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       {/* Bell Icon */}
-      <button 
-        className="relative p-2 rounded-full hover:bg-gray-200" 
+      <button
+        className="relative p-2 rounded-full hover:bg-gray-200"
         onClick={toggleDropdown}
       >
         <Bell className="w-6 h-6" />
@@ -52,18 +86,28 @@ fetchNotificationData();
         <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
           <div className="flex justify-between items-center p-2 border-b border-gray-100">
             <span className="font-semibold text-gray-700">Notifications</span>
-            <button onClick={() => setNotifications([])}>
-              <X className="w-4 h-4 text-gray-500" />
+   <div className="flex gap-2 w-[20%] ">
+            <button onClick={markAllRead} className="hover:text-blue-500">
+              <Trash className="w-5 h-5" />
             </button>
+
+            <button onClick={() => setNotifications([])}>
+              <X className="w-5 h-5 text-gray-500 hover:text-blue-500" />
+            </button>
+            </div>
           </div>
+
           <ul className="max-h-60 overflow-y-auto">
             {notifications.length === 0 ? (
               <li className="p-4 text-center text-gray-500">No notifications</li>
             ) : (
               notifications.map((n) => (
-                <li key={n.id} className="p-3 border-b border-gray-100 hover:bg-gray-50">
+                <li
+                  key={n.id}
+                  className="p-3 border-b border-gray-100 hover:bg-gray-50"
+                >
                   <p className="text-gray-700">{n.message}</p>
-                  <span className="text-xs text-gray-400">{n?.timestamp}</span>
+                  <span className="text-xs text-gray-400">{n.timestamp}</span>
                 </li>
               ))
             )}
@@ -72,6 +116,6 @@ fetchNotificationData();
       )}
     </div>
   );
-};
+}
 
 export default NotificationBell;

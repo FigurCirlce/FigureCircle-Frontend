@@ -261,8 +261,9 @@ setMilestoneUserId(userIdSegment);
       peer.destroy();
     }
 
-    // Navigate to home
-    window.location.href = '/';
+    // Navigate to dashboard
+    // window.location.href = '/';
+     window.location.href = '/dashboard';
   };
 
   const startScreenSharing = async () => {

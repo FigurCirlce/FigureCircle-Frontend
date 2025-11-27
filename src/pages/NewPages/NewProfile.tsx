@@ -180,7 +180,7 @@ const ProfileRecWidget = () => {
       email: d.emailid ?? d.email ?? profile.email,
       education: d.high_education ?? d.education ?? profile.education,
       industry: d.industry ?? profile.industry,
-      experience: d.experience ?? d.work_experience ?? profile.experience,
+      work_experience: d.work_experience ?? profile.work_experience,
       dreamRole: d.role_based ?? d.dreamRole ?? profile.dreamRole,
       intent: parsedIntent,
       // keep raw backend piece for saving if needed
@@ -202,7 +202,8 @@ const ProfileRecWidget = () => {
       })
 
       // map to our UI model
-      const mapped = mapResponseToProfile(response.data)
+      const mapped = mapResponseToProfile(response.data);
+      console.log("mapped-------",mapped);
       setProfile((prev: any) => ({ ...prev, ...mapped }))
     } catch (error) {
       console.error("Error fetching profile:", error)
@@ -248,7 +249,7 @@ const ProfileRecWidget = () => {
         emailid: profile.email,
         high_education: profile.education,
         industry: profile.industry,
-        work_experience: profile.experience,
+        work_experience: profile.work_experience,
         role_based: profile.dreamRole,
         intent: profile.intent,
         // if backend gave mentor-specific data (we preserved in __raw), include ids
@@ -413,7 +414,7 @@ const ProfileRecWidget = () => {
               <div className="grid grid-cols-3 items-center gap-3">
                 <Label className="text-sm text-muted-foreground">Experience</Label>
                 <div className="col-span-2">
-                  <Select value={profile.experience} onValueChange={(v) => setProfile({ ...profile, experience: v })}>
+                  <Select value={profile.work_experience} onValueChange={(v) => setProfile({ ...profile, work_experience: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Experience" />
                     </SelectTrigger>

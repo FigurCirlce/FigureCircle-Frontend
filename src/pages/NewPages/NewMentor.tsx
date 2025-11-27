@@ -270,26 +270,47 @@ function MentorInspector({ m, scheduled, onSchedule, onClose }:any) {
 }
 
 function IntentDialog({ open, onClose, onSubmit }:any) {
-  const [support, setSupport] = useState("");
+  // const [support, setSupport] = useState("");
   const [goalChallenge, setGoalChallenge] = useState("");
+   const [selectedIntents, setSelectedIntents] = useState<string[]>([]);
+  const [error, setError] = useState({ intents: false, goalChallenge: false });
 
   const intents = [
     { id: 1, title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them." },
     { id: 2, title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." },
   ];
 
-  const handleSubmit = () => {
-    if (!support || !goalChallenge) {
-      alert("Please select an intent and describe your challenges");
-      return;
+   const handleIntentClick = (title: string) => {
+    if (selectedIntents.includes(title)) {
+      setSelectedIntents(selectedIntents.filter(i => i !== title)); // toggle off
+    } else {
+      setSelectedIntents([...selectedIntents, title]); // add
     }
-    onSubmit(support, goalChallenge);
-    setSupport("");
+  };
+
+  const handleSubmit = () => {
+    let hasError = false;
+    const newError = { intents: false, goalChallenge: false };
+
+    if (selectedIntents.length === 0) {
+      newError.intents = true;
+      hasError = true;
+    }
+    if (!goalChallenge.trim()) {
+      newError.goalChallenge = true;
+      hasError = true;
+    }
+
+    setError(newError);
+    if (hasError) return;
+
+    onSubmit(selectedIntents.join(", "), goalChallenge);
+    setSelectedIntents([]);
     setGoalChallenge("");
+    setError({ intents: false, goalChallenge: false });
   };
 
   if (!open) return null;
-
   
 
 
@@ -307,10 +328,10 @@ function IntentDialog({ open, onClose, onSubmit }:any) {
           {intents.map((intent) => (
             <div
               key={intent.id}
-              onClick={() => setSupport(intent.title)}
-              className={`cursor-pointer border-2 rounded-xl p-4 transition ${
-                support === intent.title ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
-              }`}
+                onClick={() => handleIntentClick(intent.title)}
+               className={`cursor-pointer border-2 rounded-xl p-4 transition ${
+                selectedIntents.includes(intent.title) ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
+              } ${error.intents && selectedIntents.length === 0 ? "border-red-500" : ""}`}
             >
               <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
               <p className="text-sm text-gray-600">{intent.desc}</p>
@@ -330,8 +351,8 @@ function IntentDialog({ open, onClose, onSubmit }:any) {
         </div>
 
         <button
-          onClick={handleSubmit}
-          disabled={!support || !goalChallenge}
+         onClick={handleSubmit}
+          disabled={selectedIntents.length === 0 || !goalChallenge.trim()}
           className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           Continue

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Briefcase, GraduationCap, User, Wrench, MessageSquare } from "lucide-react";
+import { Briefcase, GraduationCap, User } from "lucide-react";
 import axios from "axios";
 import { toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,6 +8,10 @@ import { useNavigate } from "react-router-dom";
 
 interface SelectOption {
   [key: string]: string | number;
+}
+interface SupportCardsProps {
+  selectedSupports: string[];
+  setSelectedSupports: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 interface SearchableSelectProps {
@@ -125,7 +129,7 @@ interface EducationItem {
 
 const RegistrationFlow:React.FC<any>=() =>{
   const [step, setStep] = useState(1)
-  const [profileType, setProfileType] = useState<string | null>(null)
+  const [profileType, setProfileType] = useState<string | null>("student");
   // const [supportType, setSupportType] = useState<string | null>(null)
    const [selectedSupports, setSelectedSupports] = useState<string[]>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
@@ -241,59 +245,48 @@ const RegistrationFlow:React.FC<any>=() =>{
   //   </div>
   // )
 
-const SupportCards = () => {
-  // const [selectedSupports, setSelectedSupports] = useState([]);
+const SupportCards = ({ selectedSupports, setSelectedSupports }:SupportCardsProps) => {
+ 
 
   const toggleSupport = (type:any) => {
-    setSelectedSupports((prev:any) =>
-      prev.includes(type)
-        ? prev.filter((item:any) => item !== type)
-        : [...prev, type]
-    );
-  };
+    console.log("type--------",type);
+    setSelectedSupports((prev) => {
+  const updated = prev.includes(type)
+    ? prev.filter((item) => item !== type)
+    : [...prev, type];
+
+  console.log("Prev =>", prev);
+  console.log("Type clicked =>", type);
+  console.log("Updated =>", updated);
+
+  return updated;
+});
+  }
+   const intents = [
+    { id: 1, title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them." },
+    { id: 2, title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." },
+  ];
 
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-medium">What do you want to focus on right now?</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Skill Roadmapping */}
-        <div
-          onClick={() => toggleSupport("Skill Roadmapping")}
-          className={`cursor-pointer border rounded-lg p-3 transition ${
-            selectedSupports.includes("Skill Roadmapping")
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-200"
-          }`}
-        >
-          <div className="flex flex-col items-start space-y-2">
-            <Wrench className="h-6 w-6" />
-            <h4 className="font-semibold text-base">Skill Roadmapping</h4>
-            <p className="text-xs text-gray-600">
-              Learn the skills for your target role.
-            </p>
-          </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          {intents.map((intent) => (
+            <div
+              key={intent.id}
+              onClick={() => toggleSupport(intent.title)}
+              className={`cursor-pointer border-2 rounded-xl p-4 transition ${
+  selectedSupports.includes(intent.title)
+    ? "border-blue-500 bg-blue-50"
+    : "border-gray-200 hover:border-gray-300"
+}`}
+             
+            >
+              <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
+              <p className="text-sm text-gray-600">{intent.desc}</p>
+            </div>
+          ))}
         </div>
-
-        {/* Career Clarity & Connections */}
-        <div
-          onClick={() => toggleSupport("Career Clarity & Connections")}
-          className={`cursor-pointer border rounded-lg p-3 transition ${
-            selectedSupports.includes("Career Clarity & Connections")
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-200"
-          }`}
-        >
-          <div className="flex flex-col items-start space-y-2">
-            <MessageSquare className="h-6 w-6" />
-            <h4 className="font-semibold text-base">
-              Career Clarity & Connections
-            </h4>
-            <p className="text-xs text-gray-600">
-              Get advice, insights, and networking.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
@@ -441,6 +434,24 @@ console.log("responseLoginnnnn-------",response);
        const nameParts = formData.fullName.trim().split(/\s+/);
     const firstname = nameParts[0] || "";
     const lastname = nameParts.slice(1).join(" ") || "";
+    console.log("selectedSupport",selectedSupports);
+     let parsedIntent =selectedSupports;
+     let intentTopost={};
+  if (Array.isArray(parsedIntent)) {
+  intentTopost = {
+    roadmap: parsedIntent.includes("Skill Roadmapping"),
+    clarity: parsedIntent.includes("Career Clarity, Insights & Connections")
+  };
+}
+// else if (typeof parsedIntent === "string") {
+//   intentTopost = {
+//     roadmap: parsedIntent.includes("Roadmap"),
+//     clarity: parsedIntent.includes("Clarity")
+//   };
+ else {
+  intentTopost = { roadmap: false, clarity: false };
+}
+
       const newUserInfo = {
         ...userInfo,
         data_filed: true,
@@ -448,7 +459,7 @@ console.log("responseLoginnnnn-------",response);
         useruniqid: formData.email,
         firstname,
         lastname,
-        intent:selectedSupports,
+        intent:intentTopost,
   role_based:selectedRole
       };
       setBasicInfo(newUserInfo);
@@ -695,7 +706,8 @@ console.log("responseLoginnnnn-------",response);
                   </>
                 )}
 
-                <SupportCards />
+                <SupportCards  selectedSupports={selectedSupports}
+   setSelectedSupports={setSelectedSupports} />
               </>
             )}
           </div>

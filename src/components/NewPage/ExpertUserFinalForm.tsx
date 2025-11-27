@@ -95,16 +95,16 @@ function Stepper({ step }: { step: number }) {
   )
 }
 
-function Chip({ selected, onClick, children }: { selected?: boolean; onClick?: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded-2xl text-sm border transition shadow-sm hover:shadow ${selected ? "bg-blue-50 border-blue-400 text-blue-700" : "bg-white border-gray-300 text-gray-700"}`}
-    >
-      {children}
-    </button>
-  )
-}
+// function Chip({ selected, onClick, children }: { selected?: boolean; onClick?: () => void; children: React.ReactNode }) {
+//   return (
+//     <button
+//       onClick={onClick}
+//       className={`px-3 py-1.5 rounded-2xl text-sm border transition shadow-sm hover:shadow ${selected ? "bg-blue-50 border-blue-400 text-blue-700" : "bg-white border-gray-300 text-gray-700"}`}
+//     >
+//       {children}
+//     </button>
+//   )
+// }
 
  
 
@@ -116,6 +116,7 @@ const ExpertOnboardingCompact=() =>{
    const [educationArray, setEducationArray] = useState<EducationItem[]>([]);
   const [experience, setExperience] = useState("")
   const [degree, setDegree] = useState("")
+  //@ts-ignore
   const [services, setServices] = useState<string[]>(["skill-roadmap"])
   const [pricing, setPricing] = useState<Record<string, { time: string; price: string }>>({ "skill-roadmap": { time: "30 min", price: "" } })
  const [formData, setFormData] = useState<FormData>({
@@ -181,9 +182,9 @@ const ExpertOnboardingCompact=() =>{
   
 
 
-  function toggle(list: string[], value: string, setter: (v: string[]) => void) {
-    setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value])
-  }
+  // function toggle(list: string[], value: string, setter: (v: string[]) => void) {
+  //   setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value])
+  // }
 
    const fetchMentorInfo = async () => {
       const user = localStorage.getItem("user");
@@ -470,6 +471,44 @@ const ExpertOnboardingCompact=() =>{
       }
     };
 
+    const SupportCards = () => {
+       const [selectedSupports, setSelectedSupports] = useState("");
+    
+      const toggleSupport = (type:any) => {
+        setSelectedSupports((prev:any) =>
+          prev.includes(type)
+            ? prev.filter((item:any) => item !== type)
+            : [...prev, type]
+        );
+      };
+       const intents = [
+        { id: 1, title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them." },
+        { id: 2, title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." },
+      ];
+    
+      return (
+        <div className="space-y-4">
+         
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              {intents.map((intent) => (
+                <div
+                  key={intent.id}
+                  onClick={() => toggleSupport(intent.title)}
+                  className={`cursor-pointer border-2 rounded-xl p-4 transition ${
+      selectedSupports.includes(intent.title)
+        ? "border-blue-500 bg-blue-50"
+        : "border-gray-200 hover:border-gray-300"
+    }`}
+                 
+                >
+                  <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
+                  <p className="text-sm text-gray-600">{intent.desc}</p>
+                </div>
+              ))}
+            </div>
+        </div>
+      );
+    };
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center gap-3 p-3 bg-gradient-to-b from-white to-slate-50">
@@ -559,11 +598,12 @@ const ExpertOnboardingCompact=() =>{
 
             <div>
               <label className="text-[11px] font-medium text-slate-600">Areas of Guidance</label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              {/* <div className="flex flex-wrap gap-2 mt-2">
                 {SERVICES.map((s) => (
                   <Chip key={s.id} selected={services.includes(s.id)} onClick={()=>toggle(services, s.id, setServices)}>{s.label}</Chip>
                 ))}
-              </div>
+              </div> */}
+              <SupportCards/>
             </div>
 
             <div className="flex justify-between">

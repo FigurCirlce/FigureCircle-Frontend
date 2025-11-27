@@ -18,7 +18,11 @@ interface Mentor {
   mentor_id: number;
   mentor_name: string;
   profile_picture: string;
-  availability: string[];
+ availability: {
+      day: string;
+      startTime: string;
+      endTime: string;
+    }[];
   name: string;
 }
 
@@ -58,6 +62,13 @@ interface Meeting {
   created_at: string;
 }
 
+interface Availability {
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
+
 interface CalendarCell {
   date: Date;
   inMonth: boolean;
@@ -68,6 +79,92 @@ interface CalendarCell {
  * - Self-contained interactive mock (no external UI libs)
  * - TailwindCSS for styles
  */
+
+export type MentorSchedule = {
+  date: string;  // YYYY-MM-DD
+  start: string; // HH:mm
+  end: string;   // HH:mm
+};
+
+type MentorScheduleEditorProps = {
+  onSave: (schedule: MentorSchedule) => void;
+};
+
+
+// const weekdayList = [
+//   { label: "Mon", value: 1 },
+//   { label: "Tue", value: 2 },
+//   { label: "Wed", value: 3 },
+//   { label: "Thu", value: 4 },
+//   { label: "Fri", value: 5 },
+//   { label: "Sat", value: 6 },
+//   { label: "Sun", value: 0 },
+// ];
+
+
+const MentorScheduleEditor: React.FC<MentorScheduleEditorProps> = ({ onSave }) => {
+  const [date, setDate] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+
+  const handleSave = () => {
+    if (!date || !start || !end) return alert("Please fill all fields");
+
+    onSave({
+      date,
+      start,
+      end,
+    });
+  };
+
+  return (
+    <div className="border rounded-lg p-4 space-y-4 bg-white shadow">
+      <h2 className="text-lg font-semibold">Set Your Availability</h2>
+
+      {/* Date */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium">Date</label>
+        <input
+          type="date"
+          className="border p-2 rounded"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+      </div>
+
+      {/* Start Time */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium">Start Time</label>
+        <input
+          type="time"
+          className="border p-2 rounded"
+          value={start}
+          onChange={(e) => setStart(e.target.value)}
+        />
+      </div>
+
+      {/* End Time */}
+      <div className="flex flex-col">
+        <label className="text-sm font-medium">End Time</label>
+        <input
+          type="time"
+          className="border p-2 rounded"
+          value={end}
+          onChange={(e) => setEnd(e.target.value)}
+        />
+      </div>
+
+      <button
+        onClick={handleSave}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Save Availability
+      </button>
+    </div>
+  );
+};
+
+
 const MeetingSchedulerPreview = () => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [refreshKey, setRefreshKey] = useState(false);
@@ -76,7 +173,9 @@ const MeetingSchedulerPreview = () => {
   const [selectedfeedbackData, setSelectedFeedbackData] = useState<any>([]);
     const [selectedMilestoneData, setSelectedMilestoneData] = useState<any>([]);
   const [mentorId,setMentorId]=useState("");
+  const [availability,setAvailability]=useState<Availability[]>([]);
   const token = localStorage.getItem("token");
+  
 
   const fetchAssignedMentor = async () => {
     try {
@@ -102,13 +201,13 @@ const MeetingSchedulerPreview = () => {
     fetchAssignedMentor();
   }, []);
 
-  const defaultSlots: string[] = [
-    "09:30 AM",
-    "11:00 AM",
-    "02:00 PM",
-    "04:30 PM",
-    "07:00 PM",
-  ];
+  // const defaultSlots: string[] = [
+  //   "09:30 AM",
+  //   "11:00 AM",
+  //   "02:00 PM",
+  //   "04:30 PM",
+  //   "07:00 PM",
+  // ];
 
   const notifySuccess = (msg = "Schedule created successfully!") => {
     toast.success(msg, {
@@ -129,6 +228,7 @@ const MeetingSchedulerPreview = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  // const[checkAvailability,setCheckAvailability]=useState<Availability[]>([]);
   //@ts-ignore
   const [loading, setLoading] = useState<boolean>(false);
   //@ts-ignore
@@ -152,6 +252,7 @@ const MeetingSchedulerPreview = () => {
       name: string;
       phone: string;
       linkedin: string;
+       availability: Availability[];
     }[]
   >([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -159,6 +260,8 @@ const MeetingSchedulerPreview = () => {
 
   const user = localStorage.getItem("user");
     const parsedUserData = user ? JSON.parse(user) : null;
+     const degree = localStorage.getItem("degree");
+    const parsedDegree = degree? JSON.parse(degree) : null;
 
   // Calculate pagination indices
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -176,13 +279,26 @@ const MeetingSchedulerPreview = () => {
   );
 
   // Slots based on day (weekend logic)
-  const slotsForDate = (d: Date | null): string[] => {
-    if (!d) return [];
-    const day = d.getDay();
-    if (day === 0) return ["10:00 AM", "12:00 PM", "03:00 PM"]; // Sunday
-    if (day === 6) return ["11:00 AM", "01:30 PM", "05:00 PM"]; // Saturday
-    return defaultSlots;
-  };
+const slotsForDate = (d: Date | null): string[] => {
+  if (!d) return [];
+console.log("datee-slotsForDate",d);
+  const dayIndex = d.getDay();
+  const dayName = dayNames[dayIndex];
+
+const dataList:Availability[] = availability?.length>0 ? availability : selectedMentor.availability;
+
+console.log("dataList:", dataList);
+
+const slotData = dataList.find(a => a.day === dayName);
+
+console.log("slotData:", slotData);
+
+  if (!slotData) return []; // no availability for this day
+
+  // generate slots dynamically
+  return generateTimeSlots(slotData.startTime, slotData.endTime);
+};
+
 
   const dayMap: Record<string, number> = {
     Sunday: 0,
@@ -412,6 +528,42 @@ const MeetingSchedulerPreview = () => {
     setViewDate(d);
   };
 
+  const dayNames = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+];
+
+  const generateTimeSlots = (start: string, end: string): string[] => {
+  const slots: string[] = [];
+
+  let [startH, startM] = start.split(":").map(Number);
+  let [endH, endM] = end.split(":").map(Number);
+
+  let current = new Date();
+  current.setHours(startH, startM, 0, 0);
+
+  const endTime = new Date();
+  endTime.setHours(endH, endM, 0, 0);
+
+  while (current <= endTime) {
+    const formatted = current.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    slots.push(formatted);
+
+    current.setHours(current.getHours() + 1); // ⬅ 1-hour increment
+  }
+
+  return slots;
+};
+
   // Available days from selected mentor
   const availableDayIndices =
     selectedMentor?.availability?.map((a: any) => dayMap[a.day]) || [];
@@ -420,7 +572,11 @@ const MeetingSchedulerPreview = () => {
     const handleselectedMentor = mentorsList.find(
       (mentor) => mentor.mentor_id === mentorId
     );
+    console.log('handleSelectedMentor',handleselectedMentor?.availability);
+    setAvailability(handleselectedMentor?.availability ?? []);
+   
     setSelectedMentor(handleselectedMentor);
+    
     if (selectedMentor) {
       setFormData((prevData) => ({
         ...prevData,
@@ -431,6 +587,12 @@ const MeetingSchedulerPreview = () => {
       }));
     }
   };
+
+  useEffect(()=>{
+if(parsedUserData.is_mentor){
+  setSelectedMentor(parsedDegree);
+}
+  },[]);
 
   const handleFeedbackPopup = async (
     user_id: number,
@@ -492,6 +654,12 @@ const MeetingSchedulerPreview = () => {
       }
     };
   
+    const getDayName = (dateStr: string): string => {
+  const d = new Date(dateStr);
+  return d.toLocaleString("en-US", { weekday: "long" });
+};
+
+
     useEffect(() => {
       fetchMeetingData();
     }, [mentorId]);
@@ -503,8 +671,8 @@ const MeetingSchedulerPreview = () => {
         
          {
           params:{
-            mentor_id:mentorId,
-            user_id:parsedUserData.user_id
+            mentor_id:parsedUserData?.is_mentor?parsedDegree?.mentor_id:mentorId,
+            user_id:parsedUserData?.is_mentor?mentorId:parsedUserData.user_id
           },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -520,11 +688,35 @@ console.log(e);
     }
     }
 
+   const updateTimeAvailability = async (checkAvailability: any) => {
+    const token=localStorage.getItem("token");
+  try {
+    const res = await axios.put(
+      `${baseURL}/update_mentor/111`,
+      
+      checkAvailability, 
+     {
+      headers: {
+        Authorization: `Bearer ${token}`,  
+        "Content-Type": "application/json",
+      },
+    }
+      
+    );
+
+    console.log("res----data--update--availability", res.data);
+  } catch (error) {
+    console.error("Update availability error:", error);
+  }
+};
+
+
   return (
     <div className="mx-auto max-w-6xl p-3 space-y-5">
       {/* Mentor pills */}
+     {!parsedUserData.is_mentor?
       <div className="flex gap-3 overflow-x-auto pb-1">
-        {assignedMentorData.length === 0 ? (
+        {assignedMentorData.length === 0? (
           <div className="font-bold text-md">No Mentor Assigned</div>
         ) : (
           assignedMentorData?.map((m, index) => (
@@ -548,8 +740,9 @@ console.log(e);
             </button>
           ))
         )}
-      </div>
-
+      </div>:<div className="flex justify-end"><button className="bg-blue-500 rounded-sm p-2 text-white" >Change Time Availability</button></div>
+}
+    
       {/* Calendar + Slots */}
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     
@@ -716,7 +909,30 @@ console.log(e);
             </div>
           )}
         </div>
+       
       </div>
+      {parsedUserData?.is_mentor && (
+  <MentorScheduleEditor
+  onSave={async (schedule) => {
+    console.log("Mentor schedule saved:", schedule);
+
+    const dayName = getDayName(schedule.date); // Monday, Tuesday etc.
+  console.log("dayName", dayName);
+    const payload = {
+      availability: [
+        {
+          day: dayName,
+          startTime: schedule.start,
+          endTime: schedule.end,
+        },
+      ],
+    };
+    updateTimeAvailability(payload);
+  }}
+/>
+
+)}
+
 
       {/* Scheduled meetings */}
       <section className="space-y-3 pb-24">
@@ -749,7 +965,12 @@ console.log(e);
                     <Video className="h-4 w-4" /> Join
                   </a>
                   <button className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
-                  onClick={()=>handleMilestone(m.mentor_id)}
+                 onClick={() =>
+  handleMilestone(
+    parsedUserData.is_mentor ? m.user_id : m.mentor_id
+  )
+}
+
                   >
                     <ClipboardList className="h-4 w-4" /> Milestones
                   </button>
