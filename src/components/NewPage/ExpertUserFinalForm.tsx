@@ -19,6 +19,11 @@ interface FormData {
  confirmpassword:string;
 }
 
+type SupportCardsProps = {
+  services: string[];
+  setServices: React.Dispatch<React.SetStateAction<string[]>>;
+};
+
 interface ExpertData {
   linkedin: string;
   expertise: string;
@@ -68,7 +73,7 @@ const DURATION_OPTIONS = [
 
 const SERVICES = [
   { id: "skill-roadmap", label: "Skill Roadmap", defaultDur: "30–45 min", },
-  { id: "career-support", label: "Career Clarity / Profile Review / Industry Insights", defaultDur: "20–30 min", },
+  { id: "career-support", label: "Career Clarity / Profile Review / Industry Insights", defaultDur: "45-60 min", },
 ]
 
 
@@ -117,7 +122,7 @@ const ExpertOnboardingCompact=() =>{
   const [experience, setExperience] = useState("")
   const [degree, setDegree] = useState("")
   //@ts-ignore
-  const [services, setServices] = useState<string[]>(["skill-roadmap"])
+  const [services, setServices] = useState<string[]>([])
   const [pricing, setPricing] = useState<Record<string, { time: string; price: string }>>({ "skill-roadmap": { time: "30 min", price: "" } })
  const [formData, setFormData] = useState<FormData>({
       fullName: "",
@@ -471,44 +476,54 @@ const ExpertOnboardingCompact=() =>{
       }
     };
 
-    const SupportCards = () => {
-       const [selectedSupports, setSelectedSupports] = useState("");
+
+
+const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) => {
+  // const toggleSupport = (type: string) => {
+  //   setServices((prev) =>
+  //     prev.includes(type)
+  //       ? prev.filter((item) => item !== type)
+  //       : [...prev, type]
+  //   );
+  // };
+  const toggleSupport = (id: string) => {
+  setServices((prev) =>
+    prev.includes(id)
+      ? prev.filter((item) => item !== id)
+      : [...prev, id]
+  );
+};
+
+
+  const intents = [
+ 
     
-      const toggleSupport = (type:any) => {
-        setSelectedSupports((prev:any) =>
-          prev.includes(type)
-            ? prev.filter((item:any) => item !== type)
-            : [...prev, type]
-        );
-      };
-       const intents = [
-        { id: 1, title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them." },
-        { id: 2, title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." },
-      ];
-    
-      return (
-        <div className="space-y-4">
-         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {intents.map((intent) => (
-                <div
-                  key={intent.id}
-                  onClick={() => toggleSupport(intent.title)}
-                  className={`cursor-pointer border-2 rounded-xl p-4 transition ${
-      selectedSupports.includes(intent.title)
-        ? "border-blue-500 bg-blue-50"
-        : "border-gray-200 hover:border-gray-300"
-    }`}
-                 
-                >
-                  <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
-                  <p className="text-sm text-gray-600">{intent.desc}</p>
-                </div>
-              ))}
-            </div>
-        </div>
-      );
-    };
+    { id: "skill-roadmap", title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them.", label: "Skill Roadmap", defaultDur: "30–45 min", },
+    { id: "career-support", title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." ,label: "Career Clarity / Profile Review / Industry Insights", defaultDur: "20–30 min", },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        {intents.map((intent) => (
+          <div
+            key={intent.id}
+            onClick={() => toggleSupport(intent.id)}
+            className={`cursor-pointer border-2 rounded-xl p-4 transition ${
+              services.includes(intent.id)
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
+            <p className="text-sm text-gray-600">{intent.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center gap-3 p-3 bg-gradient-to-b from-white to-slate-50">
@@ -603,7 +618,9 @@ const ExpertOnboardingCompact=() =>{
                   <Chip key={s.id} selected={services.includes(s.id)} onClick={()=>toggle(services, s.id, setServices)}>{s.label}</Chip>
                 ))}
               </div> */}
-              <SupportCards/>
+              {/* <SupportCards/> */}
+              <SupportCards services={services} setServices={setServices} />
+
             </div>
 
             <div className="flex justify-between">
@@ -618,10 +635,18 @@ const ExpertOnboardingCompact=() =>{
             <h2 className="text-sm font-semibold flex items-center gap-2"><DollarSign className="h-3.5 w-3.5"/> Pricing</h2>
             <p className="text-xs text-slate-500">Set your consultation rates (choose duration and price).</p>
             <div className="space-y-2">
-              {services.map((id) => {
+               {services.length === 0 ? (
+      <p className="text-sm text-red-500">
+        Please select at least one service in Step 2.
+      </p>
+    ) : (
+              services.map((id) => {
+                console.log("services list: ", services);
+console.log("SERVICES:", SERVICES);
                 const def = SERVICES.find((s) => s.id === id);
+                console.log("deff---",def)
                 const value = pricing[id] || {
-                  duration: def?.defaultDur || "30 min",
+                  duration: def?.defaultDur,
                   price: "",}
                 return (
                   <div key={id} className="flex flex-col border rounded-xl p-2">
@@ -664,7 +689,8 @@ const ExpertOnboardingCompact=() =>{
                     </div>
                   </div>
                 )
-              })}
+              }))
+            }
             </div>
            <div>
         <p className="text-sm text-slate-600 font-medium"><Clock/>Set Your Availability</p>

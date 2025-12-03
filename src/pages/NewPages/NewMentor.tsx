@@ -20,7 +20,8 @@ interface TimeSlot {
 
 
 interface Slot extends TimeSlot {
-  day: string;
+  day?: string;
+  date?:string;
 }
 
 
@@ -364,11 +365,12 @@ function IntentDialog({ open, onClose, onSubmit }:any) {
 
 function TimeSlotDialog({ open, onClose, availability, onSubmit}:any) {
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedSlot, setSelectedSlot] = useState<Slot|null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<Slot| null>(null);
 
   useEffect(() => {
     const today = new Date();
     const dateStr = today.toISOString().split('T')[0];
+    console.log("dateStr-----useEffect",dateStr);
     setSelectedDate(dateStr);
   }, [open]);
 
@@ -395,7 +397,12 @@ function TimeSlotDialog({ open, onClose, availability, onSubmit}:any) {
     return days[new Date(selectedDate).getDay()];
   };
 
-  const todayAvailability = availability?.filter((slot: Slot) => slot.day === getCurrentDay()) || [];
+ const todayAvailability = availability?.filter((slot: Slot) => slot.day === getCurrentDay()) || [];
+
+//   const todayAvailability = React.useMemo(() => {
+//   const dayName = getCurrentDay();
+//   return availability?.filter((slot: Slot) => slot.day === dayName) || [];
+// }, [selectedDate, availability]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -440,7 +447,12 @@ function TimeSlotDialog({ open, onClose, availability, onSubmit}:any) {
                             : "bg-gray-100 hover:bg-blue-50 border-gray-200"
                         }`}
                         //  onClick={() => setSelectedSlot({ date: selectedDate, ...t })}
-                        onClick={() => setSelectedSlot({ day: selectedDate, ...t })}
+                        onClick={() => setSelectedSlot({ 
+  date: selectedDate, 
+  start: t.start, 
+  end: t.end 
+})}
+
                       >
                         {t.start} - {t.end}
                       </button>
@@ -476,6 +488,7 @@ const MentorsWireframe2 = () => {
   const [scheduledMap, setScheduledMap] = useState<Record<number, boolean>>({});
 const[dialogMentorId,setDialogMentorId]=useState<any>(null);
   const [visible, setVisible] = useState(9);
+  //@ts-ignore
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [allMentors, setAllMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -489,7 +502,7 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
     const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
     // const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
     //@ts-ignore
-     const[openTime,setOpenTime]=useState(false);
+    //  const[openTime,setOpenTime]=useState(false);
       //@ts-ignore
       const [schedules, setSchedules] = useState<Schedule[]>([]);
        const [formData, setFormData] = useState<Schedule>({
@@ -706,8 +719,7 @@ useEffect(() => {
   //   alert(`Meeting scheduled with ${selected?.name} on ${slot.date} at ${slot.start}`);
   // };
 
-  const currentMentors = activeCat === "recommended" ? mentors : 
-                        activeCat === "all" ? allMentors : mentors;
+  const currentMentors = activeCat === "recommended" ? assignedMentorData : allMentors;
 
   // const categories = useMemo(() => {
   //   const tagSet = new Set();
@@ -721,41 +733,60 @@ useEffect(() => {
 
 const categories = useMemo<Category[]>(() => {
   const tagSet = new Set<string>();
+  
 
   currentMentors.forEach((m) => {
+
     m.intent_price?.forEach((t) => tagSet.add(t.intent));
   });
 
   return [
     { key: "recommended", label: "Recommended" },
     { key: "all", label: "All" },
-    ...Array.from(tagSet)
-      .sort()
-      .map((t) => ({
-        key: t,       // <- now t is string, not unknown
-        label: t
-      }))
+    // ...Array.from(tagSet)
+    //   .sort()
+    //   .map((t) => ({
+    //     key: t,       // <- now t is string, not unknown
+    //     label: t
+    //   }))
   ];
 }, [currentMentors]);
 
 
+  // const filtered = useMemo(() => {
+  //   let list = [...currentMentors];
+  //   if (activeCat !== "recommended" && activeCat !== "all") {
+  //     list = list.filter((m) => m.intent_price?.some(ip => ip.intent === activeCat));
+  //   }
+  //   if (query.trim()) {
+  //     const q = query.toLowerCase();
+  //     list = list.filter(
+  //       (m) =>
+  //         m.name.toLowerCase().includes(q) ||
+  //         m.expertise.toLowerCase().includes(q) ||
+  //         m.degree.toLowerCase().includes(q) ||
+  //         m.background?.toLowerCase().includes(q)
+  //     );
+  //   }
+  //   return list;
+  // }, [query, activeCat, currentMentors]);
+
   const filtered = useMemo(() => {
-    let list = [...currentMentors];
-    if (activeCat !== "recommended" && activeCat !== "all") {
-      list = list.filter((m) => m.intent_price?.some(ip => ip.intent === activeCat));
-    }
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      list = list.filter(
-        (m) =>
-          m.name.toLowerCase().includes(q) ||
-          m.expertise.toLowerCase().includes(q) ||
-          m.degree.toLowerCase().includes(q) ||
-          m.background?.toLowerCase().includes(q)
-      );
-    }
-    return list;
-  }, [query, activeCat, currentMentors]);
+  let list = [...currentMentors];
+
+  if (query.trim()) {
+    const q = query.toLowerCase();
+    list = list.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.expertise.toLowerCase().includes(q) ||
+        m.degree.toLowerCase().includes(q) ||
+        m.background?.toLowerCase().includes(q)
+    );
+  }
+
+  return list;
+}, [query, activeCat, currentMentors]);
 
   const display = filtered.slice(0, visible);
   const canLoadMore = visible < filtered.length;
@@ -825,6 +856,9 @@ const categories = useMemo<Category[]>(() => {
     };
 
  const convertDateAndTimeToISO = (dateStr: string, timeStr: string): string => {
+  console.log("dateStr",dateStr);
+  if (!dateStr || !timeStr) return "";
+
   const [year, month, day] = dateStr.split("-").map(Number);
   const [hour, minute] = timeStr.split(":").map(Number);
 
@@ -918,7 +952,7 @@ const categories = useMemo<Category[]>(() => {
           const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
           console.log("timeZone----", timeZone);
   
-          const meetingLink = `/v2/meetingcall/${randomId}?start=${encodeURIComponent(
+          const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
             encryptedStartDate
           )}&end=${encodeURIComponent(
             encryptedEndDate
@@ -982,7 +1016,8 @@ const categories = useMemo<Category[]>(() => {
             mentor_linkedin: "",
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           });
-          setOpenTime(false);
+          // setOpenTime(false);
+          setTimeDialogOpen(false);
         } else {
           //@ts-ignore
           // setError("User data not found in localStorage.");
@@ -992,7 +1027,7 @@ const categories = useMemo<Category[]>(() => {
         //@ts-ignore
         // setError(err.response?.data?.error || "An error occurred");
         console.log(err|| "An error occurred");
-        alert("An error occurred");
+        alert(err);
       }
     };
 
@@ -1034,7 +1069,7 @@ const categories = useMemo<Category[]>(() => {
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-6">
           <div className="grid gap-3 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
-            {filtered.map((m) => (
+           {display.map((m) => (
               <MentorCard
                 key={m.mentor_id}
                 m={m}

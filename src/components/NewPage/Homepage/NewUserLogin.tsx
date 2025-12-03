@@ -164,6 +164,7 @@ const RegistrationFlow:React.FC<any>=() =>{
       const[educationArray,setEducationArray]=useState<EducationItem[]>([]);
           const[IndustryArray,setIndustryArray]=useState<EducationItem[]>([]);
              const[ExperienceArray,setExperienceArray]=useState<EducationItem[]>([]);
+              const [token, setToken] = useState(null);
 
       const navigate=useNavigate();
 
@@ -467,6 +468,7 @@ console.log("responseLoginnnnn-------",response);
      try {
                 const response = await axios.post(`${baseURL}/api/basic-info`, newUserInfo );
                 console.log("response---data-----",response.data);
+                await handleLogin();
                 await fetchBasicInfo();
                 navigate(`/dashboard`);
      }
@@ -476,13 +478,13 @@ console.log("responseLoginnnnn-------",response);
       }
 
       // setRecommendations(newUserInfo?.high_education);
-      // handleLogin();
+      
       }
 
 
       const handleInfoDetail=async()=>{
          setDegree(userInfo?.high_education);
-         await handleLogin();
+        //  await handleLogin();
       setTimeout(() => {
   next();
   finishInfo();
@@ -490,13 +492,29 @@ console.log("responseLoginnnnn-------",response);
       }
 
       useEffect(() => {
-        const token=localStorage.getItem("token");
-          const fetchDreamProfiles = async () => {
-            try {
+        // const token=localStorage.getItem("token");
+         const fetchDreamProfiles = async () => {
+      try {
+        let currentToken = token;
+
+        // Get token if not already in state
+        if (!currentToken) {
+           const dataToLogin={
+        username:formData.email,
+        password:formData.password
+      }
+   
+          const res = await axios.post(`${baseURL}/login`, dataToLogin);
+          const data = res.data;
+          currentToken = data.access_token;
+          setToken(currentToken);
+        }
+         
+            
               const res = await axios.get(
                 `${baseURL}/dream-list?degree=${degree}`,
                 {
-                  headers: { Authorization: `Bearer ${token}` },
+                  headers: { Authorization: `Bearer ${currentToken}` },
                 }
               );
       
@@ -511,7 +529,12 @@ console.log("responseLoginnnnn-------",response);
           };
       
           fetchDreamProfiles();
+          // handleLogin();
         }, [degree]);
+
+        // useEffect(()=>{
+
+        // },[Recommendations.len])
 
 //    const handleUserBasicInfo = async (newUserInfo: any) => {
 //   try {
