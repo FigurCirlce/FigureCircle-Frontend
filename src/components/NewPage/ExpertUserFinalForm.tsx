@@ -120,7 +120,8 @@ const ExpertOnboardingCompact=() =>{
    const [IndustryArray, setIndustryArray] = useState<EducationItem[]>([]);
    const [educationArray, setEducationArray] = useState<EducationItem[]>([]);
   const [experience, setExperience] = useState("")
-  const [degree, setDegree] = useState("")
+  const [degree, setDegree] = useState("");
+  const [token,setToken]=useState("");
   //@ts-ignore
   const [services, setServices] = useState<string[]>([])
   const [pricing, setPricing] = useState<Record<string, { time: string; price: string }>>({ "skill-roadmap": { time: "30 min", price: "" } })
@@ -262,8 +263,10 @@ const ExpertOnboardingCompact=() =>{
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+     
           
           e.preventDefault();
+         
           // await handleLogin();
           console.log("-------formdata------", formData);
       
@@ -329,8 +332,22 @@ const ExpertOnboardingCompact=() =>{
           //   }
           // setUserInfo(prev => ({ ...prev, data_filed: true }));
           console.log("newUSERINFO----------", newMentorData);
-           const token = localStorage.getItem("token");
+          //  const token = localStorage.getItem("token");
           try {
+            let currentToken = token;
+
+        // Get token if not already in state
+        if (!currentToken) {
+      const dataToLogin={
+        username:formData.email,
+        password:formData.password
+      }
+   
+          const res = await axios.post(`${baseURL}/login`, dataToLogin);
+          const data = res.data;
+          currentToken = data.access_token;
+          setToken(currentToken);
+        }
             const response = await axios.post(
               `${baseURL}/add_new_mentor`,
       
@@ -339,7 +356,7 @@ const ExpertOnboardingCompact=() =>{
                 headers: {
                   //             Authorization: `Bearer ${
       
-                  Authorization: `Bearer ${token}`,
+                  Authorization: `Bearer ${currentToken}`,
                 },
               }
             );
@@ -464,7 +481,7 @@ const ExpertOnboardingCompact=() =>{
           notifySuccess();
           if (response.status === 201) {
             localStorage.setItem("registerStatus", response.data.register);
-            await handleLogin();
+            // await handleLogin();
             next();
           }
         } catch (error: any) {
@@ -663,7 +680,11 @@ console.log("SERVICES:", SERVICES);
 >
 
                         <SelectTrigger className="w-24 text-sm">
-                          <SelectValue placeholder="Duration" />
+                          <SelectValue placeholder={
+    def?.defaultDur?.includes("-")
+      ? def.defaultDur.split("-")[0] + " mins"
+      : def?.defaultDur || "Duration"
+  } />
                         </SelectTrigger>
                         <SelectContent position="popper" className="z-[9999]" >
                           {DURATION_OPTIONS.map((opt)=>(

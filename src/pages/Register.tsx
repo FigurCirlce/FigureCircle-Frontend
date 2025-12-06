@@ -53,7 +53,8 @@ const Register:React.FC<RegisterProps> = ({type,setShowLogin}) => {
       // Redirect to the login page using window.location.href
       if(type=='modal') {setShowLogin?.(true);}
       else{
-          window.location.href = '/login';
+          // window.location.href = '/login';
+            window.location.href = '/';
       }
      
      

@@ -13,7 +13,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import MentorProfileWidget from "@/pages/NewPages/NewMentorProfile";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Search, Bell, MessageCircle } from "lucide-react";
 import baseURL from "@/config/config";
@@ -38,14 +39,14 @@ interface EducationItem {
   updated_at: string;
 }
 
-const ROLE_OPTIONS = [
-  "Software Engineer",
-  "Data Analyst",
-  "Data Scientist",
-  "Product Manager",
-  "Cloud / DevOps Engineer",
-  "Cybersecurity Analyst",
-]
+// const ROLE_OPTIONS = [
+//   "Software Engineer",
+//   "Data Analyst",
+//   "Data Scientist",
+//   "Product Manager",
+//   "Cloud / DevOps Engineer",
+//   "Cybersecurity Analyst",
+// ]
 
 // const EDUCATION_OPTIONS = [
 //   "High School Diploma",
@@ -151,6 +152,7 @@ const ProfileRecWidget = () => {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [reco, setReco] = useState<any | null>(null);
+  const[role_options,setRole_Options]=useState<any>([]);
   //@ts-ignore
   const [ExperienceArray, setExperienceArray] = useState<EducationItem[]>([]);
      const [IndustryArray, setIndustryArray] = useState<EducationItem[]>([]);
@@ -204,7 +206,8 @@ const ProfileRecWidget = () => {
       // map to our UI model
       const mapped = mapResponseToProfile(response.data);
       console.log("mapped-------",mapped);
-      setProfile((prev: any) => ({ ...prev, ...mapped }))
+      setProfile((prev: any) => ({ ...prev, ...mapped }));
+      localStorage.setItem("degree", JSON.stringify(response.data));
     } catch (error) {
       console.error("Error fetching profile:", error)
       // keep default START profile silently
@@ -270,9 +273,14 @@ const ProfileRecWidget = () => {
           "Content-Type": "application/json",
         },
       })
-
+      const degreeFetch=localStorage.getItem("degree");
+      
+if(degreeFetch){
+  localStorage.removeItem("degree");
+  await fetchBasicInfo();
+}
       // refetch to get canonical representation
-      await fetchBasicInfo()
+      // await fetchBasicInfo()
       // Optionally show a toast in your app
     } catch (error) {
       console.error("Error saving profile:", error)
@@ -325,16 +333,42 @@ const ProfileRecWidget = () => {
                 console.error("Error fetching data:", error);
               }
             };
+
+                const fetchDreamProfiles = async () => {
+    
+                   const degreeData=localStorage.getItem("degree");
+                   const degree=degreeData?JSON.parse(degreeData):null;
+                  try {
+            const res = await axios.get(
+                            `${baseURL}/dream-list?degree=${degree?.high_education}`,
+                            {
+                              headers: { Authorization: `Bearer ${token}` },
+                            }
+                          );
+                  
+                          console.log("dream Profiles", res.data);
+                          const roles =  res.data.matched_roles.map((r: any) => r.matched_role);
+                          console.log("roles----",roles);
+                          
+                          setRole_Options(roles);
+                        } catch (error) {
+                          console.error("Error fetching dream profiles", error);
+                        }
+                      };
+                  
   
         useEffect(()=>{
           fetchIndustryData();
           fetchExperienceData();
           fetchEducationData();
+          fetchDreamProfiles();
         },[]);
   
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-6 space-y-6">
+    <div className="w-full">
+      {!parsedUser?.is_mentor?(
+        <div className="mx-auto w-full max-w-6xl p-6 space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Profile Section */}
         <Card className="border-0 shadow-md backdrop-blur-md">
@@ -459,7 +493,7 @@ const ProfileRecWidget = () => {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Popular Roles</SelectLabel>
-                      {ROLE_OPTIONS.map((r) => (
+                      {role_options.map((r:string) => (
                         <SelectItem key={r} value={r}>
                           {r}
                         </SelectItem>
@@ -527,6 +561,11 @@ const ProfileRecWidget = () => {
           </CardContent>
         </Card>
       </div>
+      </div>):
+      <div className="flex justify-center w-full">
+      <MentorProfileWidget/>
+      </div>
+          }
     </div>
   )
 }

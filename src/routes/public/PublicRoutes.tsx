@@ -1,5 +1,5 @@
 import MeetingCalls from '@/pages/MeetingCalls';
-import Login from 'pages/Login';
+// import Login from 'pages/Login';
 import Register from 'pages/Register';
 // import HomePage from 'pages/NewPages/HomePage';
 import ContactForm from '../../pages/NewPages/ContactUs';
@@ -23,10 +23,11 @@ import MentorsWireframe1 from '@/pages/NewPages/MentorPages';
 // import Dashboard from '../../pages/NewPages/Dashboard'
 
 const PublicRoutes = [
-    {
-        path: '/login',
-        component: <Login/>,
-    },
+    // {
+    //     path: '/login',
+    //     // component: <Login/>,
+    //     component:<NewHomepage/>,
+    // },
        {
         path: '/feedback_form',
         component: <FeedBackForm />,

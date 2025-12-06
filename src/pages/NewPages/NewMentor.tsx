@@ -5,6 +5,7 @@ import baseURL from "@/config/config"; // Replace with actual API URL
 import axios from "axios";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
+import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
 // Simple encryption alternative (for demo - use actual crypto in production)
 
 interface PillProps {
@@ -106,8 +107,12 @@ interface MentorCardProps {
   // scheduled: boolean;
   // expanded: boolean;
   scheduled?: boolean;
+  hasMeetingScheduled:boolean;
   // onToggle: () => void;
   onSchedule?: () => void;
+  onPay: (mentorId: number) => void;
+  isAssigned:boolean;
+
 }
 
 // const simpleEncrypt = (text: any, key: any) => {
@@ -134,7 +139,10 @@ function Pill({ active, children, onClick }:PillProps) {
   );
 }
 
-function MentorCard({ m, isSelected, onSelect, scheduled, onSchedule }:MentorCardProps) {
+function MentorCard({ m, isSelected, onSelect, hasMeetingScheduled, onSchedule ,onPay,isAssigned}:MentorCardProps) {
+  
+  
+
   return (
     <div
       className={classNames(
@@ -156,7 +164,7 @@ function MentorCard({ m, isSelected, onSelect, scheduled, onSchedule }:MentorCar
         </div>
       </div>
       <div className="mt-2 flex justify-end">
-        {!scheduled ? (
+        {!hasMeetingScheduled? (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -166,12 +174,18 @@ function MentorCard({ m, isSelected, onSelect, scheduled, onSchedule }:MentorCar
           >
             Schedule
           </button>
-        ) : (
+        ) :isAssigned?(<button
+            disabled
+            className="px-3 py-1 text-xs rounded-lg border border-gray-300 hover:border-gray-500"
+          >
+            Already Assigned
+          </button>): (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              alert(`Payment for ${m.name} - ₹${m.fee || m.intent_price?.[0]?.price}`);
+               onPay(m.mentor_id);
             }}
+            
             className="px-3 py-1 text-xs rounded-lg border border-gray-300 hover:border-gray-500"
           >
             Pay Now
@@ -182,7 +196,7 @@ function MentorCard({ m, isSelected, onSelect, scheduled, onSchedule }:MentorCar
   );
 }
 
-function MentorInspector({ m, scheduled, onSchedule, onClose }:any) {
+function MentorInspector({ m, onSchedule, onClose ,hasMeetingScheduled,onPay,isAssigned}:any) {
     //  const [meetings, setMeetings] = useState<Meeting[]>([]);
   if (!m) return null;
   
@@ -249,16 +263,26 @@ function MentorInspector({ m, scheduled, onSchedule, onClose }:any) {
         </div>
 
         <div className="p-4 border-t">
-          {!scheduled ? (
+          {!hasMeetingScheduled ? (
             <button
               onClick={onSchedule}
               className="w-full px-4 py-2 rounded-xl bg-black text-white hover:opacity-90"
             >
               Schedule Call
             </button>
-          ) : (
+          ) : isAssigned?(
+              <button
+             disabled
+              className="w-full px-4 py-2 rounded-xl border border-gray-300 hover:border-gray-500"
+            >
+              Already Assigned
+            </button>
+          ):(
             <button
-              onClick={() => alert(`Payment for ${m.name}`)}
+              onClick={(e) => {
+              e.stopPropagation();
+               onPay(m.mentor_id);
+            }}
               className="w-full px-4 py-2 rounded-xl border border-gray-300 hover:border-gray-500"
             >
               Pay Now
@@ -484,6 +508,9 @@ const MentorsWireframe2 = () => {
   // const [scheduledMap, setScheduledMap] = useState({});
   //@ts-ignore
     const [meetings, setMeetings] = useState<Meeting[]>([]);
+      const [meetingData, setMeetingData] = useState<Meeting[]>([]);
+      const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
+      const[alreadyAssignedMentorData, setAlreadyAssignedMentorData]=useState<Mentor[]>([]);
     //@ts-ignore
   const [scheduledMap, setScheduledMap] = useState<Record<number, boolean>>({});
 const[dialogMentorId,setDialogMentorId]=useState<any>(null);
@@ -498,9 +525,13 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
    const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
     const [allMentorsData, setAllMentorsData] = useState<Mentor[]>([]);
     //@ts-ignore
+    const [mentorsList,setMentorsList] =useState<Mentor[]>([]);
+    //@ts-ignore
+
     const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(null);
     const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
-    // const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
+    const [mentorUserId, setmentorUserId] = useState<number | null>(null);
+    const [userId,setUserId]=useState<string | number>("");
     //@ts-ignore
     //  const[openTime,setOpenTime]=useState(false);
       //@ts-ignore
@@ -540,6 +571,53 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
 // ) ||null;
 // setSelectedExpertData(selectedMentor);
 //     },[selectedId]);
+  const fetchMeetingData = async () => {
+       const user = localStorage.getItem("user");
+       const parsedUserData = user ? JSON.parse(user) : null;
+   
+       // console.log("user_id FetchMeetingData----", user_id);
+       try {
+         const response = await axios.get(`${baseURL}/api/schedules`, {
+           // params: { user_id: 3},
+           params: parsedUserData.is_mentor
+             ? { mentor_id: parsedUserData?.user_id }
+             : { user_id: parsedUserData?.user_id },
+         });
+   
+         if (response.data) {
+           const sortedData = [...response.data].sort(
+             (a, b) =>
+               new Date(b.start_datetime).getTime() -
+               new Date(a.start_datetime).getTime()
+           );
+           console.log("sortedData-----", sortedData);
+           setMeetingData(sortedData);
+           
+         } else {
+           console.log("No meetings found.");
+         }
+       } catch (error) {
+         console.error("Error fetching meeting data:", error);
+       }
+     };
+
+  const handleExpert = async(id: number) => {
+  // navigate(`/expert/${id}`);
+    // await fetchMentorData(id);
+    setmentorUserId(id);
+    setUserId(userData.user_id);
+  };
+
+   useEffect(() => {
+   
+  const result = meetingData.some(
+    (schedule: Meeting) =>
+      schedule.mentor_id === selectedExpertData?.mentor_id &&
+      schedule.user_id === userData?.user_id
+  );
+  setHasMeetingScheduled(result);
+}, [meetingData, selectedExpertData, userData]);
+
 useEffect(() => {
   if (!selectedId || !allMentorsData.length) return;
 
@@ -550,6 +628,27 @@ useEffect(() => {
   setSelectedExpertData(selectedMentor || null);
 }, [selectedId, allMentorsData]);
 
+ const fetchAssignedMentor = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/get_assigned_mentors`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data) {
+        console.log("response--data", response.data.mentors);
+        setAlreadyAssignedMentorData(response.data.mentors);
+        setMentorsList(response.data.mentors);
+      } else {
+        console.log("No Mentors found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Assigned Mentors:", error);
+    }
+  };
+
+ 
 
 
  useEffect(() => {
@@ -582,7 +681,8 @@ useEffect(() => {
     };
 
     fetchMentors();
-    // fetchMeetingData();
+    fetchMeetingData();
+       fetchAssignedMentor();
     
   }, [token]);
 
@@ -661,6 +761,17 @@ useEffect(() => {
   //   // Show success message
   //   alert("Intent submitted successfully!");
   // };
+  // const notifyError = (error: any) => toast.error(`Error: ${error}`);
+ const notifyError = (error: any) => {
+  const message =
+    error?.response?.data?.error ||  // ← your API error field
+    error?.message ||                // fallback
+    "Something went wrong";
+
+  toast.error(message);
+};
+
+
  const handleSubmitIntent = async (
         mentor_id: number | undefined,
         user_id: number | string,
@@ -697,6 +808,7 @@ useEffect(() => {
           }
         } catch (error) {
           console.log("error");
+          notifyError(error);
         }
       };
 
@@ -826,34 +938,15 @@ const categories = useMemo<Category[]>(() => {
     );
   }
 
-   const fetchMeetingData = async () => {
-      const user=localStorage.getItem("user");
-      const parsedUser=user?JSON.parse(user):null;
+  const handleSuccess=()=>{
+  console.log("Payment Completed");
+}
+
+const handleFailure=()=>{
+  console.log("Payment Failed");
+}
+
   
-      console.log("user_id FetchMeetingData----", parsedUser.user_id);
-      try {
-        const response = await axios.get(`${baseURL}/api/schedules`, {
-          // params: { user_id: 3},
-          params: parsedUser.is_mentor
-            ? { mentor_id: parsedUser.mentor_id}
-            : { user_id: parsedUser.user_id },
-        });
-  
-        if (response.data) {
-          const sortedData = [...response.data].sort(
-            (a, b) =>
-              new Date(b.start_datetime).getTime() -
-              new Date(a.start_datetime).getTime()
-          );
-          console.log("sortedData-----", sortedData);
-          setMeetings(sortedData);
-        } else {
-          console.log("No meetings found.");
-        }
-      } catch (error) {
-        console.error("Error fetching meeting data:", error);
-      }
-    };
 
  const convertDateAndTimeToISO = (dateStr: string, timeStr: string): string => {
   console.log("dateStr",dateStr);
@@ -1027,7 +1120,9 @@ const categories = useMemo<Category[]>(() => {
         //@ts-ignore
         // setError(err.response?.data?.error || "An error occurred");
         console.log(err|| "An error occurred");
-        alert(err);
+        notifyError(err);
+        setTimeDialogOpen(false);
+        // alert(err);
       }
     };
 
@@ -1069,24 +1164,33 @@ const categories = useMemo<Category[]>(() => {
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-6">
           <div className="grid gap-3 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
-           {display.map((m) => (
+           {display.map((m) => {
+            const isAssigned = alreadyAssignedMentorData.some(a => a.mentor_id === m.mentor_id);
+return(
               <MentorCard
                 key={m.mentor_id}
                 m={m}
                 isSelected={selectedId === m.mentor_id}
-                scheduled={!!scheduledMap[m.mentor_id]}
+                // scheduled={!!scheduledMap[m.mentor_id]}
                 onSchedule={() => handleSchedule(m.mentor_id)}
+                 hasMeetingScheduled={hasMeetingScheduled}
                 onSelect={() => setSelectedId(m.mentor_id)}
+                 onPay={handleExpert}
+                 isAssigned={isAssigned}
               />
-            ))}
+)
+})}
           </div>
 
           <div className="hidden lg:block">
             <MentorInspector
               m={selected}
-              scheduled={!!(selected && scheduledMap[selected.mentor_id])}
+              // scheduled={!!(selected && scheduledMap[selected.mentor_id])}
               onSchedule={() => handleSchedule(selected?.mentor_id)}
+              hasMeetingScheduled={hasMeetingScheduled}
               onClose={() => setSelectedId(null)}
+              onPay={handleExpert}
+              
             />
           </div>
         </div>
@@ -1103,9 +1207,11 @@ const categories = useMemo<Category[]>(() => {
               <div className="p-4 max-h-[60vh] overflow-y-auto">
                 <MentorInspector
                   m={selected}
-                  scheduled={!!scheduledMap[selected.mentor_id]}
+                  // scheduled={!!scheduledMap[selected.mentor_id]}
                   onSchedule={() => handleSchedule(selected?.mentor_id)}
+                  hasMeetingScheduled={hasMeetingScheduled}
                   onClose={() => setSelectedId(null)}
+                  onPay={handleExpert}
                 />
               </div>
             </div>
@@ -1145,6 +1251,16 @@ const categories = useMemo<Category[]>(() => {
         onSubmit={handleSubmit}
         // selected={selectedExpertData}
       />
+
+        {userId && mentorUserId ? 
+             <RazorpayPayment
+              mentorId={mentorUserId}
+              userId={userId}
+              // mentorUserId={mentorUserId}
+              autoOpen={true}  
+              onSuccess={handleSuccess}
+              onFailure={handleFailure}
+            />:""}
     </div>
   );
 };

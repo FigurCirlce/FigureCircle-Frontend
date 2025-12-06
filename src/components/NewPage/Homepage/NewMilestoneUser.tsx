@@ -79,7 +79,7 @@ const MilestoneFlowTimeline=() =>{
   }
 
   return (
-    <div className="flex flex-col items-center p-6 max-w-5xl mx-auto bg-white rounded-xl">
+    <div className="flex flex-col items-center p-6 w-full mx-auto bg-white rounded-xl">
       {/* Segmented toggle */}
       <div className="mb-4 inline-flex rounded-lg border bg-white p-1 shadow-sm ">
         <Button
