@@ -264,8 +264,8 @@ const SupportCards = ({ selectedSupports, setSelectedSupports }:SupportCardsProp
 });
   }
    const intents = [
-    { id: 1, title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them." },
-    { id: 2, title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." },
+    { id: 1, title: "Skill Roadmapping", desc: "A personalized guide to the exact skills you need for your target role and the fastest way to build them." },
+    { id: 2, title: "Career Clarity, Insights & Connections", desc: "Get expert guidance on the right career direction, feedback on your profile, and access to meaningful industry connections." },
   ];
 
   return (
@@ -303,6 +303,11 @@ const SupportCards = ({ selectedSupports, setSelectedSupports }:SupportCardsProp
 
     if (Object.keys(validationErrors).length === 0) {
       // setLoading(true);
+      const registerStatus=localStorage.getItem("registerStatus");
+      if(registerStatus){
+        next();
+      }
+      else{
       try {
         const { email, password } = formData;
         const response = await axios.post(`${baseURL}/register`, {
@@ -323,6 +328,7 @@ const SupportCards = ({ selectedSupports, setSelectedSupports }:SupportCardsProp
         // setLoading(false);
       }
     }
+  }
   };
 
 

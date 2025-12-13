@@ -42,6 +42,9 @@ const Dashboard: React.FC = () => {
     const[close,setClose]=useState(false);
     const navigate=useNavigate();
 
+    const user=localStorage.getItem("user");
+    const parsedUser=user?JSON.parse(user):null;
+
     const fetchRecommendedMentor = async () => {
         try {
           const response = await axios.get(`https://figurecircle.com/api/get_assigned_mentors`, {
@@ -98,15 +101,57 @@ const Dashboard: React.FC = () => {
       //   fetchMeetingData();
       // }, [meetingData || close]);
 
-    const renderContent = () => {
+      
+
+    const renderUserContent = () => {
     switch (activePage) {
       case "Dashboard":
-        return <div><LandingDashboard/></div>;
+        return <div><LandingDashboard setActivePage={setActivePage} /></div>;
 
       case "Mentors":
         //@ts-ignore
         // return <div> <NewRecommendMentor/></div>;
         return <div><MentorsWireframe2/></div>;
+
+        
+      case "Schedule Meeting":
+        //@ts-ignore
+         return <div><MeetingSchedulerPreview/> </div>;
+    // if(meetingData.length !== 0){
+    //   setClose(true);
+    //      return <div><ScheduleMeeting/> </div>;
+    // }
+    // else{
+    //   return [];
+    // }
+      //   if (meetingData.length === 0) {
+      //   return <div>No mentors available to schedule a meeting.</div>;
+      // }
+      
+     
+    
+      case "My Profile":
+        // return <div><Profile/></div>;
+        return <div><ProfileRecWidget/></div>
+      // case "My Experts":
+      //   return <div>My Experts Content</div>;
+      // case "Trial Meetings":
+      //   //@ts-ignore
+      //   return <div> <TrialMeeting allMentorData={recommendedMentors}/></div>;
+        
+      default:
+        return <div>Welcome to the Dashboard!</div>;
+    }
+  };
+     const renderMentorContent = () => {
+    switch (activePage) {
+      case "Dashboard":
+        return <div><LandingDashboard setActivePage={setActivePage} /></div>;
+
+      // case "Mentors":
+      //   //@ts-ignore
+      //   // return <div> <NewRecommendMentor/></div>;
+      //   return <div><MentorsWireframe2/></div>;
 
         
       case "Schedule Meeting":
@@ -154,7 +199,8 @@ const Dashboard: React.FC = () => {
     <div className="flex h-screen w-screen bg-slate-100 overflow-hidden">
       {/* Sidebar */}
       {/* <Sidebar setActivePage={setActivePage} close={close}/> */}
-<Navbar setActivePage={setActivePage} close={false} />
+{/* <Navbar activePage={activePage} setActivePage={setActivePage} close={false} /> */}
+<Navbar activePage={activePage} setActivePage={setActivePage} />
       
       <div className="flex flex-col w-full h-screen overflow-hidden">
         
@@ -175,7 +221,7 @@ const Dashboard: React.FC = () => {
 
         
         <main className="flex-grow overflow-y-auto px-[3%] py-[3%]">
-          {renderContent()}
+          {parsedUser?.is_mentor?renderMentorContent():renderUserContent()}
         </main>
       </div>
     </div>

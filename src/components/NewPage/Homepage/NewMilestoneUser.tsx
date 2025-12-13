@@ -27,7 +27,11 @@ interface Task {
   bullets: string[]
 }
 
-const MilestoneFlowTimeline=() =>{
+interface MilestoneFlowUserProps {
+  setActivePage: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const MilestoneFlowTimeline: React.FC<MilestoneFlowUserProps> =({ setActivePage}) =>{
   const [view, setView] = useState<ViewType>("clarity")
   const [selectedId, setSelectedId] = useState<number>(0)
 
@@ -194,7 +198,7 @@ const MilestoneFlowTimeline=() =>{
                 </div>
                 {selectedId === 0 && (
                   <div className="pt-2">
-                    <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => setActivePage("Mentors")}>
                       Schedule Free Call
                     </Button>
                   </div>

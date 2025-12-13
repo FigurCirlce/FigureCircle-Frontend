@@ -512,8 +512,9 @@
 
 import React, { useState } from 'react'
 import { IconButton } from '@mui/material'
-import { Menu, LayoutDashboard, Calendar, User, CalendarX2 } from 'lucide-react'
-import logo from "../../assets/image (1).png"
+import { Menu, LayoutDashboard, Calendar, User} from 'lucide-react'
+import logo from "../../assets/image (1).png";
+import { Users } from 'lucide-react';
 // import pic from '../../assets/pic.jpg'
 import NotificationBell from './NotificationBell'
 import { useNavigate } from 'react-router-dom';
@@ -524,41 +525,53 @@ interface MenuItem {
 }
 
 interface NavbarProps {
-  setActivePage: (page: string) => void
-  close: boolean
+  activePage: string
+  setActivePage: React.Dispatch<React.SetStateAction<string>>
+  // close: boolean
 }
 
-const Navbar: React.FC<NavbarProps> = ({ setActivePage, close }) => {
+const Navbar: React.FC<NavbarProps> = ({activePage, setActivePage}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeItem, setActiveItem] = useState<string>('Dashboard')
+  
    const navigate=useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
   const HomeMenu: MenuItem[] = [
     { title: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { title: 'Mentors', icon: <CalendarX2 size={18} /> },
+    { title: 'Mentors', icon: <Users size={18} /> },
     { title: 'Schedule Meeting', icon: <Calendar size={18} /> },
     { title: 'My Profile', icon: <User size={18} /> },
     
   ]
 
-  const HomeMenuNEW: MenuItem[] = [
+   const HomeMenuMentor: MenuItem[] = [
     { title: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+   
+    { title: 'Schedule Meeting', icon: <Calendar size={18} /> },
     { title: 'My Profile', icon: <User size={18} /> },
-    { title: 'Mentors', icon: <CalendarX2 size={18} /> },
+    
   ]
 
-  const handleItemClick = (title: string) => {
-    setActiveItem(title)
-    setActivePage(title)
-    setIsMenuOpen(false)
-  }
+  // const HomeMenuNEW: MenuItem[] = [
+  //   { title: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+  //   { title: 'My Profile', icon: <User size={18} /> },
+  //   { title: 'Mentors', icon: <CalendarX2 size={18} /> },
+  // ]
+
+const handleItemClick = (title: string) => {
+  setActivePage(title)
+  setIsMenuOpen(false)
+}
+
 
   // const userData = JSON.parse(localStorage.getItem("degree") || "{}")
   // const username = userData?.firstname || userData?.name || "User"
 
-  const menuItems = !close ? HomeMenu : HomeMenuNEW
+  // const menuItems = !close ? HomeMenu : HomeMenuNEW
+   const user = localStorage.getItem("user");
+    const parsedUserData = user ? JSON.parse(user) : null;
+   const menuItems = parsedUserData?.is_mentor ?  HomeMenuMentor:HomeMenu
 
     const handleLogout = () => {
     localStorage.clear();
@@ -584,7 +597,8 @@ const Navbar: React.FC<NavbarProps> = ({ setActivePage, close }) => {
         <div className="hidden md:flex items-center space-x-6">
           <div className='flex px-1 py-1 rounded-2xl bg-slate-100'>
           {menuItems.map((item, index) => {
-            const isActive = activeItem === item.title
+           const isActive = activePage === item.title
+
             return (
               <button
                 key={index}
@@ -629,7 +643,7 @@ const Navbar: React.FC<NavbarProps> = ({ setActivePage, close }) => {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t shadow-md flex flex-col px-4 py-2 space-y-1">
           {menuItems.map((item, index) => {
-            const isActive = activeItem === item.title
+            const isActive = activePage === item.title
             return (
               <button
                 key={index}

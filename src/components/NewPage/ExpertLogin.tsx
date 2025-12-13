@@ -515,7 +515,7 @@ const ExpertOnboardingPreview = () => {
       setExpertForm((prev) => ({ ...prev, [field]: file }));
     };
 
-     const uploadToCloudinary = async (file: File): Promise<string> => {
+ const uploadToCloudinary = async (file: File): Promise<string> => {
     const cloudName = "dpwysillm";
     const uploadPreset = "figurecircule";
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;

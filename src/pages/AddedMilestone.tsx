@@ -18,13 +18,13 @@ const AddedMilestone: React.FC = () => {
 
     useRedirectIfNotLoggedIn();
 
-    const { id } = useParams<{ id: string }>(); // `id` in format "user_id-mentor_id"
+    const { userId,mentorId} = useParams<{ userId: string,mentorId: string }>(); // `id` in format "user_id-mentor_id"
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     // Extract user_id and mentor_id from the `id` param (format: "user_id-mentor_id")
-    const [userId, mentorId] = id?.split('-').map(Number) || [];
+    // const [userId, mentorId] = id?.split('-').map(Number) || [];
 
     useEffect(() => {
         if (!userId || !mentorId) {
@@ -34,6 +34,8 @@ const AddedMilestone: React.FC = () => {
         }
 
         const fetchMilestoneData = async () => {
+            console.log("userId",userId);
+            console.log("mentorId",mentorId);
             const token = localStorage.getItem('token');
 
             if (!token) {

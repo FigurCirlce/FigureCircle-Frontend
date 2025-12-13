@@ -65,6 +65,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
         });
 
         if (response.data) {
+          console.log("milestone--data",response.data);
           setSchudle(response.data);
            setSchedule(response.data);
         } else {

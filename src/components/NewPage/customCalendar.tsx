@@ -56,8 +56,11 @@ export default function CustomCalendar({
   availability?: Availability[];
 }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [pickedSlot, setPickedSlot] = useState<any>(null);
+
 
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const year = today.getFullYear();
   const month = today.getMonth();
 
@@ -87,14 +90,19 @@ export default function CustomCalendar({
           const day = i + 1;
           const date = new Date(year, month, day);
           const weekday = date.getDay();
+          const dateObj = new Date(year, month, day);
+  dateObj.setHours(0, 0, 0, 0);
+          
           const isAvailable = availableDayNumbers?.includes(weekday);
-
+const isPast = dateObj < today;
           return (
             <button
               key={day}
-              onClick={() => isAvailable && setSelectedDate(date)}
+              disabled={!isAvailable || isPast}
+              // onClick={() => isAvailable && setSelectedDate(date)}
+              onClick={() => isAvailable && !isPast && setSelectedDate(date)}
               className={`p-2 rounded-lg ${
-                isAvailable
+                isAvailable && !isPast
                   ? "bg-blue-100 hover:bg-blue-300"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
               }`}
@@ -123,20 +131,26 @@ export default function CustomCalendar({
               return (
                 <div key={idx} className="flex flex-wrap gap-2 justify-center">
                   {slots.map((t, i) => (
-                    <button
-                      key={i}
-                      className="px-3 py-1 rounded-full border bg-gray-100 hover:bg-blue-200"
-                      onClick={() =>
-                        onSelect({
-                        //   date: selectedDate.toISOString().split("T")[0],
-                         date: formatDateLocal(selectedDate),
-                          start: t.start,
-                          end: t.end,
-                        })
-                      }
-                    >
-                      {t.start} - {t.end}
-                    </button>
+                   <button
+  key={i}
+  className={`px-3 py-1 rounded-full border 
+    ${pickedSlot?.start === t.start && pickedSlot?.date === formatDateLocal(selectedDate)
+      ? "bg-blue-500 text-white"
+      : "bg-gray-100 hover:bg-blue-200"
+    }`}
+  onClick={() => {
+    const selected = {
+      date: formatDateLocal(selectedDate),
+      start: t.start,
+      end: t.end,
+    };
+    setPickedSlot(selected);   // <-- highlight in UI
+    onSelect(selected);        // <-- send to parent
+  }}
+>
+  {t.start} - {t.end}
+</button>
+
                   ))}
                 </div>
               );

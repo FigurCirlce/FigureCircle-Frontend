@@ -604,6 +604,9 @@ interface MilestoneEntry {
   milestone: string;
   progress_rating: number | null;
 }
+interface LandingDashboardProps {
+  setActivePage: React.Dispatch<React.SetStateAction<string>>;
+}
 
 interface Mentor {
   background: string;
@@ -652,7 +655,7 @@ export interface BasicInfo {
 }
 
 
-const LandingDashboard: React.FC = () => {
+const LandingDashboard: React.FC<LandingDashboardProps> = ({ setActivePage }) => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [assignedMenteesData, setAssignedMenteesData] = useState<AssignedUser[]>([]);
   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
@@ -663,7 +666,7 @@ const LandingDashboard: React.FC = () => {
     useState<ProgressAPIResponse | null>(null);
   const [course, setCourse] = useState<string[]>([]);
   const [certificate, setCertificate] = useState<string[]>([]);
-  const [competition, setCompetition] = useState<string[]>([]);
+  // const [competition, setCompetition] = useState<string[]>([]);
   // const [user_id, setUser_id] = useState<string | null>(null);
   const token = localStorage.getItem("token");
   const degree = localStorage.getItem("degree");
@@ -786,7 +789,8 @@ console.log("SelectedExpertKey",selectedExpertKey);
 
       try {
         // Try all three primary APIs in parallel
-        const [courseRes, certificateRes, competitionRes] = await Promise.all([
+        // const [courseRes, certificateRes, competitionRes] = await Promise.all([
+        const [courseRes, certificateRes] = await Promise.all([
           axios.post(
             `https://harsh1993-model.hf.space/get_course`,
             { stream },
@@ -806,7 +810,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
 
         setCourse(JSON.parse(courseRes.data.ans));
         setCertificate(JSON.parse(certificateRes.data.ans));
-        setCompetition(JSON.parse(competitionRes.data.ans));
+        // setCompetition(JSON.parse(competitionRes.data.ans));
       } catch (primaryError) {
         console.warn(
           "Primary API failed, trying fallback API...",
@@ -822,7 +826,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
 
           setCourse(fallbackRes.data.courses || []);
           setCertificate(fallbackRes.data.certifications || []);
-          setCompetition(fallbackRes.data.competitions || []);
+          // setCompetition(fallbackRes.data.competitions || []);
         } catch (fallbackError) {
           console.error("Fallback API also failed:", fallbackError);
         }
@@ -924,7 +928,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
             <RecommendationsPanel
               course={course}
               certificate={certificate}
-              competition={competition}
+              // competition={competition}
             />
           }
           </div>
@@ -1158,7 +1162,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
                   <p className="flex justify-center font-semibold text-lg">Not Available</p>
                 )}
               </div>
-            </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<MilestoneFlowExpertTimeline/>):<MilestoneFlowTimeline/>)
+            </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<MilestoneFlowExpertTimeline />):<MilestoneFlowTimeline setActivePage={setActivePage}/>)
 }
         </div>
       

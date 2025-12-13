@@ -6,7 +6,8 @@ import baseURL from "@/config/config";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import AvailMilestone from './Milestone';
+// import AvailMilestone from './Milestone';
+import AvailMilestones from "./Milestone";
 
 interface Milestone {
   milestone: string;
@@ -20,7 +21,8 @@ type MilestoneData = {
   check_meeting_id: number;
   created_at: string;
   history_count: number;
-  latest_milestone: Milestone;
+  // latest_milestone: Milestone;
+  milestones:Milestone[];
   mentor_id: number;
   serial_number: number;
   user_id: number;
@@ -29,7 +31,7 @@ type MilestoneData = {
 const MilestoneTimelineForm: React.FC = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [mentorData, setmentorData] = useState<any>();
-  const[mentorId,setMentorId]=useState<any>();
+  // const[mentorId,setMentorId]=useState<any>();
   const[stateMilestone,setStateMilestone]=useState<boolean>(false);
   const [milestoneData,setMilestoneData]=useState<MilestoneData[]>([]);
   const [formData, setFormData] = useState<Milestone>({
@@ -37,7 +39,7 @@ const MilestoneTimelineForm: React.FC = () => {
     description: "",
     expectedCompletionDate: "",
   });
-  const { id,userId } = useParams<{ id: string, userId: string}>();
+  const { userId,mentorId } = useParams<{ userId: string,mentorId: string, }>();
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
   const parsedUserData = user ? JSON.parse(user) : null;
@@ -59,7 +61,7 @@ const MilestoneTimelineForm: React.FC = () => {
       console.log("basicInformation---", response.data);
       const data=response.data;
       setmentorData(data);
-      setMentorId(data.mentor_id);
+      // setMentorId(data.mentor_id);
 
       // setBasicInfo([response.data]);
     } catch (error) {
@@ -79,7 +81,9 @@ const MilestoneTimelineForm: React.FC = () => {
         //     setLoading(false);
         //     return;
         // }
-console.log("mentor_id",mentorId);
+// console.log("mentor_id",mentorId);
+ console.log("userId",userId);
+            console.log("mentorId",mentorId);
         const fetchMilestoneData = async () => {
             const token = localStorage.getItem('token');
 
@@ -89,7 +93,8 @@ console.log("mentor_id",mentorId);
             }
             try {
                 const response = await axios.get(`${baseURL}/api/milestone`, {
-                    params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
+                    // params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
+                      params: { user_id: userId, mentor_id: mentorId },
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -163,10 +168,10 @@ setMilestoneData([response.data]);
       const token = localStorage.getItem("token");
       console.log("user_id", user_id);
       const dataToSend = {
-        user_id: parsedUserData.is_mentor?userId:id,
+        user_id: parsedUserData.is_mentor?userId:userId,
         mentor_id: mentorData.mentor_id,
         milestone: milestones,
-        check_meeting_id: id,
+        check_meeting_id: userId,
         check_id: mentorData.mentor_id,
       };
 
@@ -190,18 +195,13 @@ setMilestoneData([response.data]);
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white min-h-screen">
 {stateMilestone?milestoneData.map((item)=>
-  <AvailMilestone
+ <AvailMilestones
   data={{
-    check_id:item.check_id ,
+    check_id: item.check_id,
     check_meeting_id: item.check_meeting_id,
     created_at: item.created_at,
     history_count: item.history_count,
-    latest_milestone: {
-      description: item.latest_milestone.description,
-      expectedCompletionDate: item.latest_milestone.expectedCompletionDate,
-      mentorFees: Number(item.latest_milestone.mentorFees),
-      milestone: item.latest_milestone.milestone,
-    },
+    milestones: item.milestones, // Now passing the array directly
     mentor_id: item.mentor_id,
     serial_number: item.serial_number,
     user_id: item.user_id,

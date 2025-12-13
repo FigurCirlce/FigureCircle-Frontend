@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Search, Filter, Linkedin, ExternalLink, FileText, IndianRupee } from "lucide-react";
+import { X, Search, Linkedin, ExternalLink, FileText, IndianRupee } from "lucide-react";
 
 import baseURL from "@/config/config"; // Replace with actual API URL
 import axios from "axios";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
 import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
-// Simple encryption alternative (for demo - use actual crypto in production)
+import { Dialog, DialogActions, DialogContent, Slide, Button } from "@mui/material";
+import { TransitionProps } from "@mui/material/transitions";
+import CustomCalendar from "@/components/NewPage/customCalendar";
 
 interface PillProps {
   active: boolean;
@@ -14,16 +16,16 @@ interface PillProps {
   onClick?: () => void;
 }
 
-interface TimeSlot {
-  start: string;
-  end: string;
-}
+// interface TimeSlot {
+//   start: string;
+//   end: string;
+// }
 
 
-interface Slot extends TimeSlot {
-  day?: string;
-  date?:string;
-}
+// interface Slot extends TimeSlot {
+//   day?: string;
+//   date?:string;
+// }
 
 
   
@@ -111,13 +113,19 @@ interface MentorCardProps {
   // onToggle: () => void;
   onSchedule?: () => void;
   onPay: (mentorId: number) => void;
-  isAssigned:boolean;
+  // isAssigned:boolean;
 
 }
 
 // const simpleEncrypt = (text: any, key: any) => {
 //   return btoa(text + key);
 // };
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & { children: React.ReactElement<any, any> },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 function classNames(...arr: string[]) {
   return arr.filter(Boolean).join(" ");
@@ -139,7 +147,7 @@ function Pill({ active, children, onClick }:PillProps) {
   );
 }
 
-function MentorCard({ m, isSelected, onSelect, hasMeetingScheduled, onSchedule ,onPay,isAssigned}:MentorCardProps) {
+function MentorCard({ m, isSelected, onSelect, hasMeetingScheduled, onSchedule ,onPay}:MentorCardProps) {
   
   
 
@@ -174,12 +182,7 @@ function MentorCard({ m, isSelected, onSelect, hasMeetingScheduled, onSchedule ,
           >
             Schedule
           </button>
-        ) :isAssigned?(<button
-            disabled
-            className="px-3 py-1 text-xs rounded-lg border border-gray-300 hover:border-gray-500"
-          >
-            Already Assigned
-          </button>): (
+        ) :(
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -196,7 +199,7 @@ function MentorCard({ m, isSelected, onSelect, hasMeetingScheduled, onSchedule ,
   );
 }
 
-function MentorInspector({ m, onSchedule, onClose ,hasMeetingScheduled,onPay,isAssigned}:any) {
+function MentorInspector({ m, onSchedule, onClose ,hasMeetingScheduled,onPay}:any) {
     //  const [meetings, setMeetings] = useState<Meeting[]>([]);
   if (!m) return null;
   
@@ -206,7 +209,7 @@ function MentorInspector({ m, onSchedule, onClose ,hasMeetingScheduled,onPay,isA
   
 
   return (
-    <aside className="sticky top-20 self-start w-full md:w-[360px] lg:w-[400px] xl:w-[440px]">
+    <aside className="sticky top-20 self-start w-full md:w-[360px] lg:w-[400px] xl:w-[440px] bg-pink-400">
       <div className="rounded-2xl border bg-white shadow-sm">
         <div className="flex items-start justify-between p-4 border-b">
           <div className="flex gap-3">
@@ -270,14 +273,7 @@ function MentorInspector({ m, onSchedule, onClose ,hasMeetingScheduled,onPay,isA
             >
               Schedule Call
             </button>
-          ) : isAssigned?(
-              <button
-             disabled
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 hover:border-gray-500"
-            >
-              Already Assigned
-            </button>
-          ):(
+          ) : (
             <button
               onClick={(e) => {
               e.stopPropagation();
@@ -301,8 +297,8 @@ function IntentDialog({ open, onClose, onSubmit }:any) {
   const [error, setError] = useState({ intents: false, goalChallenge: false });
 
   const intents = [
-    { id: 1, title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them." },
-    { id: 2, title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." },
+    { id: 1, title: "Skill Roadmapping", desc: "A personalized guide to the exact skills you need for your target role—and the fastest way to build them." },
+    { id: 2, title: "Career Clarity, Insights & Connections", desc: "Get expert guidance on the right career direction, feedback on your profile, and access to meaningful industry connections." },
   ];
 
    const handleIntentClick = (title: string) => {
@@ -387,130 +383,132 @@ function IntentDialog({ open, onClose, onSubmit }:any) {
   );
 }
 
-function TimeSlotDialog({ open, onClose, availability, onSubmit}:any) {
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedSlot, setSelectedSlot] = useState<Slot| null>(null);
+// function TimeSlotDialog({ open, onClose, availability, onSubmit}:any) {
+//   const [selectedDate, setSelectedDate] = useState("");
+//   const [selectedSlot, setSelectedSlot] = useState<Slot| null>(null);
 
-  useEffect(() => {
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    console.log("dateStr-----useEffect",dateStr);
-    setSelectedDate(dateStr);
-  }, [open]);
+//   useEffect(() => {
+//     const today = new Date();
+//     const dateStr = today.toISOString().split('T')[0];
+//     console.log("dateStr-----useEffect",dateStr);
+//     setSelectedDate(dateStr);
+//   }, [open]);
 
   
-  if (!open) return null;
+//   if (!open) return null;
 
-  const generateTimeSlots = (start: string, end: string) :TimeSlot[]=> {
-     const slots: TimeSlot[] = [];
-    let current = parseInt(start.split(':')[0]);
-    const endHour = parseInt(end.split(':')[0]);
+//   const generateTimeSlots = (start: string, end: string) :TimeSlot[]=> {
+//      const slots: TimeSlot[] = [];
+//     let current = parseInt(start.split(':')[0]);
+//     const endHour = parseInt(end.split(':')[0]);
     
-    while (current < endHour) {
-      slots.push({
-        start: `${current.toString().padStart(2, '0')}:00`,
-        end: `${(current + 1).toString().padStart(2, '0')}:00`
-      });
-      current++;
-    }
-    return slots;
-  };
+//     while (current < endHour) {
+//       slots.push({
+//         start: `${current.toString().padStart(2, '0')}:00`,
+//         end: `${(current + 1).toString().padStart(2, '0')}:00`
+//       });
+//       current++;
+//     }
+//     return slots;
+//   };
 
-  const getCurrentDay = () => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return days[new Date(selectedDate).getDay()];
-  };
+//   const getCurrentDay = () => {
+//     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+//     return days[new Date(selectedDate).getDay()];
+//   };
 
- const todayAvailability = availability?.filter((slot: Slot) => slot.day === getCurrentDay()) || [];
+//  const todayAvailability = availability?.filter((slot: Slot) => slot.day === getCurrentDay()) || [];
 
-//   const todayAvailability = React.useMemo(() => {
-//   const dayName = getCurrentDay();
-//   return availability?.filter((slot: Slot) => slot.day === dayName) || [];
-// }, [selectedDate, availability]);
+// //   const todayAvailability = React.useMemo(() => {
+// //   const dayName = getCurrentDay();
+// //   return availability?.filter((slot: Slot) => slot.day === dayName) || [];
+// // }, [selectedDate, availability]);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold">Select a Time Slot</h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
-            <X size={24} />
-          </button>
-        </div>
+//   return (
+//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+//       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8">
+//         <div className="flex justify-between items-start mb-6">
+//           <h2 className="text-2xl font-bold">Select a Time Slot</h2>
+//           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+//             <X size={24} />
+//           </button>
+//         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Select Date</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => {
-              setSelectedDate(e.target.value);
-              setSelectedSlot(null);
-            }}
-            min={new Date().toISOString().split('T')[0]}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+//         <div className="mb-6">
+//           <label className="block text-sm font-medium mb-2">Select Date</label>
+//           <input
+//             type="date"
+//             value={selectedDate}
+//             onChange={(e) => {
+//               setSelectedDate(e.target.value);
+//               setSelectedSlot(null);
+//             }}
+//             min={new Date().toISOString().split('T')[0]}
+//             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//           />
+//         </div>
 
-        <div className="space-y-4 mb-6">
-          {todayAvailability.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No availability for {getCurrentDay()}</p>
-          ) : (
-            todayAvailability.map((slot:Slot | any, index:any) => {
-              const timeSlots = generateTimeSlots(slot.startTime, slot.endTime);
-              return (
-                <div key={index}>
-                  <p className="font-semibold mb-2">{slot.day}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {timeSlots.map((t, idx) => (
-                      <button
-                        key={idx}
-                        className={`px-4 py-2 rounded-lg border transition ${
-                          selectedSlot?.start === t.start && selectedSlot?.end === t.end
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : "bg-gray-100 hover:bg-blue-50 border-gray-200"
-                        }`}
-                        //  onClick={() => setSelectedSlot({ date: selectedDate, ...t })}
-                        onClick={() => setSelectedSlot({ 
-  date: selectedDate, 
-  start: t.start, 
-  end: t.end 
-})}
+//         <div className="space-y-4 mb-6">
+//           {todayAvailability.length === 0 ? (
+//             <p className="text-center text-gray-500 py-8">No availability for {getCurrentDay()}</p>
+//           ) : (
+//             todayAvailability.map((slot:Slot | any, index:any) => {
+//               const timeSlots = generateTimeSlots(slot.startTime, slot.endTime);
+//               return (
+//                 <div key={index}>
+//                   <p className="font-semibold mb-2">{slot.day}</p>
+//                   <div className="flex flex-wrap gap-2">
+//                     {timeSlots.map((t, idx) => (
+//                       <button
+//                         key={idx}
+//                         className={`px-4 py-2 rounded-lg border transition ${
+//                           selectedSlot?.start === t.start && selectedSlot?.end === t.end
+//                             ? "bg-blue-600 text-white border-blue-600"
+//                             : "bg-gray-100 hover:bg-blue-50 border-gray-200"
+//                         }`}
+//                         //  onClick={() => setSelectedSlot({ date: selectedDate, ...t })}
+//                         onClick={() => setSelectedSlot({ 
+//   date: selectedDate, 
+//   start: t.start, 
+//   end: t.end 
+// })}
 
-                      >
-                        {t.start} - {t.end}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+//                       >
+//                         {t.start} - {t.end}
+//                       </button>
+//                     ))}
+//                   </div>
+//                 </div>
+//               );
+//             })
+//           )}
+//         </div>
 
-        <button
-          onClick={() => onSubmit(selectedSlot)}
-          disabled={!selectedSlot}
-          className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-        >
-          Confirm Booking
-        </button>
-      </div>
-    </div>
-  );
-}
+//         <button
+//           onClick={() => onSubmit(selectedSlot)}
+//           disabled={!selectedSlot}
+//           className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+//         >
+//           Confirm Booking
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
 
 
 const MentorsWireframe2 = () => {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("recommended");
   const [selectedId, setSelectedId] = useState<any>(null);
+  const [openDialog, setOpenDialog] = useState(false);
   // const [scheduledMap, setScheduledMap] = useState({});
   //@ts-ignore
     const [meetings, setMeetings] = useState<Meeting[]>([]);
+    const[open,setOpen]=useState<boolean>(false);
       const [meetingData, setMeetingData] = useState<Meeting[]>([]);
-      const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
-      const[alreadyAssignedMentorData, setAlreadyAssignedMentorData]=useState<Mentor[]>([]);
+      // const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
+      // const[alreadyAssignedMentorData, setAlreadyAssignedMentorData]=useState<Mentor[]>([]);
     //@ts-ignore
   const [scheduledMap, setScheduledMap] = useState<Record<number, boolean>>({});
 const[dialogMentorId,setDialogMentorId]=useState<any>(null);
@@ -520,7 +518,8 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
   const [allMentors, setAllMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(false);
   const [intentDialogOpen, setIntentDialogOpen] = useState(false);
-  const [timeDialogOpen, setTimeDialogOpen] = useState(false);
+  // const [timeDialogOpen, setTimeDialogOpen] = useState(false);
+   const[selectedSlot,setSelectedSlot]=useState("");
   //@ts-ignore
    const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
     const [allMentorsData, setAllMentorsData] = useState<Mentor[]>([]);
@@ -553,6 +552,7 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
       
     const user=localStorage.getItem("user");
     const userData=user?JSON.parse(user):null;
+    
 
   // Mock user data (replace with actual localStorage in production)
   // const [userData] = useState({
@@ -608,15 +608,24 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
     setUserId(userData.user_id);
   };
 
-   useEffect(() => {
-   
-  const result = meetingData.some(
-    (schedule: Meeting) =>
-      schedule.mentor_id === selectedExpertData?.mentor_id &&
-      schedule.user_id === userData?.user_id
-  );
-  setHasMeetingScheduled(result);
-}, [meetingData, selectedExpertData, userData]);
+//    useEffect(() => {
+//    console.log("meeting--setHasMeetingScheduled",hasMeetingScheduled);
+//   const result = meetingData.some(
+//     (schedule: Meeting) =>
+//       schedule.mentor_id === selectedExpertData?.mentor_id &&
+//       schedule.user_id === userData?.user_id
+//   );
+//    console.log("meeting--setHasMeetingScheduled---result",result);
+//   setHasMeetingScheduled(result);
+// }, [meetingData, selectedExpertData, userData]);
+
+useEffect(()=>{
+  const map:Record<number,boolean>={};
+  meetingData.forEach(schedule=>{
+    map[schedule.mentor_id]=true;
+  });
+  setScheduledMap(map);
+},[meetingData]);
 
 useEffect(() => {
   if (!selectedId || !allMentorsData.length) return;
@@ -638,7 +647,7 @@ useEffect(() => {
 
       if (response.data) {
         console.log("response--data", response.data.mentors);
-        setAlreadyAssignedMentorData(response.data.mentors);
+        // setAlreadyAssignedMentorData(response.data.mentors);
         setMentorsList(response.data.mentors);
       } else {
         console.log("No Mentors found.");
@@ -771,6 +780,151 @@ useEffect(() => {
   toast.error(message);
 };
 
+  const handleSubmit = async (selectedSlot: any) => {
+      // console.log("formdata----", formData);
+  setOpenDialog(true);
+  // console.log("SelectedTiemSlot",selectedSlot);
+  
+      try {
+        
+        const updatedFormData = {
+          ...formData,
+          // start_date: startDateISO,
+          start_date: convertDateAndTimeToISO(selectedSlot.date, selectedSlot.start),
+        };
+  
+        // console.log("userData---", userData);
+        console.log("userData2", userData);
+  
+        if (user && userData) {
+          // const parsedUserData = JSON.parse(userData);
+          // const parsedUserData2 = JSON.parse(userData2);
+          const parsedUser = JSON.parse(user);
+          // console.log("parsedUserData---", parsedUserData);
+          console.log("parsedUserData2----", parsedUser);
+  
+          const randomId = Math.floor(Math.random() * 1000);
+          const roomid = Math.floor(Math.random() * 1000);
+          const password = Math.random().toString(36).substring(2, 8);
+          // console.log("randomId---", randomId);
+          // console.log("roomid----", roomid);
+          // console.log("password----", password);
+  
+          const secretKey = "meetingkeys";
+          // console.log("secretKey----", secretKey);
+  
+          const startDate = updatedFormData.start_date;
+          // console.log("startDate----", startDate);
+  
+  
+          const endDate = convertDateAndTimeToISO(selectedSlot.date, selectedSlot.end);
+          console.log("endDate----", endDate);
+  
+          // Encrypt values
+          const encryptedStartDate = CryptoJS.AES.encrypt(
+            startDate,
+            secretKey
+          ).toString();
+          console.log("encryptedStartDate----", encryptedStartDate);
+  
+          const encryptedEndDate = CryptoJS.AES.encrypt(
+            endDate,
+            secretKey
+          ).toString();
+          console.log("encryptedEndDate----", encryptedEndDate);
+  
+          const encryptedRoomId = CryptoJS.AES.encrypt(
+            roomid.toString(),
+            secretKey
+          ).toString();
+          console.log("encryptedRoomId----", encryptedRoomId);
+  
+          const encryptedPassword = CryptoJS.AES.encrypt(
+            password,
+            secretKey
+          ).toString();
+          console.log("encryptedPassword----", encryptedPassword);
+  
+          const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          console.log("timeZone----", timeZone);
+  
+          const meetingLink = `/v2/meetingcall/${randomId}?start=${encodeURIComponent(
+            encryptedStartDate
+          )}&end=${encodeURIComponent(
+            encryptedEndDate
+          )}&roomid=${encodeURIComponent(
+            encryptedRoomId
+          )}&password=${encodeURIComponent(
+            encryptedPassword
+          )}&timezone=${encodeURIComponent(timeZone)}`;
+  
+          console.log("meetingLink----", meetingLink);
+  
+          // Prepare schedule data
+          const scheduleData = {
+            name: parsedUser.firstname || "",
+            email: parsedUser.emailid || "",
+            start_datetime: startDate,
+            end_datetime: endDate,
+            duration: 60, // always 60
+            link: meetingLink,
+            user_id: parsedUser.user_id,
+            mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
+            mentor_name: selectedExpertData?.name,
+  
+            mentor_email: selectedExpertData?.email,
+            roomid: roomid,
+            password: password,
+            timezone: timeZone,
+          };
+  
+          console.log("scheduleData-----", scheduleData);
+  
+          const response = await axios.post<{ message: string; id: number }>(
+            `${baseURL}/api/trial_ schedule`,
+            scheduleData
+          );
+  
+          notifyMeetingScheduledSuccess();
+          // setDurationOpen(false);
+          // setSelectedMentorId(null);
+  
+          // setRefreshKey(Date.now());
+          setSchedules((prev) => [
+            ...prev,
+            {
+              ...formData,
+              id: response.data.id,
+              user_id: parsedUser.user_id,
+            },
+          ]);
+  
+          setFormData({
+            id: 0,
+            name: "",
+            email: "",
+            start_date: "",
+            duration: "60", 
+            mentor_id: 0,
+            user_id: "",
+            mentor_email: "",
+            mentor_phone: "",
+            mentor_linkedin: "",
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          });
+          setOpenDialog(false);
+        } else {
+          //@ts-ignore
+          // setError("User data not found in localStorage.");
+          console.log("User data not found in localStorage.");
+        }
+      } catch (err: any) {
+        //@ts-ignore
+        // setError(err.response?.data?.error || "An error occurred");
+        console.log(err|| "An error occurred");
+        alert("An error occurred");
+      }
+    };
 
  const handleSubmitIntent = async (
         mentor_id: number | undefined,
@@ -802,9 +956,10 @@ useEffect(() => {
 
             //  handleSubmit();
             setIntentDialogOpen(false);
-   setTimeDialogOpen(true);
-            // setOpenTime(true);
-             fetchMeetingData();
+            setOpenDialog(true);
+  //  setTimeDialogOpen(true);
+            //setOpenTime(true);
+            //  fetchMeetingData();
           }
         } catch (error) {
           console.log("error");
@@ -902,7 +1057,12 @@ const categories = useMemo<Category[]>(() => {
 
   const display = filtered.slice(0, visible);
   const canLoadMore = visible < filtered.length;
-  const selected = display.find((m) => m.mentor_id === selectedId) || null;
+  // const selected = display.find((m) => m.mentor_id === selectedId) || null;
+  const selected = filtered.find((m) => m.mentor_id === selectedId) || null;
+
+useEffect(()=>{
+setOpen(true);
+},[selected]);
 
   useEffect(() => {
     setVisible(9);
@@ -974,157 +1134,158 @@ const handleFailure=()=>{
   };
 
 
-      const handleSubmit = async (selectedSlot: any) => {
-      // console.log("formdata----", formData);
-  setTimeDialogOpen(true);
-  // console.log("SelectedTiemSlot",selectedSlot);
-    const userData2 = localStorage.getItem("degree");
+  //     const handleSubmit = async (selectedSlot: any) => {
+  //     // console.log("formdata----", formData);
+  // setTimeDialogOpen(true);
+  // // console.log("SelectedTiemSlot",selectedSlot);
+  //   const userData2 = localStorage.getItem("degree");
   
-  const parsedUserData2 = userData2 ? JSON.parse(userData2) : null;
+  // const parsedUserData2 = userData2 ? JSON.parse(userData2) : null;
   
-      try {
+  //     try {
         
-        const updatedFormData = {
-          ...formData,
-          // start_date: startDateISO,
-          start_date: convertDateAndTimeToISO(selectedSlot.date, selectedSlot.start),
-        };
+  //       const updatedFormData = {
+  //         ...formData,
+  //         // start_date: startDateISO,
+  //         start_date: convertDateAndTimeToISO(selectedSlot.date, selectedSlot.start),
+  //       };
   
-        // console.log("userData---", userData);
-        console.log("userData2", userData2);
+  //       // console.log("userData---", userData);
+  //       console.log("userData2", userData2);
   
-        if (user && userData2) {
-          // const parsedUserData = JSON.parse(userData);
-          // const parsedUserData2 = JSON.parse(userData2);
-          const parsedUser = JSON.parse(user);
-          // console.log("parsedUserData---", parsedUserData);
-          console.log("parsedUserData2----", parsedUserData2);
+  //       if (user && userData2) {
+  //         // const parsedUserData = JSON.parse(userData);
+  //         // const parsedUserData2 = JSON.parse(userData2);
+  //         const parsedUser = JSON.parse(user);
+  //         // console.log("parsedUserData---", parsedUserData);
+  //         console.log("parsedUserData2----", parsedUserData2);
   
-          const randomId = Math.floor(Math.random() * 1000);
-          const roomid = Math.floor(Math.random() * 1000);
-          const password = Math.random().toString(36).substring(2, 8);
-          // console.log("randomId---", randomId);
-          // console.log("roomid----", roomid);
-          // console.log("password----", password);
+  //         const randomId = Math.floor(Math.random() * 1000);
+  //         const roomid = Math.floor(Math.random() * 1000);
+  //         const password = Math.random().toString(36).substring(2, 8);
+  //         // console.log("randomId---", randomId);
+  //         // console.log("roomid----", roomid);
+  //         // console.log("password----", password);
   
-          const secretKey = "meetingkeys";
-          // console.log("secretKey----", secretKey);
+  //         const secretKey = "meetingkeys";
+  //         // console.log("secretKey----", secretKey);
   
-          const startDate = updatedFormData.start_date;
-          // console.log("startDate----", startDate);
+  //         const startDate = updatedFormData.start_date;
+  //         // console.log("startDate----", startDate);
   
   
-          const endDate = convertDateAndTimeToISO(selectedSlot.date, selectedSlot.end);
-          console.log("endDate----", endDate);
+  //         const endDate = convertDateAndTimeToISO(selectedSlot.date, selectedSlot.end);
+  //         console.log("endDate----", endDate);
   
-          // Encrypt values
-          const encryptedStartDate = CryptoJS.AES.encrypt(
-            startDate,
-            secretKey
-          ).toString();
-          console.log("encryptedStartDate----", encryptedStartDate);
+  //         // Encrypt values
+  //         const encryptedStartDate = CryptoJS.AES.encrypt(
+  //           startDate,
+  //           secretKey
+  //         ).toString();
+  //         console.log("encryptedStartDate----", encryptedStartDate);
   
-          const encryptedEndDate = CryptoJS.AES.encrypt(
-            endDate,
-            secretKey
-          ).toString();
-          console.log("encryptedEndDate----", encryptedEndDate);
+  //         const encryptedEndDate = CryptoJS.AES.encrypt(
+  //           endDate,
+  //           secretKey
+  //         ).toString();
+  //         console.log("encryptedEndDate----", encryptedEndDate);
   
-          const encryptedRoomId = CryptoJS.AES.encrypt(
-            roomid.toString(),
-            secretKey
-          ).toString();
-          console.log("encryptedRoomId----", encryptedRoomId);
+  //         const encryptedRoomId = CryptoJS.AES.encrypt(
+  //           roomid.toString(),
+  //           secretKey
+  //         ).toString();
+  //         console.log("encryptedRoomId----", encryptedRoomId);
   
-          const encryptedPassword = CryptoJS.AES.encrypt(
-            password,
-            secretKey
-          ).toString();
-          console.log("encryptedPassword----", encryptedPassword);
+  //         const encryptedPassword = CryptoJS.AES.encrypt(
+  //           password,
+  //           secretKey
+  //         ).toString();
+  //         console.log("encryptedPassword----", encryptedPassword);
   
-          const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          console.log("timeZone----", timeZone);
+  //         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  //         console.log("timeZone----", timeZone);
   
-          const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
-            encryptedStartDate
-          )}&end=${encodeURIComponent(
-            encryptedEndDate
-          )}&roomid=${encodeURIComponent(
-            encryptedRoomId
-          )}&password=${encodeURIComponent(
-            encryptedPassword
-          )}&timezone=${encodeURIComponent(timeZone)}`;
+  //         const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
+  //           encryptedStartDate
+  //         )}&end=${encodeURIComponent(
+  //           encryptedEndDate
+  //         )}&roomid=${encodeURIComponent(
+  //           encryptedRoomId
+  //         )}&password=${encodeURIComponent(
+  //           encryptedPassword
+  //         )}&timezone=${encodeURIComponent(timeZone)}`;
   
-          console.log("meetingLink----", meetingLink);
+  //         console.log("meetingLink----", meetingLink);
   
-          // Prepare schedule data
-          const scheduleData = {
-            name: parsedUser.firstname || "",
-            email: parsedUser.emailid || "",
-            start_datetime: startDate,
-            end_datetime: endDate,
-            duration: 60, // always 60
-            link: meetingLink,
-            user_id: parsedUser.user_id,
-            mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
-            mentor_name: selectedExpertData?.name,
+  //         // Prepare schedule data
+  //         const scheduleData = {
+  //           name: parsedUser.firstname || "",
+  //           email: parsedUser.emailid || "",
+  //           start_datetime: startDate,
+  //           end_datetime: endDate,
+  //           duration: 60, // always 60
+  //           link: meetingLink,
+  //           user_id: parsedUser.user_id,
+  //           mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
+  //           mentor_name: selectedExpertData?.name,
   
-            mentor_email: selectedExpertData?.email,
-            roomid: roomid,
-            password: password,
-            timezone: timeZone,
-          };
+  //           mentor_email: selectedExpertData?.email,
+  //           roomid: roomid,
+  //           password: password,
+  //           timezone: timeZone,
+  //         };
   
-          console.log("scheduleData-----", scheduleData);
+  //         console.log("scheduleData-----", scheduleData);
   
-          const response = await axios.post<{ message: string; id: number }>(
-            `${baseURL}/api/trial_ schedule`,
-            scheduleData
-          );
+  //         const response = await axios.post<{ message: string; id: number }>(
+  //           `${baseURL}/api/trial_ schedule`,
+  //           scheduleData
+  //         );
   
-          notifyMeetingScheduledSuccess();
-          // setDurationOpen(false);
-          // setSelectedMentorId(null);
+  //         notifyMeetingScheduledSuccess();
+  //         // setDurationOpen(false);
+  //         // setSelectedMentorId(null);
   
-          // setRefreshKey(Date.now());
-          setSchedules((prev) => [
-            ...prev,
-            {
-              ...formData,
-              id: response.data.id,
-              user_id: parsedUser.user_id,
-            },
-          ]);
+  //         // setRefreshKey(Date.now());
+  //         setSchedules((prev) => [
+  //           ...prev,
+  //           {
+  //             ...formData,
+  //             id: response.data.id,
+  //             user_id: parsedUser.user_id,
+  //           },
+  //         ]);
   
-          setFormData({
-            id: 0,
-            name: "",
-            email: "",
-            start_date: "",
-            duration: "60", 
-            mentor_id: 0,
-            user_id: "",
-            mentor_email: "",
-            mentor_phone: "",
-            mentor_linkedin: "",
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          });
-          // setOpenTime(false);
-          setTimeDialogOpen(false);
-        } else {
-          //@ts-ignore
-          // setError("User data not found in localStorage.");
-          console.log("User data not found in localStorage.");
-        }
-      } catch (err: any) {
-        //@ts-ignore
-        // setError(err.response?.data?.error || "An error occurred");
-        console.log(err|| "An error occurred");
-        notifyError(err);
-        setTimeDialogOpen(false);
-        // alert(err);
-      }
-    };
+  //         setFormData({
+  //           id: 0,
+  //           name: "",
+  //           email: "",
+  //           start_date: "",
+  //           duration: "60", 
+  //           mentor_id: 0,
+  //           user_id: "",
+  //           mentor_email: "",
+  //           mentor_phone: "",
+  //           mentor_linkedin: "",
+  //           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  //         });
+  //         // setOpenTime(false);
+  //         setTimeDialogOpen(false);
+  //         fetchMeetingData();
+  //       } else {
+  //         //@ts-ignore
+  //         // setError("User data not found in localStorage.");
+  //         console.log("User data not found in localStorage.");
+  //       }
+  //     } catch (err: any) {
+  //       //@ts-ignore
+  //       // setError(err.response?.data?.error || "An error occurred");
+  //       console.log(err|| "An error occurred");
+  //       notifyError(err);
+  //       setTimeDialogOpen(false);
+  //       // alert(err);
+  //     }
+  //   };
 
       // Update mentor list whenever API data arrives
 
@@ -1148,9 +1309,9 @@ const handleFailure=()=>{
                 className="w-[280px] md:w-[420px] rounded-xl border border-gray-300 pl-9 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
-            <button className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 hover:bg-gray-50">
+            {/* <button className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 hover:bg-gray-50">
               <Filter className="h-4 w-4" /> Filters
-            </button>
+            </button> */}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -1165,7 +1326,7 @@ const handleFailure=()=>{
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-6">
           <div className="grid gap-3 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
            {display.map((m) => {
-            const isAssigned = alreadyAssignedMentorData.some(a => a.mentor_id === m.mentor_id);
+            // const isAssigned = alreadyAssignedMentorData.some(a => a.mentor_id === m.mentor_id);
 return(
               <MentorCard
                 key={m.mentor_id}
@@ -1173,50 +1334,57 @@ return(
                 isSelected={selectedId === m.mentor_id}
                 // scheduled={!!scheduledMap[m.mentor_id]}
                 onSchedule={() => handleSchedule(m.mentor_id)}
-                 hasMeetingScheduled={hasMeetingScheduled}
+                 hasMeetingScheduled={scheduledMap[m.mentor_id]}
                 onSelect={() => setSelectedId(m.mentor_id)}
                  onPay={handleExpert}
-                 isAssigned={isAssigned}
+                //  isAssigned={isAssigned}
               />
 )
 })}
           </div>
 
-          <div className="hidden lg:block">
+        <div className="hidden lg:block">
             <MentorInspector
               m={selected}
               // scheduled={!!(selected && scheduledMap[selected.mentor_id])}
               onSchedule={() => handleSchedule(selected?.mentor_id)}
-              hasMeetingScheduled={hasMeetingScheduled}
+              // hasMeetingScheduled={hasMeetingScheduled}
+              hasMeetingScheduled={selected?.mentor_id?scheduledMap[selected?.mentor_id]:null}
               onClose={() => setSelectedId(null)}
               onPay={handleExpert}
-              
+              // isAssigned={isAssigned}
             />
           </div>
         </div>
 
-        {selected && (
+        {selected && open && (
           <div className="lg:hidden fixed inset-x-0 bottom-0 z-40">
-            <div className="mx-auto max-w-2xl rounded-t-2xl border-t border-x bg-white shadow-2xl">
-              <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex justify-center">
+              {/* <div className="flex items-center justify-between p-4 border-b">
                 <h3 className="text-base font-semibold truncate">{selected.name}</h3>
-                <button onClick={() => setSelectedId(null)} className="p-1 rounded-md hover:bg-gray-100">
+                <button onClick={() => setOpen(false)} className="p-1 rounded-md hover:bg-gray-100">
                   <X className="h-4 w-4" />
                 </button>
-              </div>
+              </div> */}
               <div className="p-4 max-h-[60vh] overflow-y-auto">
                 <MentorInspector
                   m={selected}
                   // scheduled={!!scheduledMap[selected.mentor_id]}
                   onSchedule={() => handleSchedule(selected?.mentor_id)}
-                  hasMeetingScheduled={hasMeetingScheduled}
-                  onClose={() => setSelectedId(null)}
+                  // hasMeetingScheduled={hasMeetingScheduled}
+                   hasMeetingScheduled={selected?.mentor_id?scheduledMap[selected?.mentor_id]:null}
+                  onClose={() => setOpen(false)}
                   onPay={handleExpert}
+                  // isAssigned={isAssigned}
                 />
+
               </div>
-            </div>
+            
+          </div>
           </div>
         )}
+   
+
 
         <div className="mt-8 flex justify-center">
           {filtered.length === 0 ? (
@@ -1244,13 +1412,46 @@ return(
   }
       />
 
-      <TimeSlotDialog
+      {/* <TimeSlotDialog
         open={timeDialogOpen}
         onClose={() => setTimeDialogOpen(false)}
         availability={selectedExpertData?.availability}
         onSubmit={handleSubmit}
         // selected={selectedExpertData}
-      />
+      /> */}
+        <Dialog
+        open={openDialog}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={() => setOpenDialog(false)}
+        aria-describedby="schedule-call-dialog"
+        PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
+      >
+      <DialogContent>
+        <div className="w-full bg-white rounded-xl p-4">
+          <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
+            Select the time
+          </div>
+      
+          <CustomCalendar onSelect={(slot) => setSelectedSlot(slot)} availability={selectedExpertData?.availability ?? []} />
+      
+          <div className="flex justify-center mt-4">
+            <button
+              className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+              onClick={() => handleSubmit(selectedSlot)}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+      
+        <DialogActions className="absolute top-0 right-2">
+          <Button onClick={() => setOpenDialog(false)}>
+            <X size={30} color="black" />
+          </Button>
+        </DialogActions>
+      </Dialog>
 
         {userId && mentorUserId ? 
              <RazorpayPayment

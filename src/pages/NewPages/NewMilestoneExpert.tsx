@@ -37,32 +37,44 @@ interface TaskDetails {
 interface ExpertTimelineBaseProps {
   milestones: Milestone[]
   tasks: Record<number, TaskDetails>
-}
+  
 
-// ===================
-// USER VIEW (with toggle between Skill & Clarity)
-// ===================
-const MilestoneFlowExpertTimeline=()=> {
+}
+// interface MileFlowExpert extends ExpertTimelineBaseProps {
+// setActivePage: React.Dispatch<React.SetStateAction<string>>;
+// }
+
+
+
+const MilestoneFlowExpertTimeline = () => {
   const [view, setView] = useState<ViewType>("clarity")
   const [selectedId, setSelectedId] = useState(0)
 
   // --- DATA: Skill Roadmap flow ---
-  const skillMilestones: Milestone[] = [
-    { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Discuss goals, review skills, align on milestones." },
-    { id: 1, title: "Foundation", icon: Search, status: "Not Started", desc: "Identify roles, map skill gaps, create roadmap." },
-    { id: 2, title: "Skill Building", icon: BarChart3, status: "Not Started", desc: "Start learning in key areas and complete a mini-project." },
-    { id: 3, title: "Applied Project", icon: Users, status: "Not Started", desc: "Execute a guided project and iterate with feedback." },
-    { id: 4, title: "Industry Prep", icon: Lightbulb, status: "Not Started", desc: "Assignments, mock interview, and portfolio refinement." },
-    { id: 5, title: "Final Review", icon: Flag, status: "Not Started", desc: "Review outcomes and set next learning goals." },
-  ]
+  // const skillMilestones: Milestone[] = [
+  //   { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Discuss goals, review skills, align on milestones." },
+  //   { id: 1, title: "Foundation", icon: Search, status: "Not Started", desc: "Identify roles, map skill gaps, create roadmap." },
+  //   { id: 2, title: "Skill Building", icon: BarChart3, status: "Not Started", desc: "Start learning in key areas and complete a mini-project." },
+  //   { id: 3, title: "Applied Project", icon: Users, status: "Not Started", desc: "Execute a guided project and iterate with feedback." },
+  //   { id: 4, title: "Industry Prep", icon: Lightbulb, status: "Not Started", desc: "Assignments, mock interview, and portfolio refinement." },
+  //   { id: 5, title: "Final Review", icon: Flag, status: "Not Started", desc: "Review outcomes and set next learning goals." },
+  // ]
 
-  const skillTasks: Record<number, TaskDetails> = {
+  const skillMilestones: Milestone[] = [
+    { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Understand the user’s goals, review skills, and align on milestones." },
+    { id: 1, title: "Pitching-How Mentor will help", icon: Map, status: "Not Started", desc: "Help the user identify roles, map skill gaps, and create a roadmap." },
+    { id: 2, title: "Milestone Preparation", icon: BookOpen, status: "Not Started", desc: "Guide the user through structured learning and a mini-project." },
+    { id: 3, title: "Mentor Added by User", icon: ClipboardCheck, status: "Not Started", desc: "Support the user in executing a guided project and provide feedback." },
+    { id: 4, title: "Feedback Submission after meetings", icon: Briefcase, status: "Not Started", desc: "Prepare the user with assignments, mock interviews, and portfolio refinement." },
+    { id: 5, title: "Payment transfer after each meeting approved by user ", icon: Flag, status: "Not Started", desc: "Review outcomes, share feedback, and set next learning goals." },
+  ]
+ const skillTasks: Record<number, TaskDetails> = {
     0: { subtitle: "Free intro call", bullets: ["Clarify target roles & interests", "Quick profile review", "Agree on 3–5 tasks per milestone", "Timeline & expectations"] },
-    1: { subtitle: "Foundation (examples)", bullets: ["Collect 2–3 JDs & extract skills", "Run skill-gap check", "Draft a 90-day roadmap", "Set up tracking (sheet/Notion/repo)"] },
-    2: { subtitle: "Skill building (examples)", bullets: ["Pick 1–2 core topics/resources", "Complete first mini-project/case", "Weekly check-in & blockers review", "Document outcomes to portfolio"] },
-    3: { subtitle: "Applied project (examples)", bullets: ["Define scope & success criteria", "Implement v1, review with expert", "Refactor with best practices", "Write short readme/case write-up"] },
-    4: { subtitle: "Industry prep (examples)", bullets: ["Solve 2 role-specific assignments", "1 mock interview + feedback", "Polish resume/LinkedIn/portfolio", "Targeted outreach plan (5 contacts)"] },
-    5: { subtitle: "Final review (examples)", bullets: ["Skills & outcomes retrospective", "Update long-term plan", "Map next 3 months deliverables", "Option to start new series"] },
+    1: { subtitle: "Pitching how mentor will help", bullets: ["Present your expertise & approach", "Explain the mentorship structure", "Share success stories & outcomes", "Discuss pricing & commitment expectations"] },
+    2: { subtitle: "Milestone preparation", bullets: ["Define clear milestones together", "Set measurable goals for each phase", "Create a shared roadmap document", "Establish communication channels"] },
+    3: { subtitle: "Mentor added by user", bullets: ["User accepts mentor & milestones", "First meeting scheduled", "Access shared workspace/tools", "Begin first milestone phase"] },
+    4: { subtitle: "Feedback submission after meetings", bullets: ["Submit meeting summary & progress", "Provide constructive feedback", "Document achievements & blockers", "Plan next steps & action items"] },
+    5: { subtitle: "Payment transfer after approval", bullets: ["User reviews completed work", "User approves milestone completion", "Payment automatically processed", "Continue to next milestone or conclude"] },
   }
 
   // --- DATA: Clarity & Feedback flow ---
@@ -193,13 +205,13 @@ const MilestoneFlowExpertTimeline=()=> {
                     ))}
                   </ul>
                 </div>
-                {selectedId === 0 && (
+                {/* {selectedId === 0 && (
                   <div className="pt-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => setActivePage("Mentors")}>
                       Schedule Free Call
                     </Button>
                   </div>
-                )}
+                )} */}
               </div>
             )
           })()}
@@ -212,7 +224,7 @@ const MilestoneFlowExpertTimeline=()=> {
 // ===================
 // EXPERT VIEW (no toggle)
 // ===================
-function ExpertTimelineBase({ milestones, tasks }: ExpertTimelineBaseProps) {
+function ExpertTimelineBase({ milestones, tasks}:ExpertTimelineBaseProps) {
   const [selectedId, setSelectedId] = useState(0)
   return (
     <div className="flex flex-col items-center p-6 max-w-4xl mx-auto">
@@ -280,13 +292,14 @@ function ExpertTimelineBase({ milestones, tasks }: ExpertTimelineBaseProps) {
                     ))}
                   </ul>
                 </div>
-                {selectedId === 0 && (
+                {/* {selectedId === 0 && (
                   <div className="pt-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm"
+                    onClick={() => setActivePage("Mentors")}>
                       Schedule Free Call
                     </Button>
                   </div>
-                )}
+                )} */}
               </div>
             )
           })()}
@@ -297,7 +310,10 @@ function ExpertTimelineBase({ milestones, tasks }: ExpertTimelineBaseProps) {
 }
 
 // Expert: SKILL ROADMAP (no toggle)
-export function ExpertSkillTimeline() {
+// export function ExpertSkillTimeline({ setActivePage }: { 
+//   setActivePage: React.Dispatch<React.SetStateAction<string>>
+// }){
+  export function ExpertSkillTimeline(){
   const milestones: Milestone[] = [
     { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Understand the user’s goals, review skills, and align on milestones." },
     { id: 1, title: "Foundation", icon: Map, status: "Not Started", desc: "Help the user identify roles, map skill gaps, and create a roadmap." },
@@ -316,11 +332,18 @@ export function ExpertSkillTimeline() {
     5: { subtitle: "Expert’s role in Final Review", bullets: ["Assess skill growth & outcomes", "Advise long-term learning path", "Map next 3 months of deliverables", "Offer continued mentorship options"] },
   }
 
-  return <ExpertTimelineBase milestones={milestones} tasks={tasks} />
+  return   <ExpertTimelineBase 
+      milestones={milestones} 
+      tasks={tasks} 
+      // setActivePage={setActivePage} 
+    />
 }
 
 // Expert: CLARITY & FEEDBACK (no toggle)
-export function ExpertClarityTimeline() {
+// export function ExpertClarityTimeline({ setActivePage }: { 
+//   setActivePage: React.Dispatch<React.SetStateAction<string>>
+// }) {
+  export function ExpertClarityTimeline() {
   const milestones: Milestone[] = [
     { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Understand the user’s goals, career stage, and areas of confusion." },
     { id: 1, title: "Self-Assessment", icon: Search, status: "Not Started", desc: "Help the user reflect on strengths, gaps, and motivations." },
@@ -339,7 +362,10 @@ export function ExpertClarityTimeline() {
     5: { subtitle: "Expert’s role in Final Review", bullets: ["Synthesize insights & decisions", "Refine user’s direction", "Create a 3–6 month action plan"] },
   }
 
-  return <ExpertTimelineBase milestones={milestones} tasks={tasks} />
+  return <ExpertTimelineBase  milestones={milestones} 
+      tasks={tasks}
+      />
+      // setActivePage={setActivePage} />
 }
 
 export default MilestoneFlowExpertTimeline;

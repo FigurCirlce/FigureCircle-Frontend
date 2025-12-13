@@ -116,47 +116,48 @@
 // export default RecommendationsPanel;
 import { useState, FC } from "react"
 import { Button } from "@/components/ui/button"
-import coding from "../../assets/coding.jpg";
+// import coding from "../../assets/coding.jpg";
 
 interface RecommendationsPanelProps {
   course: string[]
   certificate: string[]
-  competition: string[]
+  // competition: string[]
   profile?: "student" | "professional" | "other"
 }
 
 const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
   course,
   certificate,
-  competition,
+  // competition,
   profile,
 }) => {
-  const [tab, setTab] = useState<"courses" | "certifications" | "competitions">(
+  // const [tab, setTab] = useState<"courses" | "certifications" | "competitions">(
+    const [tab, setTab] = useState<"courses" | "certifications">(
     "courses"
   )
 
-  const tabs = ["courses", "certifications", "competitions"] as const
+  const tabs = ["courses", "certifications"] as const
 
   const renderCards = () => {
     let items: string[] = []
-    let typeLabel = ""
-    let bgColor = ""
+    // let typeLabel = ""
+    // let bgColor = ""
 
     switch (tab) {
       case "courses":
         items = course
-        typeLabel = "Course"
-        bgColor = "bg-orange-400"
+        // typeLabel = "Course"
+        // bgColor = "bg-orange-400"
         break
       case "certifications":
         items = certificate
-        typeLabel = "Certification"
-        bgColor = "bg-blue-500"
+        // typeLabel = "Certification"
+        // bgColor = "bg-blue-500"
         break
-      case "competitions":
-        items = competition
-        typeLabel = "Competition"
-        bgColor = "bg-green-400"
+      // case "competitions":
+      //   items = competition
+      //   typeLabel = "Competition"
+      //   bgColor = "bg-green-400"
         break
     }
 
@@ -175,12 +176,12 @@ const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
             key={i}
             className="border-2 border-slate-200 w-[200px] max-h-[200px] rounded-lg shadow-lg"
           >
-            <img src={coding} alt={typeLabel} className="mb-2" />
+            {/* <img src={coding} alt={typeLabel} className="mb-2" />
             <button
               className={`${bgColor} text-white px-2 rounded-2xl text-xs my-2 mx-4`}
             >
               {typeLabel}
-            </button>
+            </button> */}
             <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
               {item}
             </h3>

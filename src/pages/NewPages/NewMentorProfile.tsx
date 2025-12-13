@@ -448,6 +448,8 @@ const MentorProfileWidget = () => {
     linkedin: "",
     expertise: "",
     background: "",
+     profile_picture: null,
+     resume:null,
     milestones: 0,
     intent_price: [],
   });
@@ -483,9 +485,14 @@ fetchMentorData();
    
   }, []);
 
-  const updateField = (field: string, value: any) => {
-    setMentor((prev: any) => ({ ...prev, [field]: value }));
-  };
+const updateField = (field: string, value: any) => {
+  setMentor((prev:any) => ({
+    ...prev,
+    [field]: value,
+  }));
+};
+
+
 
   // Add / remove an intent
   const toggleIntent = (opt: any) => {
@@ -540,6 +547,53 @@ fetchMentorData();
     }
   };
 
+  // const handleFileChange = (
+  //     e: React.ChangeEvent<HTMLInputElement>,
+  //     field: "profile_picture" | "resume"
+  //   ) => {
+  //     const file = e.target.files?.[0] || null;
+  //     // setMentor((prev:File) => ({ ...prev, [field]: file }));
+  //     setMentor((prev: any) => ({ ...prev, [field]: file }));
+  //   };
+  const handleFileChange = async (
+  e: React.ChangeEvent<HTMLInputElement>,
+  field: "profile_picture" | "resume"
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const url = await uploadToCloudinary(file);
+
+  setMentor((prev :any)=> ({
+    ...prev,
+    [field]: url,  // store URL, not File
+  }));
+};
+
+
+        const uploadToCloudinary = async (file: File): Promise<string> => {
+        const cloudName = "dpwysillm";
+        const uploadPreset = "figurecircule";
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", uploadPreset);
+    
+        try {
+          const response = await axios.post(cloudinaryUrl, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+        console.log("file",response.data);
+          return response.data.secure_url;
+        } catch (error) {
+          console.error("Cloudinary upload error:", error);
+          throw new Error("Failed to upload file.");
+        }
+      };
+
   return (
     <div className="max-w-3xl mx-auto w-full"> 
       <Card className="shadow-sm rounded-2xl w-full">
@@ -585,6 +639,50 @@ fetchMentorData();
                 onChange={(e) => updateField("milestones", Number(e.target.value))}
               />
             </div>
+         <div>
+  <Label>Profile Picture (Any File)</Label>
+
+  {/* Show already uploaded URL */}
+  {mentor.profile_picture && (
+    <a
+      href={mentor.profile_picture}
+      target="_blank"
+      className="text-green-600 underline block mb-2"
+    >
+      View Uploaded Profile Picture
+    </a>
+  )}
+
+  <input
+    name="profile_picture"
+    type="file"
+    accept="*/*"               // accept ANY file
+    onChange={(e) => handleFileChange(e, "profile_picture")}
+  />
+</div>
+
+<div>
+  <Label>Resume Upload</Label>
+
+  {mentor.resume && (
+    <a
+      href={mentor.resume}
+      target="_blank"
+      className="text-green-600 underline block mb-2"
+    >
+      View Uploaded Resume
+    </a>
+  )}
+
+  <input
+    name="resume"
+    type="file"
+    accept="*/*"              // any file supported
+    onChange={(e) => handleFileChange(e, "resume")}
+  />
+</div>
+
+
           </div>
 
           {/* BACKGROUND */}

@@ -8,16 +8,17 @@ import MilestoneTimelineForm from '@/pages/NewPages/MilestoneTimelineForm';
 import NewHomepage from '@/pages/NewPages/NewHomepage';
 import NewDesignHomepage from '../../pages/NewPages/NewDesignHomepage';
 import RegistrationFlow from '@/components/NewPage/Homepage/NewUserLogin';
-import MilestoneFlowTimeline from '@/components/NewPage/Homepage/NewMilestoneUser';
+// import MilestoneFlowTimeline from '@/components/NewPage/Homepage/NewMilestoneUser';
 import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 // import RecommendationsPanel from '@/pages/NewPages/CoursesRecommendation';
 // import NotificationBell from '@/components/NewPage/NotificationBell';
 // import ChatWidget from '@/components/NewPage/ChatBox';
 // import ExpertOnboardingPreview from '@/components/NewPage/ExpertLogin';
- import ExpertOnboardingCompact from '@/components/NewPage/ExpertUserFinalForm';
-import SocketTest from '@/components/NewPage/Notification';
-import MentorsWireframe from '@/pages/NewPages/MentorNewPages';
-import MentorsWireframe1 from '@/pages/NewPages/MentorPages';
+//  import ExpertOnboardingCompact from '@/components/NewPage/ExpertUserFinalForm';
+// import SocketTest from '@/components/NewPage/Notification';
+// import MentorsWireframe from '@/pages/NewPages/MentorNewPages';
+// import MentorsWireframe1 from '@/pages/NewPages/MentorPages';
+import NewRecommendMentor from '@/pages/NewPages/NewRecommendMentor';
 
 
 // import Dashboard from '../../pages/NewPages/Dashboard'
@@ -50,7 +51,7 @@ const PublicRoutes = [
         component:<ContactForm/>
     },
      {
-        path:'/new-milestone/:id/:userId',
+        path:'/new-milestone/:userId/:mentorId',
         component:<MilestoneTimelineForm/>
     },
      {
@@ -70,10 +71,10 @@ const PublicRoutes = [
             component: <RegistrationFlow />,
         },
 
-        {
-            path:`/new_milestone_user`,
-            component:<MilestoneFlowTimeline/>
-        },
+        // {
+        //     path:`/new_milestone_user`,
+        //     component:<MilestoneFlowTimeline/>
+        // },
         {
             path:`/new_milestone_expert`,
             component:<MilestoneFlowExpertTimeline/>
@@ -83,22 +84,23 @@ const PublicRoutes = [
         //     component:<ChatWidget/>
         // },
         {
-            path:`/test1`,
-            component:<MentorsWireframe/>
-        },
-         {
             path:`/test`,
-            component:<SocketTest/>
+            // component:<MentorsWireframe/>
+            component:<NewRecommendMentor/>
         },
+        //  {
+        //     path:`/test`,
+        //     component:<SocketTest/>
+        // },
         //shared by harsh
-         {
-            path:`/test2`,
-            component:<MentorsWireframe1/>
-        },
-        {
-            path:`/test3`,
-            component:<ExpertOnboardingCompact/>
-        }
+        //  {
+        //     path:`/test2`,
+        //     component:<MentorsWireframe1/>
+        // },
+        // {
+        //     path:`/test3`,
+        //     component:<ExpertOnboardingCompact/>
+        // }
      
 ]
 

@@ -470,6 +470,11 @@ const ExpertOnboardingCompact=() =>{
   
       if (Object.keys(validationErrors).length === 0) {
         // setLoading(true);
+        const registerStatus=localStorage.getItem("registerStatus");
+        if(registerStatus){
+next();
+        }
+        else{
         try {
           const { email, password } = formData;
           const response = await axios.post(`${baseURL}/register`, {
@@ -491,6 +496,7 @@ const ExpertOnboardingCompact=() =>{
           // setLoading(false);
         }
       }
+    }
     };
 
 
@@ -515,8 +521,8 @@ const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) =>
   const intents = [
  
     
-    { id: "skill-roadmap", title: "Skill Roadmapping", desc: "Skills needed for target role and how to build them.", label: "Skill Roadmap", defaultDur: "30–45 min", },
-    { id: "career-support", title: "Career Clarity, Insights & Connections", desc: "Expert advice, profile feedback, and networking." ,label: "Career Clarity / Profile Review / Industry Insights", defaultDur: "20–30 min", },
+    { id: "skill-roadmap", title: "Skill Roadmapping", desc: "Identify skill gaps and create a clear, actionable plan to build the competencies needed for your mentees target role", label: "Skill Roadmap", defaultDur: "30–45 min", },
+    { id: "career-support", title: "Career Clarity, Insights & Connections", desc: "Provide strategic career advice, share industry insights, and networking tips to accelerate their growth." ,label: "Career Clarity / Profile Review / Industry Insights", defaultDur: "20–30 min", },
   ];
 
   return (
