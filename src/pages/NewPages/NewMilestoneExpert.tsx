@@ -140,7 +140,7 @@ const MilestoneFlowExpertTimeline = () => {
                     m.id === 0 ? "border-green-500 bg-green-50" : "border-blue-500 bg-blue-50"
                   } ${isSelected ? "scale-110 ring-4 ring-blue-200" : "hover:scale-105"}`}
                 >
-                  <span className="absolute -top-4 text-[10px] font-bold text-gray-600">{m.id}</span>
+                  {/* <span className="absolute -top-4 text-[10px] font-bold text-gray-600">{m.id}</span> */}
                   <Icon className={`text-blue-600 ${isSelected ? "w-7 h-7" : "w-6 h-6"}`} />
                 </div>
                 <p className={`text-xs font-medium mt-2 ${isSelected ? "text-blue-700" : "text-gray-800"}`}>{m.title}</p>
@@ -186,11 +186,11 @@ const MilestoneFlowExpertTimeline = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-50 border border-blue-200 relative">
                     <SelIcon className="w-6 h-6 text-blue-600" />
-                    <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-[10px] font-bold text-gray-600">{sel.id}</span>
+                    {/* <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-[10px] font-bold text-gray-600">{sel.id}</span> */}
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold">
-                      {sel.id}. {sel.title}
+                     {Number(sel.id)+1}. {sel.title}
                     </h3>
                     <p className="text-xs text-gray-600">{sel.desc}</p>
                   </div>
@@ -242,7 +242,7 @@ function ExpertTimelineBase({ milestones, tasks}:ExpertTimelineBaseProps) {
                     m.id === 0 ? "border-green-500 bg-green-50" : "border-blue-500 bg-blue-50"
                   } ${isSelected ? "scale-110 ring-4 ring-blue-200" : "hover:scale-105"}`}
                 >
-                  <span className="absolute -top-4 text-[10px] font-bold text-gray-600">{m.id}</span>
+                  {/* <span className="absolute -top-4 text-[10px] font-bold text-gray-600">{m.id}</span> */}
                   <Icon className={`text-blue-600 ${isSelected ? "w-7 h-7" : "w-6 h-6"}`} />
                 </div>
                 <p className={`text-xs font-medium mt-2 ${isSelected ? "text-blue-700" : "text-gray-800"}`}>{m.title}</p>
@@ -273,11 +273,12 @@ function ExpertTimelineBase({ milestones, tasks}:ExpertTimelineBaseProps) {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-50 border border-blue-200 relative">
                     <SelIcon className="w-6 h-6 text-blue-600" />
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-600">{sel.id}</span>
+                    {/* <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-600">
+                    {sel.id}</span> */}
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold">
-                      {sel.id}. {sel.title}
+                      {Number(sel.id)+1}. {sel.title}
                     </h3>
                     <p className="text-xs text-gray-600">{sel.desc}</p>
                   </div>

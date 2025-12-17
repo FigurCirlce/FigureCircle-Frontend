@@ -847,8 +847,8 @@ useEffect(() => {
   
           const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
           console.log("timeZone----", timeZone);
-  
-          const meetingLink = `/v2/meetingcall/${randomId}?start=${encodeURIComponent(
+  console.log("/${randomId}/${parsedUser?.user_id}",parsedUser?.user_id);
+          const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
             encryptedStartDate
           )}&end=${encodeURIComponent(
             encryptedEndDate
@@ -1296,11 +1296,11 @@ const handleFailure=()=>{
     
 
       <main className="">
-        <h1 className="text-3xl font-bold ">Mentors For You</h1>
+        <h1 className="text-3xl font-bold mx-5 ">Mentors For You</h1>
 
         <div className="mt-4 flex flex-col md:flex-row gap-3 md:items-center">
           <div className="flex items-center gap-2">
-            <div className="relative">
+            <div className="relative mx-5 ">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <input
                 value={query}
@@ -1314,7 +1314,7 @@ const handleFailure=()=>{
             </button> */}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 mx-5 ">
             {categories.map((c) => (
               <Pill key={c.key} active={activeCat === c.key} onClick={() => setActiveCat(c.key)}>
                 {c.label}
@@ -1324,7 +1324,7 @@ const handleFailure=()=>{
         </div>
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-6">
-          <div className="grid gap-3 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+          <div className="grid gap-3 mx-5  sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
            {display.map((m) => {
             // const isAssigned = alreadyAssignedMentorData.some(a => a.mentor_id === m.mentor_id);
 return(

@@ -844,7 +844,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
     <div>
       <div>
      
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 h-screen">
           <div>
             {/* <h2 className="text-2xl font-bold  ">Recommended for You</h2> */}
 
@@ -939,11 +939,11 @@ console.log("SelectedExpertKey",selectedExpertKey);
             <div className="flex flex-col lg:flex-row gap-5 w-full">
               {/* Expert List */}
 
-              <div className="bg-white rounded-2xl shadow p-6 w-[400px]">
+              <div className="bg-white rounded-2xl shadow p-6 mx-5">
                 <h2 className="text-2xl font-bold mb-4">
                   {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
                 </h2>
-                <div className="space-y-4 w-[350px]">
+                <div className="space-y-4 flex-1 md:w-[400px]">
                   {parseUser?.is_mentor?(assignedMenteesData.length < 1
                     ? "No Assigned Mentor"
                     : assignedMenteesData.map((user) => (
@@ -1039,7 +1039,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
               </div>
 
               {/* Expert Progress */}
-              <div className="bg-white rounded-2xl shadow p-6 flex-1">
+              <div className="bg-white rounded-2xl shadow p-6 flex-1 mx-5">
                 <h2 className="text-2xl mb-4 font-bold text-center">
                   {parseUser.is_mentor
                     ? "Progress with Mentees"
@@ -1076,7 +1076,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
                       </div>
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-4 ">
                       <div className="text-sm font-semibold text-gray-700">
                         Latest Feedback
                       </div>

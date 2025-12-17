@@ -220,13 +220,14 @@ const MentorScheduleEditor: React.FC<MentorScheduleEditorProps> = ({ onSave }) =
       <h2 className="text-[18px] font-semibold">Change Your Availability</h2>
 
       {slots.map((slot, index) => (
-        <div
-          key={index}
-          className="flex items-center gap-3 border p-1 rounded"
-        >
+      <div
+  key={index}
+  className="flex gap-1 sm:gap-3 items-center border p-1 rounded"
+>
+
           {/* Day Selector */}
           <select
-            className="border rounded p-2"
+            className="border rounded py-1 sm:p-2 "
             value={slot.day}
             onChange={(e) => updateSlot(index, "day", e.target.value)}
           >
@@ -238,7 +239,7 @@ const MentorScheduleEditor: React.FC<MentorScheduleEditorProps> = ({ onSave }) =
           {/* Start */}
           <input
             type="time"
-            className="border p-2 rounded"
+            className="border py-1 sm:p-2 rounded"
             value={slot.start}
             onChange={(e) => updateSlot(index, "start", e.target.value)}
           />
@@ -246,7 +247,7 @@ const MentorScheduleEditor: React.FC<MentorScheduleEditorProps> = ({ onSave }) =
           {/* End */}
           <input
             type="time"
-            className="border p-2 rounded"
+            className="border py-1 sm:p-2 rounded"
             value={slot.end}
             onChange={(e) => updateSlot(index, "end", e.target.value)}
           />
@@ -1018,7 +1019,7 @@ console.log(e);
           </div>
 
           {/* Dates grid */}
-          <div className="mt-1 grid grid-cols-7 gap-1">
+          <div className="mt-1 grid grid-cols-7 gap-1 ">
             {monthMatrix.map((cell, idx) => {
               const dayOfWeek = cell.date.getDay();
               const isAvailableDay = availableDayIndices.includes(dayOfWeek);
@@ -1156,7 +1157,7 @@ console.log(e);
                     href={m.link}
                     className="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
                   >
-                    <Video className="h-4 w-4" /> Join
+                    <Video className="h-4 w-4" /><span className="hidden sm:inline sm:text-base">Join</span> 
                   </a>
                   <button className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
                  onClick={() =>
@@ -1166,7 +1167,7 @@ console.log(e);
 }
 
                   >
-                    <ClipboardList className="h-4 w-4" /> Milestones
+                    <ClipboardList className="h-4 w-4" /> <span className="hidden sm:inline sm:text-base">Milestones</span>
                   </button>
                   <MilestonePopup
         isOpen={isMilestonePopupOpen}
@@ -1190,7 +1191,7 @@ console.log(e);
                       }
                     }}
                   >
-                    <MessageSquare className="h-4 w-4" /> Feedback
+                    <MessageSquare className="h-4 w-4" /> <span className="hidden sm:inline sm:text-base">Feedback</span>
                   </button>
  <FeedbackPopup
         isOpen={isPopupOpen}

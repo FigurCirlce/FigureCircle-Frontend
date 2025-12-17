@@ -214,7 +214,7 @@ const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
         </div>
 
         {/* Cards inside the tab */}
-        <div className="w-full flex justify-center">  {renderCards()}</div>
+        <div className="w-full flex justify-center p-3 items-center">  {renderCards()}</div>
       
       </div>
     </div>

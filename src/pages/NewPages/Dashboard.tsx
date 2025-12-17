@@ -196,35 +196,34 @@ const Dashboard: React.FC = () => {
   return (
     <>
    
-    <div className="flex h-screen w-screen bg-slate-100 overflow-hidden">
-      {/* Sidebar */}
-      {/* <Sidebar setActivePage={setActivePage} close={close}/> */}
-{/* <Navbar activePage={activePage} setActivePage={setActivePage} close={false} /> */}
-<Navbar activePage={activePage} setActivePage={setActivePage} />
-      
-      <div className="flex flex-col w-full h-screen overflow-hidden">
-        
-    
-        <header className="flex-shrink-0 flex justify-end items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
-        
-          {/* <button className='mr-5 text-blue-600 font-semibold text-lg' onClick={handleHome}>
-            Home
-          </button> */}
-               <div className="mr-3">
-          <NotificationBell/>
-          </div>
-           <button
-            className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700" onClick={handleLogout}>
-              Log Out
-            </button>
-        </header>
+<div className="flex h-dvh w-full max-w-full bg-slate-100 overflow-x-hidden">
+  <Navbar activePage={activePage} setActivePage={setActivePage} />
 
-        
-        <main className="flex-grow overflow-y-auto px-[3%] py-[3%]">
-          {parsedUser?.is_mentor?renderMentorContent():renderUserContent()}
-        </main>
-      </div>
+<div className="flex flex-col flex-1 w-full max-w-full overflow-hidden">
+  <header className="flex-shrink-0 h-[64px] bg-white shadow-md z-10">
+  <div className="mx-auto max-w-7xl h-full flex justify-end items-center px-4 md:px-8">
+    <div className="mr-3">
+      <NotificationBell />
     </div>
+    <button
+      className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700"
+      onClick={handleLogout}
+    >
+      Log Out
+    </button>
+  </div>
+</header>
+
+{/* 
+  <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-4"> */}
+  <main className="flex-1 overflow-y-auto overflow-x-hidden py-4">
+      {parsedUser?.is_mentor
+        ? renderMentorContent()
+        : renderUserContent()}
+    </main>
+  </div>
+</div>
+
 {/* <ChatWidget/> */}
 
     </>

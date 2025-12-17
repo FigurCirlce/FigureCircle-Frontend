@@ -497,13 +497,13 @@ const updateField = (field: string, value: any) => {
   // Add / remove an intent
   const toggleIntent = (opt: any) => {
     setMentor((prev: any) => {
-      const exists = prev.intent_price.find((i: any) => i.intent === opt.label);
+      const exists = prev.intent_price.find((i: any) => i.intent === opt.id);
 
       let updated;
       if (exists) {
-        updated = prev.intent_price.filter((i: any) => i.intent !== opt.label);
+        updated = prev.intent_price.filter((i: any) => i.intent !== opt.id);
       } else {
-        updated = [...prev.intent_price, { intent: opt.label, price: 0 }];
+        updated = [...prev.intent_price, { intent: opt.id, price: 0 }];
       }
 
       return { ...prev, intent_price: updated };
@@ -512,6 +512,8 @@ const updateField = (field: string, value: any) => {
 
   // Update price for selected intent
   const updateIntentPrice = (label: string, price: number) => {
+    console.log("label",label);
+    console.log("price",price);
     setMentor((prev: any) => {
       const updated = prev.intent_price.map((item: any) =>
         item.intent === label ? { ...item, price } : item
@@ -697,7 +699,7 @@ const updateField = (field: string, value: any) => {
 
             <div className="grid gap-4">
               {OPTIONS.map((opt) => {
-                const selected = mentor.intent_price.find((i: any) => i.intent === opt.label);
+                const selected = mentor.intent_price.find((i: any) => i.intent === opt.id);
 
                 return (
                   <div key={opt.id} className="border p-4 rounded-xl space-y-3 w-full">
@@ -718,7 +720,7 @@ const updateField = (field: string, value: any) => {
                         <Input
                           type="number"
                           value={selected.price}
-                          onChange={(e) => updateIntentPrice(opt.label, Number(e.target.value))}
+                          onChange={(e) => updateIntentPrice(opt.id, Number(e.target.value))}
                           placeholder="Enter price"
                         />
                       </div>

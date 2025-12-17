@@ -75,7 +75,7 @@ export default function CustomCalendar({
         {today.toLocaleString("default", { month: "long" })} {year}
       </h2>
 
-      <div className="grid grid-cols-7 gap-2 text-center">
+      <div className="grid grid-cols-7 gap-2 text-center !w-full">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
           <div key={d} className="font-semibold">
             {d}

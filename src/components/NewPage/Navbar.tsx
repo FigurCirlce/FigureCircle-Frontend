@@ -511,7 +511,7 @@
 // export default Navbar
 
 import React, { useState } from 'react'
-import { IconButton } from '@mui/material'
+// import { IconButton } from '@mui/material'
 import { Menu, LayoutDashboard, Calendar, User} from 'lucide-react'
 import logo from "../../assets/image (1).png";
 import { Users } from 'lucide-react';
@@ -584,83 +584,103 @@ const handleItemClick = (title: string) => {
   
 
   return (
-    <nav className="w-full bg-white shadow-md border-b border-gray-100 fixed top-0 left-0 z-40">
-      {/* Top Section */}
-      <div className="flex items-center justify-between px-6 py-3">
-        {/* Left: Logo */}
-        <div className="flex items-center space-x-2">
-          <img src={logo} alt="Logo" width={50} />
-          <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">FigureCircle</h1>
-        </div>
+  <nav className="fixed top-0 left-0 w-full bg-white shadow-md border-b border-gray-100 z-40">
+  <div className="flex items-center justify-between px-3 sm:px-6 py-3">
 
-        {/* Center: Menu items (desktop) */}
-        <div className="hidden md:flex items-center space-x-6">
-          <div className='flex px-1 py-1 rounded-2xl bg-slate-100'>
-          {menuItems.map((item, index) => {
-           const isActive = activePage === item.title
+    {/* LEFT – Logo */}
+    <div className="flex items-center gap-2 shrink-0">
+      <img src={logo} alt="Logo" className="w-10 sm:w-12" />
+      <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">
+        FigureCircle
+      </h1>
+    </div>
 
-            return (
-              <button
-                key={index}
-                onClick={() => handleItemClick(item.title ?? "")}
-                className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm font-medium transition 
-                  ${isActive
-                    ? 'bg-white text-blue-700'
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'}`}
-              >
-                {item.icon}
-                <span>{item.title}</span>
-              </button>
-            )
-          })}
-          </div>
-        </div>
-
-        {/* Right: Profile */}
-        <div className="flex items-center gap-3">
-       
-                      <div className="mr-3">
-                 <NotificationBell/>
-                 </div>
-                  <button
-                   className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-2 rounded-2xl text-xs md:text-sm hover:bg-blue-700" onClick={handleLogout}>
-                          
-                     Log Out
-                   </button>
-                  
-          {/* <IconButton onClick={toggleMenu} className="md:hidden text-gray-800">
-            <Menu />
-          </IconButton> */}
-           <div className="flex md:hidden">
-    <IconButton onClick={toggleMenu} className="text-gray-800">
-      <Menu />
-    </IconButton>
-  </div>
-        </div>
+    {/* CENTER – Menu (desktop only) */}
+    <div className="hidden md:flex flex-1 justify-center">
+      <div className="flex px-1 py-1 rounded-2xl bg-slate-100">
+        {menuItems.map((item, index) => {
+          const isActive = activePage === item.title
+          return (
+            <button
+              key={index}
+              onClick={() => handleItemClick(item.title ?? "")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-sm font-medium transition 
+                ${
+                  isActive
+                    ? "bg-white text-blue-700"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                }`}
+            >
+              {item.icon}
+              <span>{item.title}</span>
+            </button>
+          )
+        })}
       </div>
+    </div>
 
-      {/* Mobile Dropdown Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t shadow-md flex flex-col px-4 py-2 space-y-1">
-          {menuItems.map((item, index) => {
-            const isActive = activePage === item.title
-            return (
-              <button
-                key={index}
-                onClick={() => handleItemClick(item.title ?? "")}
-                className={`flex items-center gap-3 p-2 rounded text-sm transition 
-                  ${isActive
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100 text-gray-700'}`}
-              >
-                {item.icon}
-                <span>{item.title}</span>
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </nav>
+    {/* RIGHT – Actions */}
+    <div className="flex items-center gap-2 shrink-0">
+
+      <NotificationBell />
+
+      {/* Logout – desktop only */}
+      <button
+        onClick={handleLogout}
+        className="hidden md:flex bg-blue-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-blue-700"
+      >
+        Log Out
+      </button>
+
+      {/* Mobile menu icon */}
+      <button
+        onClick={toggleMenu}
+        className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+      >
+        <Menu />
+      </button>
+
+    </div>
+    {/* Mobile Menu */}
+{isMenuOpen && (
+  <div className="fixed top-[64px] left-0 w-full bg-white border-t shadow-md z-30 md:hidden">
+    <div className="flex flex-col p-4 space-y-3">
+
+      {menuItems.map((item, index) => (
+        <button
+          key={index}
+          onClick={() => {
+            handleItemClick(item.title ?? "")
+            setIsMenuOpen(false)
+          }}
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
+            ${
+              activePage === item.title
+                ? "bg-blue-50 text-blue-700"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+        >
+          {item.icon}
+          <span>{item.title}</span>
+        </button>
+      ))}
+
+      <button
+        onClick={handleLogout}
+        className="mt-2 bg-blue-600 text-white px-4 py-3 rounded-xl text-sm"
+      >
+        Log Out
+      </button>
+
+    </div>
+  </div>
+)}
+
+
+  </div>
+</nav>
+
+
   )
 }
 
