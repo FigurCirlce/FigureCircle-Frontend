@@ -223,7 +223,7 @@
 
 // export default RecommendationsPanel
 import { useState, FC } from "react"
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
 
 interface RecommendationsPanelProps {
   course: string[]
