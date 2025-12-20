@@ -205,6 +205,7 @@ const ProfileRecWidget = () => {
 
       // map to our UI model
       const mapped = mapResponseToProfile(response.data);
+      console.log("mapped----response",mapped.work_experience);
       console.log("mapped-------",mapped);
       setProfile((prev: any) => ({ ...prev, ...mapped }));
       localStorage.setItem("degree", JSON.stringify(response.data));
@@ -370,11 +371,12 @@ if(degreeFetch){
       {!parsedUser?.is_mentor?(
         <div className="mx-auto w-full max-w-6xl p-6 space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        
         {/* Profile Section */}
         <Card className="border-0 shadow-md backdrop-blur-md">
-          <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-transparent rounded-t-2xl">
+          <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-              <Users className="size-5 text-primary" /> Your Profile
+              <Users className="size-5 text-primary " /> Your Profile
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
@@ -465,7 +467,7 @@ if(degreeFetch){
             </div>
 
             {/* Intent Cards */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className=" grid grid-cols-1 sm:grid sm:grid-cols-2 gap-3 pt-2">
               <IntentCard
                 active={!!profile.intent?.roadmap}
                 title="Skill Roadmapping"
@@ -487,7 +489,7 @@ if(degreeFetch){
               <div className="flex-1">
                 <Label className="text-sm text-muted-foreground mb-1 block">Dream Role</Label>
                 <Select value={profile.dreamRole} onValueChange={(v) => setProfile({ ...profile, dreamRole: v })}>
-                  <SelectTrigger className="h-9 w-full border-primary/20">
+                  <SelectTrigger className="h-9 w-[150px] sm:w-full border-primary/20">
                     <SelectValue placeholder="Select dream role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -503,9 +505,11 @@ if(degreeFetch){
                 </Select>
               </div>
 
-              <div className="flex items-end gap-2">
-                <Button onClick={updateBasicInfo} disabled={saving}>
-                  <Save className="mr-2" /> {saving ? "Saving..." : "Save"}
+              <div className="flex items-end mt-5 gap-2">
+                <Button onClick={updateBasicInfo} disabled={saving} className="bg-green-500">
+                  <Save className="mr-2" /> <span className="hidden sm:inline">
+    {saving ? "Saving..." : "Save"}
+  </span>
                 </Button>
                 <Button
                   variant="ghost"
@@ -513,8 +517,11 @@ if(degreeFetch){
                     fetchBasicInfo()
                   }}
                 >
-                  <X />
-                  Reset
+                  <X className="text-red-600 font-bold"/>
+                  <span className="hidden sm:inline">
+       Reset
+  </span>
+               
                 </Button>
               </div>
             </div>
@@ -523,7 +530,7 @@ if(degreeFetch){
 
         {/* Recommendations Section */}
         <Card className="border-0 shadow-md backdrop-blur-md">
-          <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-transparent rounded-t-2xl">
+          <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Sparkles className="size-5 text-primary" /> Personalized Recommendations —{" "}
               <span className="text-foreground/70">{profile.dreamRole}</span>

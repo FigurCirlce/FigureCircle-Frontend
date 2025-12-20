@@ -666,7 +666,7 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({ setActivePage }) =>
     useState<ProgressAPIResponse | null>(null);
   const [course, setCourse] = useState<string[]>([]);
   const [certificate, setCertificate] = useState<string[]>([]);
-  // const [competition, setCompetition] = useState<string[]>([]);
+  const [competition, setCompetition] = useState<string[]>([]);
   // const [user_id, setUser_id] = useState<string | null>(null);
   const token = localStorage.getItem("token");
   const degree = localStorage.getItem("degree");
@@ -789,8 +789,8 @@ console.log("SelectedExpertKey",selectedExpertKey);
 
       try {
         // Try all three primary APIs in parallel
-        // const [courseRes, certificateRes, competitionRes] = await Promise.all([
-        const [courseRes, certificateRes] = await Promise.all([
+        const [courseRes, certificateRes, competitionRes] = await Promise.all([
+        // const [courseRes, certificateRes] = await Promise.all([
           axios.post(
             `https://harsh1993-model.hf.space/get_course`,
             { stream },
@@ -810,7 +810,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
 
         setCourse(JSON.parse(courseRes.data.ans));
         setCertificate(JSON.parse(certificateRes.data.ans));
-        // setCompetition(JSON.parse(competitionRes.data.ans));
+        setCompetition(JSON.parse(competitionRes.data.ans));
       } catch (primaryError) {
         console.warn(
           "Primary API failed, trying fallback API...",
@@ -826,7 +826,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
 
           setCourse(fallbackRes.data.courses || []);
           setCertificate(fallbackRes.data.certifications || []);
-          // setCompetition(fallbackRes.data.competitions || []);
+          setCompetition(fallbackRes.data.competitions || []);
         } catch (fallbackError) {
           console.error("Fallback API also failed:", fallbackError);
         }
@@ -844,7 +844,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
     <div>
       <div>
      
-        <div className="flex flex-col gap-6 h-screen">
+        <div className="flex flex-col gap-6 ">
           <div>
             {/* <h2 className="text-2xl font-bold  ">Recommended for You</h2> */}
 
@@ -925,18 +925,20 @@ console.log("SelectedExpertKey",selectedExpertKey);
             )}
           </div> */}
           {parseUser?.is_mentor?"":
+          <div className="mx-[5%]">
             <RecommendationsPanel
               course={course}
               certificate={certificate}
-              // competition={competition}
+              competition={competition}
             />
+            </div>
           }
           </div>
 
           {/* Expert Section */}
        
             {assignedMenteesData.length>0 ||assignedMentorData.length>0? 
-            <div className="flex flex-col lg:flex-row gap-5 w-full">
+            <div className="flex flex-col lg:flex-row gap-5 w-full ">
               {/* Expert List */}
 
               <div className="bg-white rounded-2xl shadow p-6 mx-5">
@@ -1162,7 +1164,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
                   <p className="flex justify-center font-semibold text-lg">Not Available</p>
                 )}
               </div>
-            </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<MilestoneFlowExpertTimeline />):<MilestoneFlowTimeline setActivePage={setActivePage}/>)
+            </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<div className="mx-[5%]"><MilestoneFlowExpertTimeline /></div>):<div className="mx-[5%]"><MilestoneFlowTimeline setActivePage={setActivePage}/></div>)
 }
         </div>
       

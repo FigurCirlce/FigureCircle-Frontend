@@ -78,23 +78,120 @@ const MilestoneFlowExpertTimeline = () => {
   }
 
   // --- DATA: Clarity & Feedback flow ---
+  // const clarityMilestones: Milestone[] = [
+  //   { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Understand the user’s goals, career stage, and areas of confusion." },
+  //   { id: 1, title: "Self-Assessment", icon: Search, status: "Not Started", desc: "Help the user reflect on strengths, gaps, and career motivations." },
+  //   { id: 2, title: "Profile Feedback", icon: Users, status: "Not Started", desc: "Review resume/LinkedIn and provide actionable feedback." },
+  //   { id: 3, title: "Industry Insights", icon: BarChart3, status: "Not Started", desc: "Share trends and in-demand roles for their background." },
+  //   { id: 4, title: "Strategic Advice", icon: Lightbulb, status: "Not Started", desc: "Give clarity on possible career paths and next steps." },
+  //   { id: 5, title: "Final Review", icon: Flag, status: "Not Started", desc: "Summarize insights, refine strategy, and map long-term plan." },
+  // ]
   const clarityMilestones: Milestone[] = [
-    { id: 0, title: "Free Intro Call", icon: Phone, status: "Free", desc: "Understand the user’s goals, career stage, and areas of confusion." },
-    { id: 1, title: "Self-Assessment", icon: Search, status: "Not Started", desc: "Help the user reflect on strengths, gaps, and career motivations." },
-    { id: 2, title: "Profile Feedback", icon: Users, status: "Not Started", desc: "Review resume/LinkedIn and provide actionable feedback." },
-    { id: 3, title: "Industry Insights", icon: BarChart3, status: "Not Started", desc: "Share trends and in-demand roles for their background." },
-    { id: 4, title: "Strategic Advice", icon: Lightbulb, status: "Not Started", desc: "Give clarity on possible career paths and next steps." },
-    { id: 5, title: "Final Review", icon: Flag, status: "Not Started", desc: "Summarize insights, refine strategy, and map long-term plan." },
-  ]
+  {
+    id: 0,
+    title: "Intro Discovery Call",
+    icon: Phone,
+    status: "Free",
+    desc: "Understand the user’s background, career goals, current challenges, and expectations from guidance."
+  },
+  {
+    id: 1,
+    title: "Conduct User's Self-Assessment",
+    icon: Search,
+    status: "Not Started",
+    desc: "Guide the user through structured reflection to uncover strengths, gaps, and career motivations."
+  },
+  {
+    id: 2,
+    title: "Profile Evaluation",
+    icon: Users,
+    status: "Not Started",
+    desc: "Analyze resume and LinkedIn profile to identify positioning gaps and improvement areas."
+  },
+  {
+    id: 3,
+    title: "Share Industry Insights",
+    icon: BarChart3,
+    status: "Not Started",
+    desc: "Provide market insights, role trends, and skill demand relevant to the user’s profile."
+  },
+  {
+    id: 4,
+    title: "Provide Strategic Guidance",
+    icon: Lightbulb,
+    status: "Not Started",
+    desc: "Recommend tailored career paths and actionable next steps aligned with user goals."
+  },
+  {
+    id: 5,
+    title: "Final Strategy Review",
+    icon: Flag,
+    status: "Not Started",
+    desc: "Consolidate learnings, refine direction, and deliver a structured short-to-long term plan."
+  },
+]
+
+
+  // const clarityTasks: Record<number, TaskDetails> = {
+  //   0: { subtitle: "User’s first free intro call", bullets: ["Share background & goals", "Discuss areas of confusion", "Set expectations for guidance", "Outline milestones for clarity & feedback"] },
+  //   1: { subtitle: "Self-assessment phase", bullets: ["Complete guided self-reflection", "List strengths/skills/interests", "Highlight challenges & uncertainties"] },
+  //   2: { subtitle: "Profile feedback phase", bullets: ["Expert reviews resume & LinkedIn", "Find gaps in positioning", "3–5 improvement suggestions"] },
+  //   3: { subtitle: "Industry insights phase", bullets: ["Discuss 2–3 relevant industries", "In-demand roles & skills", "Compare fit vs. opportunities"] },
+  //   4: { subtitle: "Strategic advice phase", bullets: ["Tailored career pathways", "Immediate vs long-term goals", "Networking & mentorship avenues"] },
+  //   5: { subtitle: "Final review phase", bullets: ["Summarize insights & feedback", "Refine career direction", "Create a 3–6 month plan"] },
+  // }
 
   const clarityTasks: Record<number, TaskDetails> = {
-    0: { subtitle: "User’s first free intro call", bullets: ["Share background & goals", "Discuss areas of confusion", "Set expectations for guidance", "Outline milestones for clarity & feedback"] },
-    1: { subtitle: "Self-assessment phase", bullets: ["Complete guided self-reflection", "List strengths/skills/interests", "Highlight challenges & uncertainties"] },
-    2: { subtitle: "Profile feedback phase", bullets: ["Expert reviews resume & LinkedIn", "Find gaps in positioning", "3–5 improvement suggestions"] },
-    3: { subtitle: "Industry insights phase", bullets: ["Discuss 2–3 relevant industries", "In-demand roles & skills", "Compare fit vs. opportunities"] },
-    4: { subtitle: "Strategic advice phase", bullets: ["Tailored career pathways", "Immediate vs long-term goals", "Networking & mentorship avenues"] },
-    5: { subtitle: "Final review phase", bullets: ["Summarize insights & feedback", "Refine career direction", "Create a 3–6 month plan"] },
-  }
+  0: {
+    subtitle: "Conduct free discovery call",
+    bullets: [
+      "Understand user’s background, experience, and aspirations",
+      "Identify key areas of confusion or indecision",
+      "Set expectations for the mentorship process",
+      "Explain clarity milestones and next steps"
+    ]
+  },
+  1: {
+    subtitle: "Guide self-assessment process",
+    bullets: [
+      "Provide structured reflection framework",
+      "Help identify strengths, skills, and interests",
+      "Surface gaps, blockers, and limiting beliefs"
+    ]
+  },
+  2: {
+    subtitle: "Review professional profile",
+    bullets: [
+      "Evaluate resume and LinkedIn positioning",
+      "Identify skill, narrative, and market-fit gaps",
+      "Share 3–5 clear, actionable improvement suggestions"
+    ]
+  },
+  3: {
+    subtitle: "Deliver industry insights",
+    bullets: [
+      "Analyze 2–3 relevant industries for the user",
+      "Highlight in-demand roles and required skills",
+      "Compare current profile fit vs. market opportunities"
+    ]
+  },
+  4: {
+    subtitle: "Offer strategic career advice",
+    bullets: [
+      "Propose tailored career pathways",
+      "Define short-term vs. long-term goals",
+      "Suggest networking, mentorship, and upskilling avenues"
+    ]
+  },
+  5: {
+    subtitle: "Finalize clarity and roadmap",
+    bullets: [
+      "Summarize key insights and recommendations",
+      "Confirm refined career direction",
+      "Create a realistic 3–6 month action plan"
+    ]
+  },
+}
 
   // pick active set
   const milestones = view === "skill" ? skillMilestones : clarityMilestones

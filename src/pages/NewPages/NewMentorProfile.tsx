@@ -597,10 +597,10 @@ const updateField = (field: string, value: any) => {
       };
 
   return (
-    <div className="max-w-3xl mx-auto w-full"> 
+    <div className="max-w-3xl mx-[5%] w-full"> 
       <Card className="shadow-sm rounded-2xl w-full">
         <CardContent className="p-4 px-6 space-y-6">
-        <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-transparent rounded-t-2xl">
+        <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Users className="size-5 text-primary" /> Your Profile
             </CardTitle>

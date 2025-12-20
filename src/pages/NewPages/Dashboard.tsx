@@ -216,7 +216,7 @@ const Dashboard: React.FC = () => {
 
 {/* 
   <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-4"> */}
-  <main className="flex-1 overflow-y-auto overflow-x-hidden py-4">
+  <main className="flex-1 overflow-y-auto overflow-x-hidden py-4 min-h-screen">
       {parsedUser?.is_mentor
         ? renderMentorContent()
         : renderUserContent()}

@@ -91,7 +91,9 @@ setOpen(false);
               <Trash className="w-5 h-5" />
             </button>
 
-            <button onClick={() => setNotifications([])}>
+            <button onClick={() => {setNotifications([]);
+              setOpen(false);
+            }}>
               <X className="w-5 h-5 text-gray-500 hover:text-blue-500" />
             </button>
             </div>
