@@ -771,10 +771,11 @@ const ExpertOnboardingPreview = () => {
                   {IndustryArray.map((item,index) => (
                     <Chip
                       key={index}
-                      selected={industries.includes(item.name)}
-                      onClick={() => toggle(industries, item.name, setIndustries)}
+                      // selected={industries.includes(item.name)}
+                       selected={industries.includes(item.description)}
+                      onClick={() => toggle(industries, item.description, setIndustries)}
                     >
-                      {item.name}
+                      {item.description}
                     </Chip>
                   ))}
                 </div>

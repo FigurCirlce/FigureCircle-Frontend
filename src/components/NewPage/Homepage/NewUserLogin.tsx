@@ -691,8 +691,8 @@ console.log("responseLoginnnnn-------",response);
   value={userInfo.high_education}
   onChange={(val: string | number) => handleInputChange('high_education', String(val))}
   options={educationArray.map(item => ({
-    label: item.name,
-    value: item.name,
+    label: item.description,
+    value: item.description,
   }))}
   placeholder="Highest Education"
 />
@@ -708,8 +708,8 @@ console.log("responseLoginnnnn-------",response);
   value={userInfo.industry}
   onChange={(val: string | number) => handleInputChange('industry', String(val))}
   options={IndustryArray.map(item => ({
-    label: item.name,
-    value: item.name,
+    label: item.description,
+    value: item.description,
   }))}
   placeholder="Industry"
 />
@@ -727,8 +727,8 @@ console.log("responseLoginnnnn-------",response);
   value={userInfo.work_experience}
   onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
   options={ExperienceArray.map(item => ({
-    label: item.name,
-    value: item.name,
+    label: item.description,
+    value: item.description,
   }))}
   placeholder="Work Experience"
 />

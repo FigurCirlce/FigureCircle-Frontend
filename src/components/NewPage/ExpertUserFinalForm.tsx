@@ -600,7 +600,7 @@ const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) =>
                 </SelectTrigger>
                 <SelectContent position="popper" className="z-[9999]">
                   {IndustryArray.map((item,index) => (
-                    <SelectItem key={index} value={item.name}>{item.name}</SelectItem>
+                    <SelectItem key={index} value={item.description}>{item.description}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -614,7 +614,7 @@ const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) =>
                 </SelectTrigger>
                 <SelectContent position="popper" className="z-[9999]">
                   {ExperienceArray.map((exp,index) => (
-                    <SelectItem key={index} value={exp.name}>{exp.name}</SelectItem>
+                    <SelectItem key={index} value={exp.description}>{exp.description}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -628,7 +628,7 @@ const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) =>
                 </SelectTrigger>
                 <SelectContent position="popper" className="z-[9999]">
                   {educationArray.map((deg,index) => (
-                    <SelectItem key={index} value={deg.name}>{deg.name}</SelectItem>
+                    <SelectItem key={index} value={deg.description}>{deg.description}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
