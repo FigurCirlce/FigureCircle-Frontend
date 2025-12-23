@@ -29,6 +29,7 @@ import {
   Wrench,
   MessageSquare,
 } from "lucide-react";
+import SearchableSelect from "@/components/NewPage/SearchableSelect"
 
 
 interface EducationItem {
@@ -57,14 +58,7 @@ interface EducationItem {
 //   "PhD in Computer Science",
 // ]
 
-const EXPERIENCE_OPTIONS = [
-  "0–1 years",
-  "1–3 years",
-  "3–5 years",
-  "5–7 years",
-  "7–10 years",
-  "10+ years",
-]
+
 
 // const RECO_LIB = {
 //   "Software Engineer": {
@@ -415,7 +409,7 @@ if(degreeFetch){
               <div className="grid grid-cols-3 items-center gap-3">
                 <Label className="text-sm text-muted-foreground">Education</Label>
                 <div className="col-span-2">
-                  <Select value={profile.education} onValueChange={(v) => setProfile({ ...profile, education: v })}>
+                  {/* <Select value={profile.education} onValueChange={(v) => setProfile({ ...profile, education: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Education" />
                     </SelectTrigger>
@@ -426,13 +420,22 @@ if(degreeFetch){
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
+                   <SearchableSelect
+                          value={profile.education}
+                          onChange={(v) => setProfile({ ...profile, education: v })}
+                          options={educationArray.map(item => ({
+                            label: item.description,
+                            value: item.description,
+                          }))}
+                          placeholder="Select Education"
+                        />
                 </div>
               </div>
                 <div className="grid grid-cols-3 items-center gap-3">
                 <Label className="text-sm text-muted-foreground">Industry</Label>
                 <div className="col-span-2">
-                  <Select value={profile.industry} onValueChange={(v) => setProfile({ ...profile, industry: v })}>
+                  {/* <Select value={profile.industry} onValueChange={(v) => setProfile({ ...profile, industry: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Education" />
                     </SelectTrigger>
@@ -443,14 +446,23 @@ if(degreeFetch){
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
+                   <SearchableSelect
+                          value={profile.industry}
+                          onChange={(v) => setProfile({ ...profile, industry: v })}
+                          options={IndustryArray.map(item => ({
+                            label: item.description,
+                            value: item.description,
+                          }))}
+                          placeholder="Select Industry"
+                        />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 items-center gap-3">
                 <Label className="text-sm text-muted-foreground">Experience</Label>
                 <div className="col-span-2">
-                  <Select value={profile.work_experience} onValueChange={(v) => setProfile({ ...profile, work_experience: v })}>
+                  {/* <Select value={profile.work_experience} onValueChange={(v) => setProfile({ ...profile, work_experience: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Experience" />
                     </SelectTrigger>
@@ -461,7 +473,16 @@ if(degreeFetch){
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
+                   <SearchableSelect
+                          value={profile.work_experience}
+                          onChange={(v) => setProfile({ ...profile, work_experience: v })}
+                          options={ExperienceArray.map(item => ({
+                            label: item.description,
+                            value: item.description,
+                          }))}
+                          placeholder="Select Work Experience"
+                        />
                 </div>
               </div>
             </div>

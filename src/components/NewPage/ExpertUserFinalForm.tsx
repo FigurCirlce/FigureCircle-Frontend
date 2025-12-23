@@ -3,12 +3,14 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DollarSign, User2, Briefcase, Check} from "lucide-react";
+import { DollarSign, User2, Briefcase, Check, Eye, EyeOff} from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { Clock } from 'lucide-react';
+// import { createPortal } from "react-dom";
+import SearchableSelect from "./SearchableSelect"
 
 // —— Simplified 3-step onboarding (Login → Profile & Expertise → Pricing)
 
@@ -61,6 +63,118 @@ interface EducationItem {
   created_at: string;
   updated_at: string;
 }
+// interface SelectOption {
+//   [key: string]: string | number;
+// }
+
+// interface SearchableSelectProps {
+//   value: string | number | null;
+//   onChange: (value: string | number) => void;
+//   options: SelectOption[];
+//   placeholder?: string;
+//   labelKey?: string;
+//   valueKey?: string;
+// }
+
+
+
+// const SearchableSelect = ({
+//   value,
+//   onChange,
+//   options,
+//   placeholder = "Select an option",
+//   labelKey = "label",
+//   valueKey = "value",
+// }: SearchableSelectProps) => {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [showOptions, setShowOptions] = useState(false);
+//   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+//   const inputRef = useRef<HTMLInputElement>(null);
+
+//   useEffect(() => {
+//     const selected = options.find(opt => opt[valueKey] === value);
+//     if (selected && typeof selected[labelKey] === "string") {
+//       setSearchTerm(selected[labelKey] as string);
+//     }
+//   }, [value, options, labelKey, valueKey]);
+
+//   const filteredOptions = options.filter(item => {
+//     const label = item[labelKey];
+//     return (
+//       typeof label === "string" &&
+//       label.toLowerCase().includes(searchTerm.toLowerCase())
+//     );
+//   });
+
+//   const handleSelect = (selectedValue: string | number) => {
+//     onChange(selectedValue);
+//     const selected = options.find(opt => opt[valueKey] === selectedValue);
+//     setSearchTerm(
+//       typeof selected?.[labelKey] === "string"
+//         ? (selected[labelKey] as string)
+//         : ""
+//     );
+//     setShowOptions(false);
+//   };
+
+//   const openDropdown = () => {
+//     if (!inputRef.current) return;
+
+//     const rect = inputRef.current.getBoundingClientRect();
+//     setDropdownStyle({
+//       position: "absolute",
+//       top: rect.bottom + window.scrollY,
+//       left: rect.left + window.scrollX,
+//       width: rect.width,
+//       zIndex: 9999,
+//     });
+
+//     setShowOptions(true);
+//   };
+
+//   return (
+//     <>
+//       <div className="w-full">
+//         <input
+//           ref={inputRef}
+//           type="text"
+//           className="border p-2 rounded w-full"
+//           placeholder={placeholder}
+//           value={searchTerm}
+//           onChange={(e) => {
+//             setSearchTerm(e.target.value);
+//             openDropdown();
+//           }}
+//           onFocus={openDropdown}
+//           onBlur={() => setTimeout(() => setShowOptions(false), 150)}
+//         />
+//       </div>
+
+//       {showOptions &&
+//         createPortal(
+//           <ul
+//             style={dropdownStyle}
+//             className="bg-white border rounded shadow-lg max-h-60 overflow-y-auto"
+//           >
+//             {filteredOptions.length > 0 ? (
+//               filteredOptions.map((item, index) => (
+//                 <li
+//                   key={index}
+//                   className="p-2 hover:bg-gray-200 cursor-pointer"
+//                   onMouseDown={() => handleSelect(item[valueKey])}
+//                 >
+//                   {item[labelKey]}
+//                 </li>
+//               ))
+//             ) : (
+//               <li className="p-2 text-gray-500">No matches found</li>
+//             )}
+//           </ul>,
+//           document.body
+//         )}
+//     </>
+//   );
+// };
 
 
 
@@ -122,6 +236,8 @@ const ExpertOnboardingCompact=() =>{
   const [experience, setExperience] = useState("")
   const [degree, setDegree] = useState("");
   const [token,setToken]=useState("");
+  const [showConfirmPassword,setShowConfirmPassword]=useState(false);
+  const [showPassword,setShowPassword]=useState(false);
   //@ts-ignore
   const [services, setServices] = useState<string[]>([])
   const [pricing, setPricing] = useState<Record<string, { time: string; price: string }>>({ "skill-roadmap": { time: "30 min", price: "" } })
@@ -571,16 +687,34 @@ const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) =>
               name="email"
                 value={formData.email}
                 onChange={handleChange}/>
-              <Input placeholder="Password" type="password"
+                <div className="relative">
+              <Input placeholder="Password" type={showPassword?"text":"password"}
             
                 name="password"
                 value={formData.password}
                 onChange={handleChange} />
-                 <Input placeholder="Confirm Password" type="password"
+                   <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  >
+                    {showPassword ? <Eye color="black" size={'20px'}/> : <EyeOff color="black" size={'20px'}/>}
+                  </button>
+                </div>
+                <div className="relative">
+                 <Input placeholder="Confirm Password" type={showConfirmPassword?"text":"password"}
             
                 name="confirmpassword"
                 value={formData.confirmpassword}
                 onChange={handleChange} />
+                   <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  >
+                    {showConfirmPassword ? <Eye color="black" size={'20px'}/> : <EyeOff color="black" size={'20px'}/>}
+                  </button>
+                </div>
             </div>
             <div className="flex justify-end">
               <Button onClick={handleRegister} className="mt-2">Next</Button>
@@ -588,70 +722,82 @@ const SupportCards: React.FC<SupportCardsProps> = ({ services, setServices }) =>
           </section>
         )}
 
-        {step === 2 && (
-          <section className="space-y-4">
-            <h2 className="text-sm font-semibold flex items-center gap-2"><User2 className="h-3.5 w-3.5"/> Profile & Expertise</h2>
+      {step === 2 && (
+  <section className="space-y-4">
+    <h2 className="text-sm font-semibold flex items-center gap-2">
+      <User2 className="h-3.5 w-3.5" /> Profile & Expertise
+    </h2>
 
-            <div>
-              <label className="text-[11px] font-medium text-slate-600 flex items-center gap-1"><Briefcase className="h-3 w-3"/> Industry</label>
-              <Select onValueChange={(val)=>setIndustry(val)} value={industry}>
-                <SelectTrigger className="mt-1 w-full text-sm">
-                  <SelectValue placeholder="Select Industry" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="z-[9999]">
-                  {IndustryArray.map((item,index) => (
-                    <SelectItem key={index} value={item.description}>{item.description}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    {/* Industry */}
+    <div>
+      <label className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
+        <Briefcase className="h-3 w-3" /> Industry
+      </label>
 
-            <div>
-              <label className="text-[11px] font-medium text-slate-600">Years of Experience</label>
-              <Select onValueChange={(val)=>setExperience(val)} value={experience}>
-                <SelectTrigger className="mt-1 w-full text-sm">
-                  <SelectValue placeholder="Select Experience" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="z-[9999]">
-                  {ExperienceArray.map((exp,index) => (
-                    <SelectItem key={index} value={exp.description}>{exp.description}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <SearchableSelect
+        value={industry}
+        onChange={(val) => setIndustry(String(val))}
+        options={IndustryArray.map(item => ({
+          label: item.description,
+          value: item.description,
+        }))}
+        placeholder="Select Industry"
+      />
+    </div>
 
-            <div>
-              <label className="text-[11px] font-medium text-slate-600">Highest Degree</label>
-              <Select onValueChange={(val)=>setDegree(val)} value={degree}>
-                <SelectTrigger className="mt-1 w-full text-sm">
-                  <SelectValue placeholder="Select Degree" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="z-[9999]">
-                  {educationArray.map((deg,index) => (
-                    <SelectItem key={index} value={deg.description}>{deg.description}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    {/* Experience */}
+    <div>
+      <label className="text-[11px] font-medium text-slate-600">
+        Years of Experience
+      </label>
 
-            <div>
-              <label className="text-[11px] font-medium text-slate-600">Areas of Guidance</label>
-              {/* <div className="flex flex-wrap gap-2 mt-2">
-                {SERVICES.map((s) => (
-                  <Chip key={s.id} selected={services.includes(s.id)} onClick={()=>toggle(services, s.id, setServices)}>{s.label}</Chip>
-                ))}
-              </div> */}
-              {/* <SupportCards/> */}
-              <SupportCards services={services} setServices={setServices} />
+      <SearchableSelect
+        value={experience}
+        onChange={(val) => setExperience(String(val))}
+        options={ExperienceArray.map(exp => ({
+          label: exp.description,
+          value: exp.description,
+        }))}
+        placeholder="Select Experience"
+      />
+    </div>
 
-            </div>
+    {/* Degree */}
+    <div>
+      <label className="text-[11px] font-medium text-slate-600">
+        Highest Degree
+      </label>
 
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={()=>setStep(1)}>Back</Button>
-              <Button onClick={()=>setStep(3)}>Next</Button>
-            </div>
-          </section>
-        )}
+      <SearchableSelect
+        value={degree}
+        onChange={(val) => setDegree(String(val))}
+        options={educationArray.map(deg => ({
+          label: deg.description,
+          value: deg.description,
+        }))}
+        placeholder="Select Degree"
+      />
+    </div>
+
+    {/* Areas of Guidance */}
+    <div>
+      <label className="text-[11px] font-medium text-slate-600">
+        Areas of Guidance
+      </label>
+
+      <SupportCards services={services} setServices={setServices} />
+    </div>
+
+    <div className="flex justify-between">
+      <Button variant="outline" onClick={() => setStep(1)}>
+        Back
+      </Button>
+      <Button onClick={() => setStep(3)}>
+        Next
+      </Button>
+    </div>
+  </section>
+)}
 
         {step === 3 && (
           <section className="space-y-3">

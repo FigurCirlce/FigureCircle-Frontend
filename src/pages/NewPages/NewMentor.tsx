@@ -604,6 +604,8 @@ const[dialogMentorId,setDialogMentorId]=useState<any>(null);
   const handleExpert = async(id: number) => {
   // navigate(`/expert/${id}`);
     // await fetchMentorData(id);
+    console.log("Pay clicked for mentor:", id);
+  console.log("User:", userData?.user_id);
     setmentorUserId(id);
     setUserId(userData.user_id);
   };
@@ -921,8 +923,9 @@ useEffect(() => {
       } catch (err: any) {
         //@ts-ignore
         // setError(err.response?.data?.error || "An error occurred");
-        console.log(err|| "An error occurred");
-        alert("An error occurred");
+        console.log("errorrrrr-----",err|| "An error occurred");
+        notifyError(err);
+        // alert("An error occurred");
       }
     };
 

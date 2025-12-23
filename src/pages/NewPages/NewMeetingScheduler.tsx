@@ -279,6 +279,18 @@ const MentorScheduleEditor: React.FC<MentorScheduleEditorProps> = ({ onSave }) =
   );
 };
 
+const parseTimeToDate = (date: Date, timeStr: string) => {
+  const d = new Date(date);
+  const [time, modifier] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (modifier === "PM" && hours !== 12) hours += 12;
+  if (modifier === "AM" && hours === 12) hours = 0;
+
+  d.setHours(hours, minutes, 0, 0);
+  return d;
+};
+
 
 
 
@@ -1088,20 +1100,28 @@ console.log(e);
           ) : (
             <div>
             <div className="flex flex-wrap gap-2">
-              {slotsForDate(selectedDate).map((t) => (
+              {slotsForDate(selectedDate).map((t) => {
+                const now = new Date();
+  const slotStart = parseTimeToDate(selectedDate, t);
+
+  const isPastSlot = slotStart <= now;
+  return(
                 <button
                   key={t}
+                  disabled={isPastSlot}
                   onClick={() => setSelectedSlot(t)}
                   className={`rounded-xl border px-3 py-1.5 text-sm transition
                 ${
                   selectedSlot === t
                     ? "border-blue-600 bg-blue-50"
                     : "border-gray-200 hover:bg-gray-50"
-                }`}
+                }
+                ${isPastSlot ? "opacity-40 cursor-not-allowed" : ""}`
+              }
                 >
                   {t}
                 </button>
-              ))}
+              )})}
             </div>
             <div className="pt-10">
              {parsedUserData?.is_mentor && (

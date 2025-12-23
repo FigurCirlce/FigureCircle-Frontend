@@ -25,6 +25,8 @@ function formatDateLocal(date: Date) {
 }
 
 
+
+
 function generateTimeSlots(start: string, end: string) {
   const slots: { start: string; end: string }[] = [];
   let [startH, startM] = start.split(":").map(Number);
@@ -130,28 +132,55 @@ const isPast = dateObj < today;
               const slots = generateTimeSlots(slot.startTime, slot.endTime);
               return (
                 <div key={idx} className="flex flex-wrap gap-2 justify-center">
-                  {slots.map((t, i) => (
-                   <button
-  key={i}
-  className={`px-3 py-1 rounded-full border 
-    ${pickedSlot?.start === t.start && pickedSlot?.date === formatDateLocal(selectedDate)
-      ? "bg-blue-500 text-white"
-      : "bg-gray-100 hover:bg-blue-200"
-    }`}
-  onClick={() => {
-    const selected = {
-      date: formatDateLocal(selectedDate),
-      start: t.start,
-      end: t.end,
-    };
-    setPickedSlot(selected);   // <-- highlight in UI
-    onSelect(selected);        // <-- send to parent
-  }}
->
-  {t.start} - {t.end}
-</button>
+            {slots.map((t, i) => {
+  const now = new Date();
 
-                  ))}
+  const slotStart = new Date(selectedDate);
+  const [sh, sm] = t.start.split(":").map(Number);
+  slotStart.setHours(sh, sm, 0, 0);
+
+  // 🚨 Only shift to next day if availability truly crosses midnight
+  const isOvernight = slot.startTime > slot.endTime;
+
+  if (isOvernight && sh < Number(slot.startTime.split(":")[0])) {
+    slotStart.setDate(slotStart.getDate() + 1);
+  }
+
+  const isPastSlot = slotStart <= now;
+
+  return (
+    <button
+      key={i}
+      disabled={isPastSlot}
+      className={`px-3 py-1 rounded-full border
+        ${
+          isPastSlot
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : pickedSlot?.start === t.start &&
+              pickedSlot?.date === formatDateLocal(selectedDate)
+            ? "bg-blue-500 text-white"
+            : "bg-gray-100 hover:bg-blue-200"
+        }
+      `}
+      onClick={() => {
+        if (isPastSlot) return;
+
+        const selected = {
+          date: formatDateLocal(selectedDate),
+          start: t.start,
+          end: t.end,
+        };
+
+        setPickedSlot(selected);
+        onSelect(selected);
+      }}
+    >
+      {t.start} - {t.end}
+    </button>
+  );
+})}
+
+
                 </div>
               );
             })}

@@ -503,7 +503,9 @@ const updateField = (field: string, value: any) => {
       if (exists) {
         updated = prev.intent_price.filter((i: any) => i.intent !== opt.id);
       } else {
-        updated = [...prev.intent_price, { intent: opt.id, price: 0 }];
+        // updated = [...prev.intent_price, { intent: opt.id, price: 0 }];
+        updated = [...prev.intent_price, { intent: opt.id, price: "" }];
+
       }
 
       return { ...prev, intent_price: updated };
@@ -511,17 +513,29 @@ const updateField = (field: string, value: any) => {
   };
 
   // Update price for selected intent
-  const updateIntentPrice = (label: string, price: number) => {
-    console.log("label",label);
-    console.log("price",price);
-    setMentor((prev: any) => {
-      const updated = prev.intent_price.map((item: any) =>
-        item.intent === label ? { ...item, price } : item
-      );
+  // const updateIntentPrice = (label: string, price: number) => {
+  //   console.log("label",label);
+  //   console.log("price",price);
+  //   setMentor((prev: any) => {
+  //     const updated = prev.intent_price.map((item: any) =>
+  //       item.intent === label ? { ...item, price } : item
+  //     );
 
-      return { ...prev, intent_price: updated };
-    });
-  };
+  //     return { ...prev, intent_price: updated };
+  //   });
+  // };
+  const updateIntentPrice = (label: string, value: string) => {
+  setMentor((prev: any) => {
+    const updated = prev.intent_price.map((item: any) =>
+      item.intent === label
+        ? { ...item, price: value === "" ? "" : Number(value) }
+        : item
+    );
+
+    return { ...prev, intent_price: updated };
+  });
+};
+
 
   const saveProfile = async () => {
     setLoading(true);
@@ -717,12 +731,14 @@ const updateField = (field: string, value: any) => {
                     {selected && (
                       <div>
                         <Label>Price</Label>
-                        <Input
-                          type="number"
-                          value={selected.price}
-                          onChange={(e) => updateIntentPrice(opt.id, Number(e.target.value))}
-                          placeholder="Enter price"
-                        />
+                      <Input
+  type="number"
+  value={selected.price ?? ""}
+  onChange={(e) => updateIntentPrice(opt.id, e.target.value)}
+  placeholder="Enter price"
+  min="0"
+/>
+
                       </div>
                     )}
                   </div>
