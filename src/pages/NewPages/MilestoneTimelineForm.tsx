@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pen } from "lucide-react";
+import { Loader2, Pen } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
@@ -13,7 +13,7 @@ interface Milestone {
   milestone: string;
   description: string;
   expectedCompletionDate: string;
-  mentorFees?:number;
+  mentorFees?: number;
 }
 
 type MilestoneData = {
@@ -22,7 +22,7 @@ type MilestoneData = {
   created_at: string;
   history_count: number;
   // latest_milestone: Milestone;
-  milestones:Milestone[];
+  milestones: Milestone[];
   mentor_id: number;
   serial_number: number;
   user_id: number;
@@ -32,14 +32,18 @@ const MilestoneTimelineForm: React.FC = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [mentorData, setmentorData] = useState<any>();
   // const[mentorId,setMentorId]=useState<any>();
-  const[stateMilestone,setStateMilestone]=useState<boolean>(false);
-  const [milestoneData,setMilestoneData]=useState<MilestoneData[]>([]);
+  const [stateMilestone, setStateMilestone] = useState<boolean>(false);
+  const [milestoneData, setMilestoneData] = useState<MilestoneData[]>([]);
   const [formData, setFormData] = useState<Milestone>({
     milestone: "",
     description: "",
     expectedCompletionDate: "",
   });
-  const { userId,mentorId } = useParams<{ userId: string,mentorId: string, }>();
+  const [loading, setLoading] = useState(false);
+  const { userId, mentorId } = useParams<{
+    userId: string;
+    mentorId: string;
+  }>();
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
   const parsedUserData = user ? JSON.parse(user) : null;
@@ -59,7 +63,7 @@ const MilestoneTimelineForm: React.FC = () => {
         }
       );
       console.log("basicInformation---", response.data);
-      const data=response.data;
+      const data = response.data;
       setmentorData(data);
       // setMentorId(data.mentor_id);
 
@@ -69,57 +73,56 @@ const MilestoneTimelineForm: React.FC = () => {
     }
   };
 
- 
-
   useEffect(() => {
     fetchMentorInfo();
   }, []);
 
-   useEffect(() => {
-        // if (!userId || !mentorId) {
-        //     setErrorMessage('Invalid user or mentor ID.');
-        //     setLoading(false);
-        //     return;
-        // }
-// console.log("mentor_id",mentorId);
- console.log("userId",userId);
-            console.log("mentorId",mentorId);
-        const fetchMilestoneData = async () => {
-            const token = localStorage.getItem('token');
+  useEffect(() => {
+    // if (!userId || !mentorId) {
+    //     setErrorMessage('Invalid user or mentor ID.');
+    //     setLoading(false);
+    //     return;
+    // }
+    // console.log("mentor_id",mentorId);
+    console.log("userId", userId);
+    console.log("mentorId", mentorId);
+    const fetchMilestoneData = async () => {
+      const token = localStorage.getItem("token");
 
-            if (!token) {
-                toast.error('Token not found!');
-                return;
-            }
-            try {
-                const response = await axios.get(`${baseURL}/api/milestone`, {
-                    // params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
-                      params: { user_id: userId, mentor_id: mentorId },
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+      if (!token) {
+        toast.error("Token not found!");
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await axios.get(`${baseURL}/api/milestone`, {
+          // params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
+          params: { user_id: userId, mentor_id: mentorId },
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-                if (response.data) {
-                    // setMilestones(response.data.milestone);
-                    // setMilestonesSerial(response.data);
-console.log("response-----datttaaa-----response",response.data);
-setStateMilestone(true);
-setMilestoneData([response.data]);
-                    console.log('milestones', response.data);
-                } else {
-                    console.log('No milestones found.');
-                }
-            } catch (error) {
-                console.log('Failed to fetch milestone data.');
-                console.error('Error fetching milestones:', error);
-            } finally {
-                console.log(false);
-            }
-        };
+        if (response.data) {
+          // setMilestones(response.data.milestone);
+          // setMilestonesSerial(response.data);
+          console.log("response-----datttaaa-----response", response.data);
+          setStateMilestone(true);
+          setMilestoneData([response.data]);
+          console.log("milestones", response.data);
+        } else {
+          console.log("No milestones found.");
+        }
+      } catch (error) {
+        console.log("Failed to fetch milestone data.");
+        console.error("Error fetching milestones:", error);
+      } finally {
+        setLoading(false);
+        console.log(false);
+      }
+    };
 
-        fetchMilestoneData();
-    }, [parsedUserData.user_id, mentorId]);
+    fetchMilestoneData();
+  }, [parsedUserData.user_id, mentorId]);
 
-  
   const handleChange = (field: keyof Milestone, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
@@ -153,7 +156,11 @@ setMilestoneData([response.data]);
     const updated = milestones.filter((_, i) => i !== index);
     setMilestones(updated);
     if (editIndex === index) {
-      setFormData({ milestone: "", description: "", expectedCompletionDate: "" });
+      setFormData({
+        milestone: "",
+        description: "",
+        expectedCompletionDate: "",
+      });
       setEditIndex(null);
     }
   };
@@ -168,7 +175,7 @@ setMilestoneData([response.data]);
       const token = localStorage.getItem("token");
       console.log("user_id", user_id);
       const dataToSend = {
-        user_id: parsedUserData.is_mentor?userId:userId,
+        user_id: parsedUserData.is_mentor ? userId : userId,
         mentor_id: mentorData.mentor_id,
         milestone: milestones,
         check_meeting_id: userId,
@@ -194,115 +201,128 @@ setMilestoneData([response.data]);
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white min-h-screen">
-{stateMilestone?milestoneData.map((item)=>
- <AvailMilestones
-  data={{
-    check_id: item.check_id,
-    check_meeting_id: item.check_meeting_id,
-    created_at: item.created_at,
-    history_count: item.history_count,
-    milestones: item.milestones, // Now passing the array directly
-    mentor_id: item.mentor_id,
-    serial_number: item.serial_number,
-    user_id: item.user_id,
-  }}
-/>
-)
+      {loading ? (
+        <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+        </div>
+      ) : stateMilestone ? (
+        milestoneData.map((item) => (
+          <AvailMilestones
+            data={{
+              check_id: item.check_id,
+              check_meeting_id: item.check_meeting_id,
+              created_at: item.created_at,
+              history_count: item.history_count,
+              milestones: item.milestones, // Now passing the array directly
+              mentor_id: item.mentor_id,
+              serial_number: item.serial_number,
+              user_id: item.user_id,
+            }}
+          />
+        ))
+      ) : !parsedUserData.is_mentor ? (
+        <div className="flex justify-center items-center">
+          <div className="text-lg font-bold">
+            Milestone Creation Pending by Mentor
+          </div>
+        </div>
+      ) : (
+        <div>
+          <h1 className="text-2xl font-bold text-center mb-6">
+            Milestone Timeline Form
+          </h1>
 
-:
-      <div>
-      <h1 className="text-2xl font-bold text-center mb-6">
-        Milestone Timeline Form
-      </h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left: Form */}
+            <div className="bg-gray-100 p-6 rounded-md shadow-md">
+              <h2 className="text-lg font-semibold mb-4">
+                {editIndex !== null ? "Edit Milestone" : "Add New Milestone"}
+              </h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Milestone Title"
+                  value={formData.milestone}
+                  onChange={(e) => handleChange("milestone", e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+                <textarea
+                  placeholder="Description"
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="date"
+                  value={formData.expectedCompletionDate}
+                  onChange={(e) =>
+                    handleChange("expectedCompletionDate", e.target.value)
+                  }
+                  className="w-full p-2 border rounded"
+                />
+                <div className="flex gap-4">
+                  <button
+                    onClick={addOrUpdateMilestone}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                  >
+                    {editIndex !== null ? "Update" : "Add Milestone"}
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded"
+                  >
+                    Submit All
+                  </button>
+                </div>
+              </div>
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left: Form */}
-        <div className="bg-gray-100 p-6 rounded-md shadow-md">
-          <h2 className="text-lg font-semibold mb-4">
-            {editIndex !== null ? "Edit Milestone" : "Add New Milestone"}
-          </h2>
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Milestone Title"
-              value={formData.milestone}
-              onChange={(e) => handleChange("milestone", e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <textarea
-              placeholder="Description"
-              value={formData.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-            <input
-              type="date"
-              value={formData.expectedCompletionDate}
-              onChange={(e) =>
-                handleChange("expectedCompletionDate", e.target.value)
-              }
-              className="w-full p-2 border rounded"
-            />
-            <div className="flex gap-4">
-              <button
-                onClick={addOrUpdateMilestone}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-              >
-                {editIndex !== null ? "Update" : "Add Milestone"}
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded"
-              >
-                Submit All
-              </button>
+            {/* Right: Timeline */}
+            <div className="relative border-l-4 border-gray-300 pl-6">
+              {milestones.length === 0 ? (
+                <p className="text-gray-500">No milestones created yet.</p>
+              ) : (
+                milestones.map((milestone, index) => (
+                  <div key={index} className="mb-6 relative">
+                    <span className="absolute -left-[21px] top-4 w-4 h-4 bg-blue-600 rounded-full"></span>
+
+                    <div className="bg-gray-100 p-4 rounded-md shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                      {/* Milestone Content */}
+                      <div>
+                        <h3 className="font-bold text-base">
+                          {milestone.milestone}
+                        </h3>
+                        <p className="text-sm text-gray-700">
+                          {milestone.description}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Due: {milestone.expectedCompletionDate}
+                        </p>
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="flex gap-3 justify-end md:justify-start">
+                        <button
+                          onClick={() => handleEdit(index)}
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          <Pen />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(index)}
+                          className="text-red-600 hover:underline text-sm"
+                        >
+                          <Trash2 />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
-
-        {/* Right: Timeline */}
-        <div className="relative border-l-4 border-gray-300 pl-6">
-          {milestones.length === 0 ? (
-            <p className="text-gray-500">No milestones created yet.</p>
-          ) : (
-            milestones.map((milestone, index) => (
-              <div key={index} className="mb-6 relative">
-                <span className="absolute -left-[21px] top-4 w-4 h-4 bg-blue-600 rounded-full"></span>
-
-                <div className="bg-gray-100 p-4 rounded-md shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                  {/* Milestone Content */}
-                  <div>
-                    <h3 className="font-bold text-base">{milestone.milestone}</h3>
-                    <p className="text-sm text-gray-700">
-                      {milestone.description}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Due: {milestone.expectedCompletionDate}
-                    </p>
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="flex gap-3 justify-end md:justify-start">
-                    <button
-                      onClick={() => handleEdit(index)}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      <Pen />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(index)}
-                      className="text-red-600 hover:underline text-sm"
-                    >
-                      <Trash2 />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-      </div>}
+      )}
     </div>
   );
 };

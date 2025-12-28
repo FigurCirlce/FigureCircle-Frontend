@@ -62,6 +62,12 @@ const setSchedule = (data: ScheduleData) => {
     setScheduleData(data);
   };
  
+  console.log("CTX", {
+    userData,
+    scheduleData,
+    typeofUserId: typeof userData.user_id,
+    isMentor: userData.is_mentor,
+  });
 
   return (
     <UserContext.Provider value={{ userData, updateUser, scheduleData,
@@ -71,8 +77,10 @@ const setSchedule = (data: ScheduleData) => {
   );
 };
 
+
 export const useUserContext = () => {
   const ctx = useContext(UserContext);
+  
   if (!ctx) throw new Error("useUserContext must be used inside <UserProvider>");
   return ctx;
 };

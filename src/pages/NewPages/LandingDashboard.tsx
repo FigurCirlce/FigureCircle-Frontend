@@ -563,10 +563,10 @@ import axios from "axios";
 import baseURL from "@/config/config";
 // import { useUserContext } from "@/components/context/userContext";
 import RecommendationsPanel from "./CoursesRecommendation";
-import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
+import MilestoneFlowExpertTimeline from "@/pages/NewPages/NewMilestoneExpert";
 import MilestoneFlowTimeline from "@/components/NewPage/Homepage/NewMilestoneUser";
 import ChatWidget from "@/components/NewPage/ChatBox";
-
+import { Loader2 } from "lucide-react";
 // Define Interfaces
 interface ProgressAPIResponse {
   latest_feedback: {
@@ -654,16 +654,20 @@ export interface BasicInfo {
   work_experience: string;
 }
 
-
-const LandingDashboard: React.FC<LandingDashboardProps> = ({ setActivePage }) => {
+const LandingDashboard: React.FC<LandingDashboardProps> = ({
+  setActivePage,
+}) => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
-  const [assignedMenteesData, setAssignedMenteesData] = useState<AssignedUser[]>([]);
+  const [assignedMenteesData, setAssignedMenteesData] = useState<
+    AssignedUser[]
+  >([]);
   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
     null
   );
   const [openChatMentor, setOpenChatMentor] = useState<number | null>(null);
   const [selectedExpertData, setSelectedExpertData] =
     useState<ProgressAPIResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [course, setCourse] = useState<string[]>([]);
   const [certificate, setCertificate] = useState<string[]>([]);
   const [competition, setCompetition] = useState<string[]>([]);
@@ -672,7 +676,7 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({ setActivePage }) =>
   const degree = localStorage.getItem("degree");
   const user = localStorage.getItem("user");
   const parseUser = user ? JSON.parse(user) : null;
-  const parsedDegree=degree?JSON.parse(degree):null;
+  const parsedDegree = degree ? JSON.parse(degree) : null;
 
   // const { userData } = useUserContext();
 
@@ -702,71 +706,94 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({ setActivePage }) =>
         });
         if (res.data?.mentors?.length) {
           console.log("res.data?.mentors?", res.data?.mentors);
+          
           setAssignedMentorData(res.data.mentors);
 
           setSelectedExpertKey(res.data.mentors[0].mentor_id);
         }
+        
       } catch (error) {
+        
         console.error("Error fetching assigned mentors", error);
       }
+       finally {
+      setLoading(false);
+    }
     };
-      const fetchAssignedMentees = async () => {
+    const fetchAssignedMentees = async () => {
       try {
-        const res = await axios.get(`${baseURL}/mentor_assigned_users_count/${parsedDegree?.mentor_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${baseURL}/mentor_assigned_users_count/${parsedDegree?.mentor_id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (res.data?.assigned_users?.length) {
           console.log("res.data?.assigned_users?", res.data?.assigned_users);
+          // setLoading(false);
           setAssignedMenteesData(res.data.assigned_users);
 
           setSelectedExpertKey(res.data.mentors[0].assigned_users);
         }
       } catch (error) {
+
         console.error("Error fetching assigned mentors", error);
+      }
+      finally{
+        setLoading(false);
       }
     };
 
-    if(parsedDegree?.mentor_id){
+    if (parsedDegree?.mentor_id) {
+      setLoading(true);
       fetchAssignedMentees();
-    }
-    else{
-       fetchAssignedMentors();
+    } else {
+      setLoading(true);
+      fetchAssignedMentors();
     }
 
-   
     // fetchBasicInfo();
   }, []);
 
   useEffect(() => {
     if (selectedExpertKey == null) return;
-console.log("SelectedExpertKey",selectedExpertKey);
+    console.log("SelectedExpertKey", selectedExpertKey);
     // console.log("userDatttaDegree---", degree);
     const degree = localStorage.getItem("degree"); //degree has user_id
     const degreeData = degree ? JSON.parse(degree) : null;
     const user_id = degreeData?.id;
     //  const user = localStorage.getItem("user"); //degree has user_id
     // const parsedUser= user ? JSON.parse(user) : null;
-
+    
     console.log("user_id", user_id);
     const fetchProgressData = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${baseURL}/progress/enhanced`, {
           params: {
-            user_id: parseUser.is_mentor?selectedExpertKey:parseUser.user_id,
-            mentor_id:parseUser.is_mentor?parsedDegree?.mentor_id: selectedExpertKey,
+            user_id: parseUser.is_mentor
+              ? selectedExpertKey
+              : parseUser.user_id,
+            mentor_id: parseUser.is_mentor
+              ? parsedDegree?.mentor_id
+              : selectedExpertKey,
             // mentor_id:2
           },
           headers: { Authorization: `Bearer ${token}` },
         });
 
         // if (Array.isArray(res.data) && res.data.length > 0) {
-        if(res.data){
+        if (res.data) {
           console.log("trueeeeeee");
-          console.log("res.data-------",res.data);
+          console.log("res.data-------", res.data);
+        
           setSelectedExpertData(res.data);
         }
       } catch (error) {
+        
         console.error("Error fetching progress data", error);
+      }finally{
+        setLoading(false);
       }
     };
 
@@ -777,7 +804,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
     const fetchAllData = async () => {
       const token = localStorage.getItem("token");
       const degreeData = degree ? JSON.parse(degree) : null;
-      console.log("degreeData",degreeData);
+      console.log("degreeData", degreeData);
       const stream = degreeData.role_based;
       console.log("Stream==--", stream);
 
@@ -790,7 +817,7 @@ console.log("SelectedExpertKey",selectedExpertKey);
       try {
         // Try all three primary APIs in parallel
         const [courseRes, certificateRes, competitionRes] = await Promise.all([
-        // const [courseRes, certificateRes] = await Promise.all([
+          // const [courseRes, certificateRes] = await Promise.all([
           axios.post(
             `https://harsh1993-model.hf.space/get_course`,
             { stream },
@@ -836,14 +863,9 @@ console.log("SelectedExpertKey",selectedExpertKey);
     fetchAllData();
   }, []);
 
- 
-
-
-
   return (
     <div>
       <div>
-     
         <div className="flex flex-col gap-6 ">
           <div>
             {/* <h2 className="text-2xl font-bold  ">Recommended for You</h2> */}
@@ -924,21 +946,28 @@ console.log("SelectedExpertKey",selectedExpertKey);
               <p>No recommendations available</p>
             )}
           </div> */}
-          {parseUser?.is_mentor?"":
-          <div className="mx-[5%]">
-            <RecommendationsPanel
-              course={course}
-              certificate={certificate}
-              competition={competition}
-            />
-            </div>
-          }
+
+            {parseUser?.is_mentor ? (
+              ""
+            ) : (
+              <div className="mx-[5%] ">
+                <RecommendationsPanel
+                  course={course}
+                  certificate={certificate}
+                  competition={competition}
+                />
+              </div>
+            )}
           </div>
 
           {/* Expert Section */}
-       
-            {assignedMenteesData.length>0 ||assignedMentorData.length>0? 
-            <div className="flex flex-col lg:flex-row gap-5 w-full ">
+          {loading ? (
+            <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+              <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+            </div>
+          ) : assignedMenteesData.length > 0 ||
+            assignedMentorData.length > 0 ? (
+            <div className="flex flex-col lg:flex-row gap-5 max-w-full mx-[4%] ">
               {/* Expert List */}
 
               <div className="bg-white rounded-2xl shadow p-6 mx-5">
@@ -946,50 +975,47 @@ console.log("SelectedExpertKey",selectedExpertKey);
                   {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
                 </h2>
                 <div className="space-y-4 flex-1 md:w-[400px]">
-                  {parseUser?.is_mentor?(assignedMenteesData.length < 1
-                    ? "No Assigned Mentor"
-                    : assignedMenteesData.map((user) => (
-                        <div
-                          key={user.user_id}
-                          onClick={() => setSelectedExpertKey(user?.user_id)}
-                          className={`border rounded-xl px-4 py-2 flex justify-betwe0en items-center cursor-pointer ${
-                            selectedExpertKey === user?.user_id
-                              ? "border-emerald-500"
-                              : ""
-                          }`}
-                        >
-                          <div className="flex items-center justify-between w-full ">
-                            <img src={pic} alt="mentor" width={70} />
-                            <div className="flex flex-col justify-center">
-                              <p className="font-medium text-gray-800">
-                                {user?.basic_info.firstname
-}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {user.username}
-                              </p>
-                             
+                  {parseUser?.is_mentor
+                    ? assignedMenteesData.length < 1
+                      ? "No Assigned Mentor"
+                      : assignedMenteesData.map((user) => (
+                          <div
+                            key={user.user_id}
+                            onClick={() => setSelectedExpertKey(user?.user_id)}
+                            className={`border rounded-xl px-4 py-2 flex justify-betwe0en items-center cursor-pointer ${
+                              selectedExpertKey === user?.user_id
+                                ? "border-emerald-500"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex items-center justify-between w-full ">
+                              <img src={pic} alt="mentor" width={70} />
+                              <div className="flex flex-col justify-center">
+                                <p className="font-medium text-gray-800">
+                                  {user?.basic_info.firstname}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  {user.username}
+                                </p>
+                              </div>
+                              <div className="">
+                                <ChatWidget
+                                  mentorName={user?.basic_info.firstname}
+                                  mentorId={user.user_id}
+                                  isOpen={openChatMentor === user.user_id}
+                                  onToggle={() =>
+                                    setOpenChatMentor(
+                                      openChatMentor === user.user_id
+                                        ? null
+                                        : user.user_id
+                                    )
+                                  }
+                                />
+                              </div>
                             </div>
-                             <div className="">
-                            <ChatWidget
-                              mentorName={user?.basic_info.firstname}
-                              mentorId={user.user_id}
-                      isOpen={openChatMentor === user.user_id}
-                      onToggle={() =>
-                        setOpenChatMentor(
-                          openChatMentor === user.user_id ? null : user.user_id
-                        )
-                      } 
-                      />
-
-                             </div>
-                            
                           </div>
-                         
-                        </div>
-                       
-                      ))):
-                  (assignedMentorData.length < 1
+                        ))
+                    : assignedMentorData.length < 1
                     ? "No Assigned Mentor"
                     : assignedMentorData.map((mentor) => (
                         <div
@@ -1010,27 +1036,28 @@ console.log("SelectedExpertKey",selectedExpertKey);
                               <p className="text-sm text-gray-500">
                                 {mentor.expertise}
                               </p>
-                             
                             </div>
-                             <div className="">
-                            <ChatWidget
-                              mentorName={mentor.name}
-                              mentorId={parseUser?.is_mentor?parseUser?.user_id:mentor.mentor_id}
-                      isOpen={openChatMentor === mentor.mentor_id}
-                      onToggle={() =>
-                        setOpenChatMentor(
-                          openChatMentor === mentor.mentor_id ? null : mentor.mentor_id
-                        )
-                      } 
-                      />
-
-                             </div>
-                            
+                            <div className="">
+                              <ChatWidget
+                                mentorName={mentor.name}
+                                mentorId={
+                                  parseUser?.is_mentor
+                                    ? parseUser?.user_id
+                                    : mentor.mentor_id
+                                }
+                                isOpen={openChatMentor === mentor.mentor_id}
+                                onToggle={() =>
+                                  setOpenChatMentor(
+                                    openChatMentor === mentor.mentor_id
+                                      ? null
+                                      : mentor.mentor_id
+                                  )
+                                }
+                              />
+                            </div>
                           </div>
-                         
                         </div>
-                       
-                      )))}
+                      ))}
                 </div>
 
                 {/* <div className="mt-6 flex justify-center">
@@ -1056,14 +1083,14 @@ console.log("SelectedExpertKey",selectedExpertKey);
                           <span>
                             {
                               selectedExpertData?.progress_summary
-                               ?.milestones_completed
+                                ?.milestones_completed
                             }
                           </span>
                         </div>
                         <div>
                           {
                             selectedExpertData?.progress_summary
-                             ?.progress_percentage
+                              ?.progress_percentage
                           }
                           %
                         </div>
@@ -1083,7 +1110,8 @@ console.log("SelectedExpertKey",selectedExpertKey);
                         Latest Feedback
                       </div>
                       <div className="text-sm text-gray-500">
-                        {selectedExpertData?.latest_feedback?.milestone ||"Not Available"}
+                        {selectedExpertData?.latest_feedback?.milestone ||
+                          "Not Available"}
                       </div>
                     </div>
                     {/* Milestones */}
@@ -1097,24 +1125,26 @@ console.log("SelectedExpertKey",selectedExpertKey);
               </ul>
             </div> */}
                       <ul className="text-sm text-gray-600 list-disc ml-5">
-                        {selectedExpertData?.milestones?.completed?.length>0?(
-                         selectedExpertData.milestones.completed.map(
-                          (milestone, index) => (
-                            <li key={index}>
-                              {/* {milestone.milestone} - {milestone.completion_date} */}
-                              {milestone.milestone} ({milestone.description}) -{" "}
-                              {milestone.completion_date
-                                ? new Date(
-                                    milestone.completion_date
-                                  ).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  })
-                                : "Not completed yet"}
-                            </li>
-                          )
-                        )):"Not Available"}
+                        {selectedExpertData?.milestones?.completed?.length > 0
+                          ? selectedExpertData.milestones.completed.map(
+                              (milestone, index) => (
+                                <li key={index}>
+                                  {/* {milestone.milestone} - {milestone.completion_date} */}
+                                  {milestone.milestone} ({milestone.description}
+                                  ) -{" "}
+                                  {milestone.completion_date
+                                    ? new Date(
+                                        milestone.completion_date
+                                      ).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })
+                                    : "Not completed yet"}
+                                </li>
+                              )
+                            )
+                          : "Not Available"}
                       </ul>
                     </div>
 
@@ -1161,13 +1191,22 @@ console.log("SelectedExpertKey",selectedExpertKey);
                     {/* </div>    */}
                   </>
                 ) : (
-                  <p className="flex justify-center font-semibold text-lg">Not Available</p>
+                  <p className="flex justify-center font-semibold text-lg">
+                    Not Available
+                  </p>
                 )}
               </div>
-            </div>: (parseUser?.is_mentor && assignedMenteesData.length===0?(<div className="mx-[5%]"><MilestoneFlowExpertTimeline /></div>):<div className="mx-[5%]"><MilestoneFlowTimeline setActivePage={setActivePage}/></div>)
-}
+            </div>
+          ) : parseUser?.is_mentor && assignedMenteesData.length === 0 ? (
+            <div className="mx-[5%]">
+              <MilestoneFlowExpertTimeline />
+            </div>
+          ) : (
+            <div className="mx-[5%]">
+              <MilestoneFlowTimeline setActivePage={setActivePage} />
+            </div>
+          )}
         </div>
-      
       </div>
     </div>
   );
