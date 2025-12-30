@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ChevronLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 interface Availability{
   day: string;
@@ -60,11 +62,24 @@ export default function CustomCalendar({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [pickedSlot, setPickedSlot] = useState<any>(null);
 
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const year = today.getFullYear();
-  const month = today.getMonth();
+const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+const [currentYear, setCurrentYear] = useState(today.getFullYear());
+
+
+  // const year = today.getFullYear();
+  // const month = today.getMonth();
+  const year = currentYear;
+const month = currentMonth;
+
+useEffect(() => {
+  setSelectedDate(null);
+  setPickedSlot(null);
+}, [currentMonth, currentYear]);
+
+
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -73,9 +88,46 @@ export default function CustomCalendar({
 
   return (
     <div className="p-4">
-      <h2 className="text-center font-semibold mb-4">
+      {/* <h2 className="text-center font-semibold mb-4">
         {today.toLocaleString("default", { month: "long" })} {year}
-      </h2>
+      </h2> */}
+
+<div className="flex justify-between items-center mb-4">
+  <button
+    onClick={() => {
+      if (currentMonth === 0) {
+        setCurrentMonth(11);
+        setCurrentYear((y) => y - 1);
+      } else {
+        setCurrentMonth((m) => m - 1);
+      }
+    }}
+    className="px-3 py-1 rounded bg-gray-200"
+  >
+    <ChevronLeft/>
+  </button>
+
+  <h2 className="font-semibold">
+    {new Date(year, month).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    })}
+  </h2>
+
+  <button
+    onClick={() => {
+      if (currentMonth === 11) {
+        setCurrentMonth(0);
+        setCurrentYear((y) => y + 1);
+      } else {
+        setCurrentMonth((m) => m + 1);
+      }
+    }}
+    className="px-3 py-1 rounded bg-gray-200"
+  >
+    <ChevronRight/>
+  </button>
+</div>
 
       <div className="grid grid-cols-7 gap-2 text-center !w-full">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
@@ -139,7 +191,7 @@ const isPast = dateObj < today;
   const [sh, sm] = t.start.split(":").map(Number);
   slotStart.setHours(sh, sm, 0, 0);
 
-  // 🚨 Only shift to next day if availability truly crosses midnight
+  //Only shift to next day if availability truly crosses midnight
   const isOvernight = slot.startTime > slot.endTime;
 
   if (isOvernight && sh < Number(slot.startTime.split(":")[0])) {

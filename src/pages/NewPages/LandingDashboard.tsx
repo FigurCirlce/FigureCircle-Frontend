@@ -678,6 +678,24 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
   const parseUser = user ? JSON.parse(user) : null;
   const parsedDegree = degree ? JSON.parse(degree) : null;
 
+  const ITEMS_PER_PAGE = 4;
+const [currentPage, setCurrentPage] = useState(1);
+const listData = parseUser?.is_mentor
+  ? assignedMenteesData
+  : assignedMentorData;
+const totalPages = Math.ceil(listData.length / ITEMS_PER_PAGE);
+
+const paginatedMentorData = assignedMenteesData.slice(
+  (currentPage - 1) * ITEMS_PER_PAGE,
+  currentPage * ITEMS_PER_PAGE
+);
+
+const paginatedMenteeData = assignedMentorData.slice(
+  (currentPage - 1) * ITEMS_PER_PAGE,
+  currentPage * ITEMS_PER_PAGE
+);
+
+
   // const { userData } = useUserContext();
 
   //  const fetchBasicInfo = async () => {
@@ -976,9 +994,9 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
                 </h2>
                 <div className="space-y-4 flex-1 md:w-[400px]">
                   {parseUser?.is_mentor
-                    ? assignedMenteesData.length < 1
+                    ? paginatedMentorData.length < 1
                       ? "No Assigned Mentor"
-                      : assignedMenteesData.map((user) => (
+                      : paginatedMentorData.map((user) => (
                           <div
                             key={user.user_id}
                             onClick={() => setSelectedExpertKey(user?.user_id)}
@@ -1015,9 +1033,9 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
                             </div>
                           </div>
                         ))
-                    : assignedMentorData.length < 1
+                    : paginatedMenteeData.length < 1
                     ? "No Assigned Mentor"
-                    : assignedMentorData.map((mentor) => (
+                    : paginatedMenteeData.map((mentor) => (
                         <div
                           key={mentor.mentor_id}
                           onClick={() => setSelectedExpertKey(mentor.mentor_id)}
@@ -1058,6 +1076,30 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
                           </div>
                         </div>
                       ))}
+                      {totalPages > 1 && (
+  <div className="flex justify-center gap-2 mt-4">
+    <button
+      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+      disabled={currentPage === 1}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    <span className="px-3 py-1 font-medium">
+      {currentPage} / {totalPages}
+    </span>
+
+    <button
+      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+      disabled={currentPage === totalPages}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+)}
+
                 </div>
 
                 {/* <div className="mt-6 flex justify-center">

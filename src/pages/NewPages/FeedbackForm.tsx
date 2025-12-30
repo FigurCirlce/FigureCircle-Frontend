@@ -8,7 +8,7 @@ import { useUserContext } from "../../components/context/userContext";
 // import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 interface StatusProps {
   label: string;
@@ -24,11 +24,18 @@ interface FeedbackCardProps {
 interface EmptyCardProps {
   title: string;
   message: string;
-  actionLabel: string;
+  // actionLabel: string;
+}
+interface Feedback {
+  user_id: number;
+  mentor_id: number;
+  check_meeting_id: number;
+  progress_rating: number;
+  // add only fields you actually use
 }
 
 
-const FeedbackUI = ({ feedbackData,myUserId }: { feedbackData: any[],myUserId:Number }) => {
+const FeedbackUI = ({ feedbackData,myUserId ,type}: { feedbackData: any[],myUserId:Number ,type:string}) => {
   
 
   const myFeedback = feedbackData.find((f) => f.user_id === myUserId);
@@ -42,13 +49,13 @@ const FeedbackUI = ({ feedbackData,myUserId }: { feedbackData: any[],myUserId:Nu
         <EmptyCard
           title="Your Feedback"
           message="You have not submitted feedback yet"
-          actionLabel="Submit Feedback"
+          // actionLabel="Submit Feedback"
         />
       )}
 
       {mentorFeedback ? (
         <FeedbackCard
-          title="Mentor Feedback"
+          title={type==="Mentor"?"Mentee Feedback":"Mentor Feedback"}
           data={mentorFeedback}
           type="Mentor"
         />
@@ -56,7 +63,7 @@ const FeedbackUI = ({ feedbackData,myUserId }: { feedbackData: any[],myUserId:Nu
         <EmptyCard
           title="Mentor Feedback"
           message="Mentor has not submitted feedback yet"
-          actionLabel="Send Reminder"
+          // actionLabel="Send Reminder"
         />
       )}
     </div>
@@ -72,7 +79,7 @@ function FeedbackCard({ title, data, type }:FeedbackCardProps) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">{title}</h2>
           <Badge variant={type === "You" ? "default" : "secondary"}>
-            {type}
+            {title.split(" ")[0]}
           </Badge>
         </div>
 
@@ -121,15 +128,15 @@ function FeedbackCard({ title, data, type }:FeedbackCardProps) {
   );
 }
 
-function EmptyCard({ title, message, actionLabel }:EmptyCardProps) {
+function EmptyCard({ title, message }:EmptyCardProps) {
   return (
     <Card className="rounded-2xl border-2 border-dashed">
       <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 text-center">
         <h2 className="text-lg font-semibold">{title}</h2>
         <p className="text-sm text-gray-500">{message}</p>
-        <Button variant="outline" size="sm">
+        {/* <Button variant="outline" size="sm">
           {actionLabel}
-        </Button>
+        </Button> */}
       </CardContent>
     </Card>
   );
@@ -157,12 +164,13 @@ const FeedbackForm: React.FC = () => {
   const [message, setMessage] = useState<boolean>(false);
   const [itemPending, setItemPending] = useState<"yes" | "no" | null>(null);
   const { scheduleData } = useUserContext();
-  const [feedbackData, setFeedbackData] = useState([]);
+  const [feedbackData, setFeedbackData] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(false);
   // const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
+  const parseUser=user?JSON.parse(user):null;
   const user_id = user ? JSON.parse(user)?.user_id : null;
 
   const growthOptions = [
@@ -199,9 +207,13 @@ const FeedbackForm: React.FC = () => {
     console.log("scheduleData---", scheduleData);
   }, []);
 
+  const myFeedback = feedbackData.find(
+  (f) => f.user_id === user_id
+);
+
+
   const handleSubmit = async () => {
-    const user = localStorage.getItem("user");
-    const parseUser = user ? JSON.parse(user) : null;
+   
     try {
       const dataToSend = {
         user_id: user_id,
@@ -259,6 +271,8 @@ const FeedbackForm: React.FC = () => {
     }
   };
 
+
+
   return (
     <>
       {message ? (
@@ -272,9 +286,9 @@ const FeedbackForm: React.FC = () => {
         <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
           <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
         </div>
-      ) : feedbackData.length > 0 ? (
+      ) : myFeedback ? (
         <div>
-          <FeedbackUI feedbackData={feedbackData} myUserId={user_id} />
+          <FeedbackUI feedbackData={feedbackData} myUserId={user_id} type={parseUser.is_mentor?"Mentor":"Mentee"} />
         </div>
       ) : (
         <div className="p-6 max-w-3xl mx-auto font-sans text-sm border-2 border-slate-300 rounded-md shadow-md shadow-slate-400 my-10 bg-blue-50">
@@ -291,14 +305,15 @@ const FeedbackForm: React.FC = () => {
               <div>
                 <div className="font-semibold text-lg">
                   {" "}
-                  {scheduleData ? scheduleData.mentor_name : null}
+                  {/* {scheduleData ? scheduleData.mentor_name : null} */}
+                  {parseUser.is_mentor?scheduleData?.name:scheduleData?.mentor_name}
                 </div>
-                <div className="text-gray-500 text-md">Mentor</div>
+                <div className="text-gray-500 text-md">{parseUser.is_mentor?"Mentee":"Mentor"}</div>
               </div>
             </div>
             <div className="text-gray-600 text-lg">
               <span className="font-medium !text-lg">Session Date:</span>{" "}
-              {scheduleData ? scheduleData.start_datetime.split("T")[0] : null}
+              {scheduleData ? new Date(scheduleData.start_datetime).toLocaleDateString("en-GB") : null}
             </div>
           </div>
 

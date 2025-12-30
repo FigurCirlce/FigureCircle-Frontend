@@ -199,7 +199,7 @@ function MentorCard({
           </button>
         ) : hasAssigned ? (
           <button
-           disabled={true}
+            disabled={true}
             className="px-3 py-1 text-xs rounded-lg border border-gray-300 hover:border-gray-500 bg-slate-200"
           >
             Assigned
@@ -326,12 +326,11 @@ function MentorInspector({
             >
               Schedule Call
             </button>
-          ) : hasAssigned?( <button
-             
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 hover:border-gray-500 bg-slate-200"
-            >
+          ) : hasAssigned ? (
+            <button className="w-full px-4 py-2 rounded-xl border border-gray-300 hover:border-gray-500 bg-slate-200">
               Assigned
-            </button>):(
+            </button>
+          ) : (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -708,7 +707,7 @@ const MentorsWireframe2 = () => {
       map[mentor.mentor_id] = true;
     });
     setAssignedMap(map);
-  }, [meetingData]);
+  }, [mentorsList]);
 
   useEffect(() => {
     if (!selectedId || !allMentorsData.length) return;
@@ -841,10 +840,24 @@ const MentorsWireframe2 = () => {
     }, 500);
   }, [allMentorsData]);
 
-  const handleSchedule = (mentorId: Number | null | undefined) => {
+  const fetchIntent = async (mentorId: Number | null | undefined) => {
+    try{
+    const res = await axios.get(
+      `${baseURL}/api/intentwithids?user_id=${userData?.user_id}&mentor_id=${mentorId}`
+    );
+    console.log("res--data",res.data);
+    setOpenDialog(true);
+  }catch(error){
+    console.log(error);
+     setIntentDialogOpen(true);
+  }
+  };
+
+  const handleSchedule = async (mentorId: Number | null | undefined) => {
     setSelectedId(mentorId);
     setDialogMentorId(mentorId);
-    setIntentDialogOpen(true);
+    await fetchIntent(mentorId);
+    // setIntentDialogOpen(true);
   };
 
   // const handleIntentSubmit = async (support: any, goalChallenge: any) => {
@@ -981,6 +994,7 @@ const MentorsWireframe2 = () => {
         notifyMeetingScheduledSuccess();
         // setDurationOpen(false);
         // setSelectedMentorId(null);
+        await fetchMeetingData();
 
         // setRefreshKey(Date.now());
         setSchedules((prev) => [
@@ -1196,6 +1210,12 @@ const MentorsWireframe2 = () => {
 
   const handleSuccess = () => {
     console.log("Payment Completed");
+    if (!mentorUserId) return;
+    setAssignedMap((prev) => ({
+      ...prev,
+      [mentorUserId]: true,
+    }));
+    fetchAssignedMentor();
   };
 
   const handleFailure = () => {
@@ -1540,9 +1560,9 @@ const MentorsWireframe2 = () => {
       >
         <DialogContent>
           <div className="w-full bg-white rounded-xl p-4">
-            <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
+            {/* <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
               Select the time
-            </div>
+            </div> */}
 
             <CustomCalendar
               onSelect={(slot) => setSelectedSlot(slot)}

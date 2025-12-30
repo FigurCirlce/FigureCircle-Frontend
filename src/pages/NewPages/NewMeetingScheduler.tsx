@@ -7,12 +7,15 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
+import { X } from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
 import FeedbackPopup from "@/components/NewPage/FeedbackPopup";
 import MilestonePopup from "@/components/NewPage/MilestonePopup";
+import { Dialog, DialogContent} from "@mui/material";
+import { Lightbulb } from 'lucide-react';
 
 // —— Types ——
 interface Mentor {
@@ -39,7 +42,20 @@ interface Schedule {
   mentor_phone?: string;
   mentor_linkedin?: string;
   timezone?: string;
+  
 }
+interface Intent {
+  id: number;
+  user_id: number;
+  mentor_id: number;
+  email: string;
+  useruniqid: string;
+  goal_challenge: string;
+  support_types: string;
+  area_exploring: string | null;
+  created_at: string;
+}
+
 
 interface Meeting {
   id: string;
@@ -61,6 +77,7 @@ interface Meeting {
   mentor_id: number;
   end_datetime: string;
   created_at: string;
+  intent:Intent;
 }
 
 interface Availability {
@@ -281,6 +298,63 @@ const parseTimeToDate = (date: Date, timeStr: string) => {
   return d;
 };
 
+
+
+const SupportDetailsCard=({
+  data,
+}: {
+  data: Intent | null;
+}) =>{
+console.log("dattaaaaa0----",data);
+  
+  return (
+    <div className="max-w-md rounded-2xl border bg-white p-5 shadow-sm space-y-3">
+      <h2 className="text-lg font-semibold text-gray-800 flex justify-center">
+        Submitted Intent Details
+      </h2>
+{data?
+      <div className="text-sm space-y-2">
+        {/* <p>
+          <span className="font-medium">Email:</span> {data?.email}
+        </p> */}
+
+        <p>
+          <span className="font-medium">Goal / Challenge:</span>{" "}
+          {data?.goal_challenge}
+        </p>
+
+        <p>
+          <span className="font-medium">Support Types:</span>{" "}
+          {data?.support_types}
+        </p>
+
+        <p>
+          <span className="font-medium">Area Exploring:</span>{" "}
+          {data?.area_exploring ?? "Not specified"}
+        </p>
+
+        {/* <p>
+          <span className="font-medium">Mentor ID:</span> {data.mentor_id}
+        </p>
+
+        <p>
+          <span className="font-medium">User ID:</span> {data.user_id}
+        </p> */}
+
+        <p className="text-gray-500 text-xs">
+          Created on{" "}
+          {new Date(data?.created_at).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
+        </p>
+      </div>
+      :<div className="flex justify-center">{"No Intent Found"}</div>}
+    </div>
+  );
+}
+
 const MeetingSchedulerPreview = () => {
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [refreshKey, setRefreshKey] = useState(false);
@@ -289,6 +363,8 @@ const MeetingSchedulerPreview = () => {
   const [selectedfeedbackData, setSelectedFeedbackData] = useState<any>([]);
   const [selectedMilestoneData, setSelectedMilestoneData] = useState<any>([]);
   const [mentorId, setMentorId] = useState("");
+  
+const [selectedIntent, setSelectedIntent] = useState<any>(null);
   // const [loading,setLoading]=useState(false);
   const [availability, setAvailability] = useState<Availability[]>([]);
   const token = localStorage.getItem("token");
@@ -377,6 +453,7 @@ const MeetingSchedulerPreview = () => {
       availability: Availability[];
     }[]
   >([]);
+  const[openIntentDialog,setOpenIntentDialog]=useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -1177,6 +1254,39 @@ const MeetingSchedulerPreview = () => {
                     <Video className="h-4 w-4" />
                     <span className="hidden sm:inline sm:text-base">Join</span>
                   </a>
+          <button
+        className="inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium hover:bg-gray-50"
+        onClick={() => {
+          setSelectedIntent(m.intent);
+          setOpenIntentDialog(true);
+        }}
+      >
+        <Lightbulb className="h-4 w-4" />
+        <span className="hidden sm:inline sm:text-base">Intent</span>
+      </button>
+
+      {/* Single Dialog */}
+      <Dialog
+        open={openIntentDialog}
+        onClose={() => setOpenIntentDialog(false)}
+        // fullWidth
+        // maxWidth="sm"
+       hideBackdrop
+      >
+        <DialogContent
+         className="relative"
+        >
+    
+        <X onClick={()=>setOpenIntentDialog(false)} className="absolute cursor-pointer top-0 right-0 text-red-500 font-bold"/>
+
+          {/* Dialog Body */}
+          {/* {selectedIntent && ( */}
+            <SupportDetailsCard data={selectedIntent} />
+          {/* )} */}
+        </DialogContent>
+      </Dialog>
+
+                
                   <button
                     className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
                     onClick={() =>
@@ -1260,7 +1370,7 @@ const MeetingSchedulerPreview = () => {
 
       {/* Sticky confirmation bar */}
       {selectedMentor && selectedDate && selectedSlot && (
-        <div className="fixed bottom-4 left-[60%] z-50 w-[min(900px,92vw)] -translate-x-1/2 rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-xl backdrop-blur">
+        <div className="fixed bottom-4 left-[50%] z-50 w-[min(900px,92vw)] -translate-x-1/2 rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-xl backdrop-blur">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="text-sm">
               <span className="font-semibold">Mentor:</span>{" "}
