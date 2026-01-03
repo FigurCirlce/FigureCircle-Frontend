@@ -25,6 +25,8 @@ interface FeedbackPopupProps {
   isOpen: boolean;
   onClose: () => void;
   feedbackData: FeedbackData;
+  userId:number;
+  userType:string
 }
 
 function convertDateTime(datetimeStr: string | number | Date): string {
@@ -41,7 +43,7 @@ function convertDateTime(datetimeStr: string | number | Date): string {
   return `${formattedDate} ${time}`;
 }
 
-const FeedbackPopup: React.FC<FeedbackPopupProps> = ({ isOpen, onClose, feedbackData }) => {
+const FeedbackPopup: React.FC<FeedbackPopupProps> = ({ isOpen, onClose, feedbackData ,userId,userType}) => {
   if (!isOpen) return null;
 
   const getProgressColor = (rating: number) => {
@@ -71,7 +73,7 @@ console.log("feedbackData----",feedbackData);
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">
-            Feedback Details - Meeting ID: {item.check_meeting_id}
+            {Number(item.check_id)===Number(userId)?'Your Feedback':userType?'Mentee Feedback':'Mentor Feedback'} Details - Meeting ID: {item.check_meeting_id}
           </h2>
           <button
             onClick={onClose}

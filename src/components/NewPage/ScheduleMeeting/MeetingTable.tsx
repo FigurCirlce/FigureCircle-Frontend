@@ -88,10 +88,13 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id, refreshKey }) => {
       return null; // return null if no meeting ID found
     }
   }
-
-  const fetchMeetingData = async () => {
-    const user = localStorage.getItem("user");
+const user = localStorage.getItem("user");
     const parsedUserData = user ? JSON.parse(user) : null;
+    const degree=localStorage.getItem("degree");
+    const parsedDegree=degree?JSON.parse(degree):null;
+  const fetchMeetingData = async () => {
+    // const user = localStorage.getItem("user");
+    // const parsedUserData = user ? JSON.parse(user) : null;
 
     console.log("user_id FetchMeetingData----", user_id);
     try {
@@ -274,6 +277,8 @@ const MeetingTable: React.FC<MeetingTableProps> = ({ user_id, refreshKey }) => {
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
         feedbackData={selectedfeedbackData}
+      userId={parsedUserData?.is_mentor?parsedDegree?.mentor_id:parsedUserData?.user_id}
+                    userType={parsedUserData?.is_mentor}
       />
     </div>
   );

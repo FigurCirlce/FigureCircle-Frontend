@@ -1327,6 +1327,8 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                     isOpen={isPopupOpen}
                     onClose={() => setIsPopupOpen(false)}
                     feedbackData={selectedfeedbackData}
+                    userId={parsedUserData?.is_mentor?parsedDegree?.mentor_id:parsedUserData?.user_id}
+                    userType={parsedUserData?.is_mentor}
                   />
                 </div>
               </div>
