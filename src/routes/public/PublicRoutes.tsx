@@ -18,7 +18,8 @@ import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 // import SocketTest from '@/components/NewPage/Notification';
 // import MentorsWireframe from '@/pages/NewPages/MentorNewPages';
 // import MentorsWireframe1 from '@/pages/NewPages/MentorPages';
-import NewRecommendMentor from '@/pages/NewPages/NewRecommendMentor';
+// import NewRecommendMentor from '@/pages/NewPages/NewRecommendMentor';
+import MilestoneRoadmapPreview from '@/pages/NewPages/TrialNewMilestone';
 
 
 // import Dashboard from '../../pages/NewPages/Dashboard'
@@ -86,7 +87,8 @@ const PublicRoutes = [
         {
             path:`/test`,
             // component:<MentorsWireframe/>
-            component:<NewRecommendMentor/>
+            // component:<NewRecommendMentor/>
+            component:<MilestoneRoadmapPreview/>
         },
         //  {
         //     path:`/test`,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -372,6 +372,17 @@ const ProfileRecWidget = () => {
     }
   };
 
+  const allRoles = useMemo(() => {
+  if (
+    profile.dreamRole &&
+    !role_options.includes(profile.dreamRole)
+  ) {
+    return [profile.dreamRole, ...role_options];
+  }
+  return role_options;
+}, [profile.dreamRole, role_options]);
+
+
   useEffect(() => {
     fetchIndustryData();
     fetchExperienceData();
@@ -581,8 +592,8 @@ const ProfileRecWidget = () => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Popular Roles</SelectLabel>
-                          {role_options.map((r: string) => (
-                            <SelectItem key={r} value={r}>
+                          {allRoles.map((r: string) => (
+                            <SelectItem key={r} value={r }>
                               {r}
                             </SelectItem>
                           ))}

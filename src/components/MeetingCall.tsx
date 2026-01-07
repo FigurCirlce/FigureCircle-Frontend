@@ -1,12 +1,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
-import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users, Pin, PinOff } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users } from 'lucide-react';
 import axios from 'axios';
 import baseURL from '@/config/config';
 import { toast } from 'react-toastify';
 import { useUserContext } from './context/userContext';
-
+import { Maximize } from 'lucide-react';
+import { Minimize } from 'lucide-react';
 interface MeetingCallProps {
   roomId: string;
   password: string;
@@ -441,7 +442,7 @@ setMilestoneUserId(userIdSegment);
                 onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
                 className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
               >
-                {isScreenSharePinned ? <PinOff size={20} /> : <Pin size={20} />}
+                {isScreenSharePinned ? <Minimize size={20} /> : <Maximize size={20} />}
               </button>
             </div> 
             <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">

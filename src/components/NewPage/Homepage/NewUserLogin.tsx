@@ -224,6 +224,19 @@ interface EducationItem {
   updated_at: string;
 }
 
+const getMinExperience = (description: string) => {
+  const match = description.match(/\d+/);
+  return match ? parseInt(match[0], 10) : Infinity;
+};
+
+const sortByExperience = (arr: any) =>
+  [...arr].sort(
+    (a, b) =>
+      getMinExperience(a.description) -
+      getMinExperience(b.description)
+  );
+
+
 const RegistrationFlow: React.FC<any> = () => {
   const [step, setStep] = useState(1);
   const [profileType, setProfileType] = useState<string | null>("student");
@@ -234,6 +247,8 @@ const RegistrationFlow: React.FC<any> = () => {
   const [Recommendations, setRecommendations] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+const [customRole, setCustomRole] = useState("");
 
   const [selectedRole, setSelectedRole] = useState("");
   //@ts-ignore
@@ -464,7 +479,11 @@ const RegistrationFlow: React.FC<any> = () => {
         "response-data--api/experience-level",
         response.data.experience_level
       );
-      setExperienceArray(response.data.experience_level);
+      console.log("experience--level",response.data.experience_level);
+      const data=response.data.experience_level;
+      const sorted=sortByExperience(data);
+      console.log("sortedddd----data",sorted);
+      setExperienceArray(sorted);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -937,6 +956,7 @@ const RegistrationFlow: React.FC<any> = () => {
                 onClick={() => {
                   // setSelectedRole(role)
                   setSelectedRole(selectedRole === role ? "" : role);
+                   setCustomRole("");  
                 }}
               >
                 {role}
@@ -946,6 +966,12 @@ const RegistrationFlow: React.FC<any> = () => {
           <input
             className="border p-2 rounded w-full mt-4"
             placeholder="Or type your own role"
+           value={customRole}
+      onChange={(e) => {
+        const value = e.target.value;
+        setCustomRole(value);
+        setSelectedRole(value); 
+      }}
           />
           <div className="flex justify-between mt-4">
             <button
