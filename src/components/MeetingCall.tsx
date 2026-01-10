@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
-import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import baseURL from '@/config/config';
 import { toast } from 'react-toastify';
@@ -22,7 +22,7 @@ interface PeerData {
 
 //@ts-ignore
 const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
- 
+
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [peers, setPeers] = useState<Map<string, PeerData>>(new Map());
@@ -37,13 +37,18 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
   const [screenSharingPeerId, setScreenSharingPeerId] = useState<string | null>(null);
   const screenVideoRef = useRef<HTMLVideoElement>(null);
   const [isScreenSharePinned, setIsScreenSharePinned] = useState(false);
+
+  // NEW: Track multiple screen sharers
+  const [activeScreenSharers, setActiveScreenSharers] = useState<Set<string>>(new Set());
+  const [screenShareStreams, setScreenShareStreams] = useState<Map<string, MediaStream>>(new Map());
+  const [displayedScreenShareId, setDisplayedScreenShareId] = useState<string | null>(null);
   const [schudle, setSchudle] = useState<any>();
   const [milestoneUrl, setMilestoneUrl] = useState("");
   const [feedbackUrl, setFeedbackUrl] = useState("");
-  const [milestoneUserId,setMilestoneUserId]=useState<number|null>(null);
+  const [milestoneUserId, setMilestoneUserId] = useState<number | null>(null);
 
-   const { setSchedule } = useUserContext();
-  
+  const { setSchedule } = useUserContext();
+
   useEffect(() => {
     const url = new URL(window.location.href);
     // const pathSegments = url.pathname.split("/").filter(Boolean);
@@ -66,9 +71,9 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
         });
 
         if (response.data) {
-          console.log("milestone--data",response.data);
+          console.log("milestone--data", response.data);
           setSchudle(response.data);
-           setSchedule(response.data);
+          setSchedule(response.data);
         } else {
           // if (lastSegment) {
           //   setMilestoneUrl(`/milestoneform/${lastSegment}`);
@@ -94,8 +99,8 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
     // Split & remove empty values
     // console.log("pathSegments", pathSegmentUrl)
     const lastSegment = pathSegments[pathSegments.length - 2]; // Get the last segment (e.g., "460")
-const userIdSegment=Number(pathSegments[pathSegments.length - 1]);
-setMilestoneUserId(userIdSegment);
+    const userIdSegment = Number(pathSegments[pathSegments.length - 1]);
+    setMilestoneUserId(userIdSegment);
     const fetchvalidationmiletone = async () => {
       const token = localStorage.getItem('token');
 
@@ -127,7 +132,7 @@ setMilestoneUserId(userIdSegment);
         if (lastSegment) {
           console.log(lastSegment);
           //  setMilestoneUrl(`/milestoneform/${lastSegment}`);
-             setMilestoneUrl(`/new-milestone/${lastSegment}/${milestoneUserId}`);
+          setMilestoneUrl(`/new-milestone/${lastSegment}/${milestoneUserId}`);
           //  setMilestoneUrl(`/new-milestone`);
           setFeedbackUrl(`/newFeedback/${lastSegment}`);
         }
@@ -161,7 +166,7 @@ setMilestoneUserId(userIdSegment);
         if (isHost && peer) {
           peer.on('call', (call) => {
             call.answer(stream);
-            console.log("hostttttt",peer);
+            console.log("hostttttt", peer);
             handleIncomingCall(call);
           });
         }
@@ -265,7 +270,7 @@ setMilestoneUserId(userIdSegment);
 
     // Navigate to dashboard
     // window.location.href = '/';
-     window.location.href = '/dashboard';
+    window.location.href = '/dashboard';
   };
 
   const startScreenSharing = async () => {
@@ -278,11 +283,21 @@ setMilestoneUserId(userIdSegment);
         },
         audio: false
       });
-      
+
       // Set local screen sharing state
       setScreenSharingStream(stream);
       setIsScreenSharing(true);
       setScreenSharingPeerId(peer?.id || null);
+
+      // NEW: Auto-pin on screen share start
+      setIsScreenSharePinned(true);
+
+      // NEW: Track this as an active screen sharer
+      if (peer?.id) {
+        setActiveScreenSharers(prev => new Set([...prev, peer.id]));
+        setScreenShareStreams(prev => new Map(prev).set(peer.id, stream));
+        setDisplayedScreenShareId(peer.id);
+      }
 
       // Set the stream to local screen video
       if (screenVideoRef.current) {
@@ -297,7 +312,7 @@ setMilestoneUserId(userIdSegment);
           // Create a new peer connection for screen sharing
           //@ts-ignore
           //metadata type should be added
-          const screenSharingCall = peer?.call(call.peer, stream,{
+          const screenSharingCall = peer?.call(call.peer, stream, {
             metadata: { type: "screenShare" }
           });
 
@@ -338,6 +353,31 @@ setMilestoneUserId(userIdSegment);
       setIsScreenSharing(false);
       setScreenSharingPeerId(null);
 
+      // NEW: Remove from active sharers
+      if (peer?.id) {
+        setActiveScreenSharers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(peer.id);
+          return newSet;
+        });
+        setScreenShareStreams(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(peer.id);
+          return newMap;
+        });
+
+        // If we were displaying this screen share, switch to another or unpin
+        if (displayedScreenShareId === peer.id) {
+          const remainingSharers = Array.from(activeScreenSharers).filter(id => id !== peer.id);
+          if (remainingSharers.length > 0) {
+            setDisplayedScreenShareId(remainingSharers[0]);
+          } else {
+            setDisplayedScreenShareId(null);
+            setIsScreenSharePinned(false);
+          }
+        }
+      }
+
       // Notify all peers that screen sharing has stopped
       peers.forEach(({ call }) => {
         if (peer) {
@@ -364,10 +404,37 @@ setMilestoneUserId(userIdSegment);
         if (data.type === 'screenShare') {
           if (data.action === 'start') {
             setScreenSharingPeerId(data.peerId);
+            // NEW: Auto-pin when first screen share starts
             setIsScreenSharePinned(true);
+
+            // NEW: Add to active sharers
+            setActiveScreenSharers(prev => new Set([...prev, data.peerId]));
+            if (!displayedScreenShareId) {
+              setDisplayedScreenShareId(data.peerId);
+            }
           } else if (data.action === 'stop') {
-            setScreenSharingPeerId(null);
-            setIsScreenSharePinned(false);
+            // NEW: Remove from active sharers
+            setActiveScreenSharers(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(data.peerId);
+              return newSet;
+            });
+            setScreenShareStreams(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(data.peerId);
+              return newMap;
+            });
+
+            // Check if there are any remaining sharers
+            const remainingSharers = Array.from(activeScreenSharers).filter(id => id !== data.peerId);
+            if (remainingSharers.length > 0) {
+              setDisplayedScreenShareId(remainingSharers[0]);
+              setScreenSharingPeerId(remainingSharers[0]);
+            } else {
+              setScreenSharingPeerId(null);
+              setIsScreenSharePinned(false);
+              setDisplayedScreenShareId(null);
+            }
           }
         }
       });
@@ -379,18 +446,25 @@ setMilestoneUserId(userIdSegment);
         call.on('stream', (remoteStream) => {
           // Check if this is a screen sharing stream
           if (call.metadata?.type === 'screenShare') {
-            
-            // if (screenVideoRef.current) {
-            //   screenVideoRef.current.srcObject = remoteStream;
-            // }
+
+            // NEW: Store screen share stream
+            setScreenShareStreams(prev => new Map(prev).set(call.peer, remoteStream));
+            setActiveScreenSharers(prev => new Set([...prev, call.peer]));
+
+            // Set as displayed if it's the first one
+            if (!displayedScreenShareId) {
+              setDisplayedScreenShareId(call.peer);
+              // Auto-pin on first screen share
+              setIsScreenSharePinned(true);
+            }
 
             // Not Setting remoteStream Immediately
             setTimeout(() => {
-              if (screenVideoRef.current) {
+              if (screenVideoRef.current && call.peer === displayedScreenShareId) {
                 screenVideoRef.current.srcObject = remoteStream;
               }
             }, 100);
-            
+
             setScreenSharingPeerId(call.peer);
           } else {
             // Handle regular video stream
@@ -405,54 +479,119 @@ setMilestoneUserId(userIdSegment);
           }
         });
       }
-      else{
+      else {
         console.log("localstream not working--------")
       }
     });
-  }, [peer, localStream,screenVideoRef]);
+  }, [peer, localStream, screenVideoRef]);
 
   //setting screen share 
   useEffect(() => {
-    if (isScreenSharing && screenVideoRef.current && screenSharingStream) {
+    // For local screen sharing
+    if (isScreenSharing && screenVideoRef.current && screenSharingStream && displayedScreenShareId === peer?.id) {
       screenVideoRef.current.srcObject = screenSharingStream;
-      console.log("Screen sharing stream set successfully!");
+      console.log("Local screen sharing stream set successfully!");
     }
-  }, [isScreenSharing, screenSharingStream]);
- 
-  
-  
+    // For remote screen sharing
+    else if (displayedScreenShareId && screenVideoRef.current) {
+      const displayedStream = screenShareStreams.get(displayedScreenShareId);
+      if (displayedStream) {
+        screenVideoRef.current.srcObject = displayedStream;
+        console.log("Remote screen sharing stream set successfully!");
+      }
+    }
+  }, [isScreenSharing, screenSharingStream, displayedScreenShareId, screenShareStreams, peer?.id]);
+
+
+
+
+  // Function to switch between screen shares
+  const switchScreenShare = (peerId: string) => {
+    setDisplayedScreenShareId(peerId);
+    const stream = screenShareStreams.get(peerId);
+    if (stream && screenVideoRef.current) {
+      screenVideoRef.current.srcObject = stream;
+    }
+  };
+
+  // Function to cycle to next screen share
+  const cycleToNextScreenShare = () => {
+    const sharers = Array.from(activeScreenSharers);
+    if (sharers.length <= 1) return;
+
+    const currentIndex = sharers.indexOf(displayedScreenShareId || '');
+    const nextIndex = (currentIndex + 1) % sharers.length;
+    switchScreenShare(sharers[nextIndex]);
+  };
+
+  // Function to cycle to previous screen share
+  const cycleToPrevScreenShare = () => {
+    const sharers = Array.from(activeScreenSharers);
+    if (sharers.length <= 1) return;
+
+    const currentIndex = sharers.indexOf(displayedScreenShareId || '');
+    const prevIndex = (currentIndex - 1 + sharers.length) % sharers.length;
+    switchScreenShare(sharers[prevIndex]);
+  };
 
   const renderParticipantVideos = () => {
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Screen sharing video */}
         {(isScreenSharing || screenSharingPeerId) && (
           // <div className={`relative bg-black rounded-lg overflow-hidden ${isScreenSharePinned ? 'col-span-full row-span-2' : ''
           //   }`}>
-              <div className={`relative bg-black rounded-lg overflow-hidden ${isScreenSharePinned ? 'col-span-full ' : ''
+          <div className={`relative bg-black rounded-lg overflow-hidden ${isScreenSharePinned ? 'col-span-full ' : ''
             }`}>
             <video
               ref={screenVideoRef}
               autoPlay
               playsInline
-              className={`w-full  ${isScreenSharePinned ? 'h-[82vh]':'h-[240px]'} object-contain`}
+              className={`w-full  ${isScreenSharePinned ? 'h-[82vh]' : 'h-[240px]'} object-contain`}
             />
-            <div className="absolute top-2 right-2 z-10">
+            <div className="absolute top-2 right-2 z-10 flex gap-2">
+              {/* Multi-screen share navigation arrows */}
+              {activeScreenSharers.size > 1 && (
+                <>
+                  <button
+                    onClick={cycleToPrevScreenShare}
+                    className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
+                    title="Previous screen share"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={cycleToNextScreenShare}
+                    className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
+                    title="Next screen share"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
                 className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
               >
                 {isScreenSharePinned ? <Minimize size={20} /> : <Maximize size={20} />}
               </button>
-            </div> 
-            <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-              Screen Share {screenSharingPeerId === peer?.id ? '(You)' : ''}
+            </div>
+            <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded flex items-center gap-2">
+              <span>
+                Screen Share {displayedScreenShareId === peer?.id ? '(You)' : ''}
+              </span>
+              {activeScreenSharers.size > 1 && (
+                <span className="text-xs bg-blue-600 px-2 py-0.5 rounded">
+                  {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1} of {activeScreenSharers.size}
+                </span>
+              )}
             </div>
           </div>
         )}
 
         {/* Local video */}
-        <div className={` bg-black rounded-lg overflow-hidden ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ?'absolute top-[23rem] right-10 w-[220px] h-[140px]':'relative'}` }>
+        <div className={` bg-black rounded-lg overflow-hidden ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? 'absolute top-[23rem] right-10 w-[220px] h-[140px]' : 'relative'}`}>
           <video
             ref={localVideoRef}
             autoPlay
@@ -503,83 +642,83 @@ setMilestoneUserId(userIdSegment);
   return (
     <div className="min-h-screen bg-gray-900 p-4 relative">
       <div className="max-w-7xl mx-auto min-h-screen ">
-        { (isScreenSharing || screenSharingPeerId) && isScreenSharePinned?(
+        {(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? (
           <>
             <div className="flex items-center text-gray-300 absolute top-5 z-10">
-            <Users className="mr-2" size={20} />
-            <span>{participants.size} / {MAX_PARTICIPANTS} participants</span>
-          </div>
-          <div className='flex flex-col gap-3 absolute top-10 right-8 z-10'>
-          <div className="p-4 bg-gray-100 rounded-lg shadow-md">
-          
-          <p className="text-sm text-gray-600">Milestone URL:</p>
-          <a
-            href={milestoneUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 font-medium underline hover:text-blue-700"
-          >
-            Click here to open
-          </a>
-        </div>
-        <div className="p-4 bg-gray-100 rounded-lg shadow-md">
-          
-          <p className="text-sm text-gray-600">Milestone URL:</p>
-          <a
-            href={milestoneUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 font-medium underline hover:text-blue-700"
-          >
-            Click here to open
-          </a>
-        </div>
+              <Users className="mr-2" size={20} />
+              <span>{participants.size} / {MAX_PARTICIPANTS} participants</span>
             </div>
-        </>
-        ):(
-        <div className="mb-4 flex items-center justify-between ">
-          <div className="flex items-center text-gray-300">
-            <Users className="mr-2" size={20} />
-            <span>{participants.size} / {MAX_PARTICIPANTS} participants</span>
-          </div>
+            <div className='flex flex-col gap-3 absolute top-10 right-8 z-10'>
+              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
 
-          <div className='flex flex-col items-center gap-3'>
-            <div className="p-4 bg-gray-100 rounded-lg shadow-md">
-          
-              <p className="text-sm text-gray-600">Milestone URL:</p>
-              <a
-                href={milestoneUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 font-medium underline hover:text-blue-700"
-              >
-                Click here to open
-              </a>
+                <p className="text-sm text-gray-600">Milestone URL:</p>
+                <a
+                  href={milestoneUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 font-medium underline hover:text-blue-700"
+                >
+                  Click here to open
+                </a>
+              </div>
+              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+
+                <p className="text-sm text-gray-600">Milestone URL:</p>
+                <a
+                  href={milestoneUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 font-medium underline hover:text-blue-700"
+                >
+                  Click here to open
+                </a>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="mb-4 flex items-center justify-between ">
+            <div className="flex items-center text-gray-300">
+              <Users className="mr-2" size={20} />
+              <span>{participants.size} / {MAX_PARTICIPANTS} participants</span>
             </div>
 
-            <div className="p-4 bg-gray-100 rounded-lg shadow-md">
-          
-              <p className="text-sm text-gray-600">Feedback</p>
-              <a
-                href={feedbackUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 font-medium underline hover:text-blue-700"
-              >
-                Click here to open
-              </a>
-            </div>
-          </div>
+            <div className='flex flex-col items-center gap-3'>
+              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
 
-          {/* {(isScreenSharing || screenSharingPeerId) && (
+                <p className="text-sm text-gray-600">Milestone URL:</p>
+                <a
+                  href={milestoneUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 font-medium underline hover:text-blue-700"
+                >
+                  Click here to open
+                </a>
+              </div>
+
+              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+
+                <p className="text-sm text-gray-600">Feedback</p>
+                <a
+                  href={feedbackUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 font-medium underline hover:text-blue-700"
+                >
+                  Click here to open
+                </a>
+              </div>
+            </div>
+
+            {/* {(isScreenSharing || screenSharingPeerId) && (
             <div className="text-gray-300">
               <span className="text-sm">
                 {screenSharingPeerId === peer?.id ? "You are" : "Participant is"} sharing screen
               </span>
             </div>
           )} */}
-        </div>
-      )}
+          </div>
+        )}
         {renderParticipantVideos()}
 
         {/* Controls */}
