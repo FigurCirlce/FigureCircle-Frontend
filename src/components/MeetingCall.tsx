@@ -13,6 +13,7 @@ interface MeetingCallProps {
   password: string;
   isHost: boolean;
   peer: Peer | null;
+  actualHostId?: string; // The actual host peer ID for participant connections
 }
 
 interface PeerData {
@@ -21,7 +22,9 @@ interface PeerData {
 }
 
 //@ts-ignore
-const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
+const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCallProps) => {
+  // Use actualHostId for connections if available, otherwise fall back to roomId
+  const hostPeerId = actualHostId || roomId;
 
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -47,7 +50,26 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
   const [feedbackUrl, setFeedbackUrl] = useState("");
   const [milestoneUserId, setMilestoneUserId] = useState<number | null>(null);
 
+  // Get user name from localStorage
+  const [myName, setMyName] = useState<string>('You');
+  const [participantName, setParticipantName] = useState<string>('Participant');
+
   const { setSchedule } = useUserContext();
+
+  // Load user name from localStorage on mount
+  useEffect(() => {
+    try {
+      const userDataStr = localStorage.getItem('user');
+      if (userDataStr) {
+        const userData = JSON.parse(userDataStr);
+        // Try to get name from different possible fields
+        const name = userData?.name || userData?.full_name || userData?.username || 'You';
+        setMyName(name);
+      }
+    } catch (e) {
+      console.log('Could not get user name from localStorage');
+    }
+  }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -74,6 +96,18 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
           console.log("milestone--data", response.data);
           setSchudle(response.data);
           setSchedule(response.data);
+
+          // Set participant name from schedule data
+          // If I'm mentor, participant is the student (name). If I'm student, participant is mentor (mentor_name)
+          const userDataStr = localStorage.getItem('user');
+          const userData = userDataStr ? JSON.parse(userDataStr) : null;
+          const isMentor = userData?.is_mentor === true;
+
+          if (isMentor) {
+            setParticipantName(response.data?.name || 'Mentee');
+          } else {
+            setParticipantName(response.data?.mentor_name || 'Mentor');
+          }
         } else {
           // if (lastSegment) {
           //   setMilestoneUrl(`/milestoneform/${lastSegment}`);
@@ -150,47 +184,101 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
   // Initialize local media stream
   useEffect(() => {
     const initializeMedia = async () => {
+      let stream: MediaStream | null = null;
+
+      // Try to get video and audio
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true
         });
+        console.log('✅ Got video and audio stream');
+      } catch (videoError) {
+        console.warn('Video/audio failed, trying audio only:', videoError);
 
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-        }
-
-        setLocalStream(stream);
-
-        // If we're the host, initialize accepting calls
-        if (isHost && peer) {
-          peer.on('call', (call) => {
-            call.answer(stream);
-            console.log("hostttttt", peer);
-            handleIncomingCall(call);
+        // Try audio only
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: false,
+            audio: true
           });
-        }
+          console.log('✅ Got audio-only stream');
+        } catch (audioError) {
+          console.warn('Audio failed too:', audioError);
 
-        // If we're a participant, call the host
-        if (!isHost && peer && stream) {
-          console.log('Calling host:', roomId);
-          const call = peer.call(roomId, stream);
-          handleIncomingCall(call);
+          // Create a silent audio stream as fallback
+          try {
+            const audioContext = new AudioContext();
+            const oscillator = audioContext.createOscillator();
+            const destination = audioContext.createMediaStreamDestination();
+            oscillator.connect(destination);
+            oscillator.frequency.value = 0; // Silent
+            oscillator.start();
+            stream = destination.stream;
+            console.log('⚠️ Using silent fallback stream');
+          } catch (fallbackError) {
+            console.error('Could not create any stream:', fallbackError);
+          }
         }
-      } catch (error) {
-        console.error('Error accessing media devices:', error);
-        alert('Unable to access camera or microphone. Please check your permissions.');
+      }
+
+      if (stream && localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+
+      if (stream) {
+        setLocalStream(stream);
+      }
+
+      // ALWAYS set up call handlers, even without a stream
+      if (isHost && peer) {
+        console.log('🎯 HOST: Setting up call listener');
+        peer.on('call', (incomingCall) => {
+          console.log('📞 HOST: Received call from:', incomingCall.peer);
+          if (stream) {
+            incomingCall.answer(stream);
+          } else {
+            // Answer with no stream if we don't have one
+            incomingCall.answer();
+          }
+          handleIncomingCall(incomingCall);
+        });
+      }
+
+      // If we're a participant, call the host
+      if (!isHost && peer) {
+        console.log('📞 PARTICIPANT: Calling host at:', hostPeerId);
+
+        // Wait a bit to ensure host is ready
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+          const call = stream
+            ? peer.call(hostPeerId, stream)
+            : peer.call(hostPeerId, new MediaStream()); // Call with empty stream if no media
+
+          if (call) {
+            console.log('✅ PARTICIPANT: Call initiated to host');
+            handleIncomingCall(call);
+          } else {
+            console.error('❌ PARTICIPANT: peer.call returned null');
+          }
+        } catch (callError) {
+          console.error('❌ PARTICIPANT: Error calling host:', callError);
+        }
       }
     };
 
-    initializeMedia();
+    if (peer) {
+      initializeMedia();
+    }
 
     return () => {
       if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isHost, peer, roomId]);
+  }, [isHost, peer, hostPeerId]);
 
   const handleIncomingCall = (call: MediaConnection) => {
     call.on('stream', (remoteStream: MediaStream) => {
@@ -579,7 +667,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
             </div>
             <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded flex items-center gap-2">
               <span>
-                Screen Share {displayedScreenShareId === peer?.id ? '(You)' : ''}
+                📺 {displayedScreenShareId === peer?.id ? `${myName} (You)` : `${participantName}'s Screen`}
               </span>
               {activeScreenSharers.size > 1 && (
                 <span className="text-xs bg-blue-600 px-2 py-0.5 rounded">
@@ -600,7 +688,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
             className="w-full h-[240px] object-cover"
           />
           <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-            You {isHost ? "(Host)" : ""}
+            {myName} {isHost ? "(Host)" : ""}
           </div>
         </div>
 
@@ -631,7 +719,7 @@ const MeetingCall = ({ roomId, password, isHost, peer }: MeetingCallProps) => {
               </button>
             </div>*/}
             <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-              Participant
+              {participantName}
             </div>
           </div>
         ))}

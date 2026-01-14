@@ -1,17 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import Peer, { DataConnection } from 'peerjs';
-import { useNavigate } from 'react-router-dom';
+import Peer from 'peerjs';
+import { useNavigate, useParams } from 'react-router-dom';
 import MeetingCall from '@/components/MeetingCall';
 //@ts-ignore
 import CryptoJS from 'crypto-js';
-//@ts-ignore
-import { DateTime } from 'luxon';
-
-//@ts-ignore
-interface PeerConnection {
-    peer: string;
-    conn: DataConnection;
-}
 
 const MeetingCallHandler = () => {
     const [roomId, setRoomId] = useState('');
@@ -19,39 +11,19 @@ const MeetingCallHandler = () => {
     const [isHost, setIsHost] = useState(false);
     const [joinedRoom, setJoinedRoom] = useState(false);
     const [error, setError] = useState('');
+    const [hostPeerId, setHostPeerId] = useState('');
     const navigate = useNavigate();
     const secretKey = 'meetingkeys';
     const peerRef = useRef<Peer | null>(null);
-    const connectionAttempts = useRef(0);
-    const MAX_RETRIES = 3;
-    const RETRY_DELAY = 2000;
-    const MAX_RECONNECTION_ATTEMPTS = 5;
 
-    // Function to handle peer connection errors and reconnection
-    const handlePeerError = async (peer: Peer, error: Error) => {
-        console.error('Peer connection error:', error);
+    // Get meeting ID from URL path
+    const { id: meetingId, userId: urlUserId } = useParams();
 
-        if (connectionAttempts.current < MAX_RECONNECTION_ATTEMPTS) {
-            connectionAttempts.current += 1;
-            console.log(`Attempting reconnection ${connectionAttempts.current}/${MAX_RECONNECTION_ATTEMPTS}`);
-
-            try {
-                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-                peer.reconnect();
-            } catch (reconnectError) {
-                console.error('Reconnection failed:', reconnectError);
-                if (connectionAttempts.current === MAX_RECONNECTION_ATTEMPTS) {
-                    setError('Failed to connect to the room after multiple attempts');
-                }
-            }
-        } else {
-            setError('Connection to room failed');
-        }
-    };
-
-    // Function to create and setup a new peer connection
-    const setupPeer = (peerId: string): Promise<Peer> => {
+    // Create a peer with the given ID
+    const createPeer = (peerId: string): Promise<Peer> => {
         return new Promise((resolve, reject) => {
+            console.log('🔄 Creating peer with ID:', peerId);
+
             const peer = new Peer(peerId, {
                 host: '0.peerjs.com',
                 secure: true,
@@ -60,134 +32,56 @@ const MeetingCallHandler = () => {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
                         { urls: 'stun:stun1.l.google.com:19302' },
-                        { urls: 'stun:global.stun.twilio.com:3478' }
                     ]
                 },
                 debug: 2
             });
 
             const timeout = setTimeout(() => {
+                console.log('❌ Peer creation timeout for:', peerId);
                 peer.destroy();
                 reject(new Error('Peer creation timeout'));
             }, 15000);
 
-            peer.on('open', () => {
+            peer.on('open', (id) => {
                 clearTimeout(timeout);
-                console.log('Peer connection established:', peerId);
+                console.log('✅ Peer opened with ID:', id);
                 resolve(peer);
             });
 
             peer.on('error', (err) => {
                 clearTimeout(timeout);
-                handlePeerError(peer, err);
+                console.log('❌ Peer error:', err.type, err.message);
+                // Don't destroy immediately for unavailable-id, just reject
+                if (err.type !== 'unavailable-id') {
+                    peer.destroy();
+                }
                 reject(err);
             });
-
-            peer.on('disconnected', () => {
-                console.log('Peer disconnected, attempting to reconnect...');
-                peer.reconnect();
-            });
         });
-    };
-
-    // Function to verify room existence
-    const verifyRoom = async (roomId: string): Promise<boolean> => {
-        try {
-            const tempPeerId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-            const tempPeer = await setupPeer(tempPeerId);
-
-            return new Promise((resolve) => {
-                const conn = tempPeer.connect(roomId, {
-                    reliable: true,
-                    metadata: { type: 'roomCheck' }
-                });
-
-                const timeout = setTimeout(() => {
-                    tempPeer.destroy();
-                    resolve(false);
-                }, 5000);
-
-                conn.on('open', () => {
-                    clearTimeout(timeout);
-                    tempPeer.destroy();
-                    resolve(true);
-                });
-
-                conn.on('error', () => {
-                    clearTimeout(timeout);
-                    tempPeer.destroy();
-                    resolve(false);
-                });
-            });
-        } catch {
-            return false;
-        }
-    };
-
-    // Function to handle room connection
-    const connectToRoom = async (peer: Peer, hostId: string, password: string): Promise<void> => {
-        let attempts = 0;
-
-        while (attempts < MAX_RETRIES) {
-            try {
-                const conn = peer.connect(hostId, {
-                    reliable: true,
-                    metadata: {
-                        type: 'joinRequest',
-                        password: password,
-                        timestamp: Date.now()
-                    }
-                });
-
-                return new Promise((resolve, reject) => {
-                    const timeout = setTimeout(() => {
-                        conn.close();
-                        reject(new Error('Connection timeout'));
-                    }, 10000);
-
-                    conn.on('open', () => {
-                        clearTimeout(timeout);
-
-                        conn.on('data', (data: any) => {
-                            if (data.type === 'roomAccess') {
-                                if (data.granted) {
-                                    console.log('Room access granted');
-                                    resolve();
-                                } else {
-                                    reject(new Error('Access denied: Invalid password'));
-                                }
-                            }
-                        });
-                    });
-
-                    conn.on('error', (err) => {
-                        clearTimeout(timeout);
-                        reject(err);
-                    });
-                });
-            } catch (error) {
-                attempts++;
-                if (attempts === MAX_RETRIES) {
-                    throw new Error('Failed to connect after maximum retries');
-                }
-                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-            }
-        }
     };
 
     useEffect(() => {
         const initializeRoom = async () => {
             try {
-                // Parse and validate URL parameters
+                // Get user data from localStorage to determine if mentor
+                const userDataStr = localStorage.getItem('user');
+                const userData = userDataStr ? JSON.parse(userDataStr) : null;
+                const isMentor = userData?.is_mentor === true;
+
+                console.log('=== MEETING INITIALIZATION ===');
+                console.log('Meeting ID:', meetingId);
+                console.log('URL User ID:', urlUserId);
+                console.log('Is Mentor:', isMentor);
+                console.log('User ID from storage:', userData?.user_id);
+
+                // Parse URL parameters
                 const urlParams = new URLSearchParams(window.location.search);
                 const encryptedRoomId = urlParams.get('roomid');
                 const encryptedPassword = urlParams.get('password');
                 const encryptedStartDate = urlParams.get('start');
                 const encryptedEndDate = urlParams.get('end');
                 const encryptedTimezone = urlParams.get('timezone');
-
-                
-                console.log('Encrypted Room encryptedTimezone:', encryptedRoomId,encryptedTimezone,encryptedPassword,encryptedStartDate,encryptedEndDate);
 
                 if (!encryptedRoomId || !encryptedPassword || !encryptedStartDate || !encryptedEndDate || !encryptedTimezone) {
                     throw new Error('Missing room parameters');
@@ -196,92 +90,77 @@ const MeetingCallHandler = () => {
                 // Decrypt room credentials
                 const decryptedRoomId = CryptoJS.AES.decrypt(encryptedRoomId, secretKey).toString(CryptoJS.enc.Utf8);
                 const decryptedPassword = CryptoJS.AES.decrypt(encryptedPassword, secretKey).toString(CryptoJS.enc.Utf8);
-                const decryptedStartDate = CryptoJS.AES.decrypt(encryptedStartDate, secretKey).toString(CryptoJS.enc.Utf8);
-                const decryptedEndDate = CryptoJS.AES.decrypt(encryptedEndDate, secretKey).toString(CryptoJS.enc.Utf8);
-                const decryptedTimezone = encryptedTimezone;
 
-                console.log('Decrypted Room:', decryptedRoomId, decryptedPassword, decryptedStartDate, decryptedEndDate, decryptedTimezone)
+                console.log('Decrypted Room ID:', decryptedRoomId);
 
-                if (!decryptedRoomId || !decryptedPassword || !decryptedStartDate || !decryptedEndDate || !decryptedTimezone) {
-                    throw new Error('Invalid room credentials or parameters');
+                if (!decryptedRoomId || !decryptedPassword) {
+                    throw new Error('Invalid room credentials');
                 }
 
-                const meetingStart = DateTime.fromISO(decryptedStartDate, { zone: decryptedTimezone });
+                // Create predictable peer IDs based on meeting ID and date
+                const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const baseRoomId = `meet-${meetingId}-${today}`;
 
-                const localTimeInMeetingZone = DateTime.now().setZone(decryptedTimezone);
-                console.log('Meeting Start (in meeting timezone):', meetingStart.toISO());
-                console.log('Local time converted to meeting timezone:', localTimeInMeetingZone.toISO());
+                // MENTOR is always HOST, MENTEE is always PARTICIPANT
+                // Host ID is predictable - both parties know it
+                const hostId = `${baseRoomId}-host`;
 
-                const isSameDay = meetingStart.toFormat('yyyy-MM-dd') === localTimeInMeetingZone.toFormat('yyyy-MM-dd');
-                const isWithin10Min = meetingStart.diff(localTimeInMeetingZone, 'minutes').toObject().minutes! <= 10;
+                console.log('Base Room ID:', baseRoomId);
+                console.log('Host Peer ID:', hostId);
+                console.log('I am:', isMentor ? 'MENTOR (HOST)' : 'MENTEE (PARTICIPANT)');
 
-                if (!isSameDay || !isWithin10Min) {
-                    throw new Error('Meeting is not yet available. Please check the start date and time.');
-                }
+                let myPeer: Peer;
 
-                // Parse the decrypted start date
-                // const startDate = new Date(decryptedStartDate);
-                // const currentDate = new Date();
+                if (isMentor) {
+                    // MENTOR: Create the host peer
+                    console.log('🎯 Creating HOST peer as MENTOR...');
 
-                if (!isSameDay || !isWithin10Min) {
-                    throw new Error('Meeting is not yet available. Please check the start date and time.');
-                }
+                    try {
+                        myPeer = await createPeer(hostId);
+                        console.log('✅ MENTOR is now HOST at:', hostId);
+                    } catch (hostError: any) {
+                        if (hostError.type === 'unavailable-id') {
+                            // Host ID already taken - maybe from a previous session
+                            // Wait and retry
+                            console.log('⚠️ Host ID taken, waiting and retrying...');
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+                            myPeer = await createPeer(hostId);
+                        } else {
+                            throw hostError;
+                        }
+                    }
 
-                // Check if the meeting date matches the system date
-                // if (
-                //     startDate.toDateString() !== currentDate.toDateString() ||
-                //     startDate.getTime() - currentDate.getTime() > 10 * 60 * 1000
-                // ) {
-                //     throw new Error('Meeting is not yet available. Please check the start date and time.');
-                // }
-
-                // Check if room exists
-                const roomExists = await verifyRoom(decryptedRoomId);
-
-                if (roomExists) {
-                    // Join existing room
-                    console.log('Room exists, joining as participant');
-                    const participantId = `${decryptedRoomId}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-                    const participantPeer = await setupPeer(participantId);
-
-                    await connectToRoom(participantPeer, decryptedRoomId, decryptedPassword);
-
-                    peerRef.current = participantPeer;
-                    setRoomId(decryptedRoomId);
-                    setPassword(decryptedPassword);
-                    setIsHost(false);
-                    setJoinedRoom(true);
-                } else {
-                    // Create new room
-                    console.log('Room does not exist, creating as host');
-                    const hostPeer = await setupPeer(decryptedRoomId);
-
-                    // Set up host connection handling
-                    hostPeer.on('connection', (conn) => {
-                        console.log('New connection request from:', conn.peer);
-
-                        conn.on('open', () => {
-                            const peerPassword = conn.metadata?.password;
-
-                            if (peerPassword === decryptedPassword) {
-                                console.log('Password verified, granting access');
-                                conn.send({ type: 'roomAccess', granted: true });
-                            } else {
-                                console.log('Invalid password, denying access');
-                                conn.send({ type: 'roomAccess', granted: false });
-                                conn.close();
-                            }
-                        });
-                    });
-
-                    peerRef.current = hostPeer;
-                    setRoomId(decryptedRoomId);
-                    setPassword(decryptedPassword);
+                    peerRef.current = myPeer;
                     setIsHost(true);
-                    setJoinedRoom(true);
+
+                } else {
+                    // MENTEE: Create a participant peer and will call the host
+                    const participantId = `${baseRoomId}-mentee-${userData?.user_id || Date.now()}`;
+                    console.log('🎯 Creating PARTICIPANT peer as MENTEE:', participantId);
+
+                    // Wait a bit to ensure mentor (host) has time to create their peer
+                    console.log('⏳ Waiting 2 seconds for host to be ready...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    myPeer = await createPeer(participantId);
+                    console.log('✅ MENTEE joined as PARTICIPANT');
+
+                    peerRef.current = myPeer;
+                    setIsHost(false);
                 }
+
+                setRoomId(decryptedRoomId);
+                setPassword(decryptedPassword);
+                setHostPeerId(hostId);
+                setJoinedRoom(true);
+
+                console.log('=== MEETING SETUP COMPLETE ===');
+                console.log('Is Host:', isMentor);
+                console.log('Host Peer ID:', hostId);
+                console.log('My Peer ID:', peerRef.current?.id);
+
             } catch (error) {
-                console.error('Room initialization error:', error);
+                console.error('❌ Room initialization error:', error);
                 setError(error instanceof Error ? error.message : 'Failed to initialize room');
             }
         };
@@ -290,10 +169,11 @@ const MeetingCallHandler = () => {
 
         return () => {
             if (peerRef.current) {
+                console.log('🧹 Cleaning up peer:', peerRef.current.id);
                 peerRef.current.destroy();
             }
         };
-    }, []);
+    }, [meetingId, urlUserId]);
 
     useEffect(() => {
         if (error) {
@@ -331,6 +211,7 @@ const MeetingCallHandler = () => {
             password={password}
             isHost={isHost}
             peer={peerRef.current}
+            actualHostId={hostPeerId}
         />
     );
 };

@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
 import FeedbackPopup from "@/components/NewPage/FeedbackPopup";
 import MilestonePopup from "@/components/NewPage/MilestonePopup";
-import { Dialog, DialogContent} from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
 import { Lightbulb } from 'lucide-react';
 
 // —— Types ——
@@ -42,7 +42,7 @@ interface Schedule {
   mentor_phone?: string;
   mentor_linkedin?: string;
   timezone?: string;
-  
+
 }
 interface Intent {
   id: number;
@@ -77,7 +77,7 @@ interface Meeting {
   mentor_id: number;
   end_datetime: string;
   created_at: string;
-  intent:Intent;
+  intent: Intent;
 }
 
 interface Availability {
@@ -300,40 +300,40 @@ const parseTimeToDate = (date: Date, timeStr: string) => {
 
 
 
-const SupportDetailsCard=({
+const SupportDetailsCard = ({
   data,
 }: {
   data: Intent | null;
-}) =>{
-console.log("dattaaaaa0----",data);
-  
+}) => {
+  console.log("dattaaaaa0----", data);
+
   return (
     <div className="max-w-md rounded-2xl border bg-white p-5 shadow-sm space-y-3">
       <h2 className="text-lg font-semibold text-gray-800 flex justify-center">
         Submitted Intent Details
       </h2>
-{data?
-      <div className="text-sm space-y-2">
-        {/* <p>
+      {data ?
+        <div className="text-sm space-y-2">
+          {/* <p>
           <span className="font-medium">Email:</span> {data?.email}
         </p> */}
 
-        <p>
-          <span className="font-medium">Goal / Challenge:</span>{" "}
-          {data?.goal_challenge}
-        </p>
+          <p>
+            <span className="font-medium">Goal / Challenge:</span>{" "}
+            {data?.goal_challenge}
+          </p>
 
-        <p>
-          <span className="font-medium">Support Types:</span>{" "}
-          {data?.support_types}
-        </p>
+          <p>
+            <span className="font-medium">Support Types:</span>{" "}
+            {data?.support_types}
+          </p>
 
-        <p>
-          <span className="font-medium">Area Exploring:</span>{" "}
-          {data?.area_exploring ?? "Not specified"}
-        </p>
+          <p>
+            <span className="font-medium">Area Exploring:</span>{" "}
+            {data?.area_exploring ?? "Not specified"}
+          </p>
 
-        {/* <p>
+          {/* <p>
           <span className="font-medium">Mentor ID:</span> {data.mentor_id}
         </p>
 
@@ -341,16 +341,16 @@ console.log("dattaaaaa0----",data);
           <span className="font-medium">User ID:</span> {data.user_id}
         </p> */}
 
-        <p className="text-gray-500 text-xs">
-          Created on{" "}
-          {new Date(data?.created_at).toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          })}
-        </p>
-      </div>
-      :<div className="flex justify-center">{"No Intent Found"}</div>}
+          <p className="text-gray-500 text-xs">
+            Created on{" "}
+            {new Date(data?.created_at).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+        : <div className="flex justify-center">{"No Intent Found"}</div>}
     </div>
   );
 }
@@ -363,8 +363,8 @@ const MeetingSchedulerPreview = () => {
   const [selectedfeedbackData, setSelectedFeedbackData] = useState<any>([]);
   const [selectedMilestoneData, setSelectedMilestoneData] = useState<any>([]);
   const [mentorId, setMentorId] = useState("");
-  
-const [selectedIntent, setSelectedIntent] = useState<any>(null);
+
+  const [selectedIntent, setSelectedIntent] = useState<any>(null);
   // const [loading,setLoading]=useState(false);
   const [availability, setAvailability] = useState<Availability[]>([]);
   const token = localStorage.getItem("token");
@@ -453,7 +453,7 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
       availability: Availability[];
     }[]
   >([]);
-  const[openIntentDialog,setOpenIntentDialog]=useState<boolean>(false);
+  const [openIntentDialog, setOpenIntentDialog] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -599,16 +599,16 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
             new Date(a.start_datetime).getTime()
         );
         console.log("sortedData-----", sortedData);
-      
+
         setMeetings(sortedData);
       } else {
-       
+
         console.log("No meetings found.");
       }
     } catch (error) {
       console.error("Error fetching meeting data:", error);
     }
-    finally{
+    finally {
       setLoading(false);
     }
   };
@@ -675,17 +675,16 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
       const parsedUser = userData ? JSON.parse(userData) : null;
 
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const meetingLink = `/v2/meetingcall/${randomId}/${
-        parsedUser?.user_id
-      }?start=${encodeURIComponent(
-        encryptedStartDate
-      )}&end=${encodeURIComponent(
-        encryptedEndDate
-      )}&roomid=${encodeURIComponent(
-        encryptedRoomId
-      )}&password=${encodeURIComponent(
-        encryptedPassword
-      )}&timezone=${encodeURIComponent(timeZone)}`;
+      const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id
+        }?start=${encodeURIComponent(
+          encryptedStartDate
+        )}&end=${encodeURIComponent(
+          encryptedEndDate
+        )}&roomid=${encodeURIComponent(
+          encryptedRoomId
+        )}&password=${encodeURIComponent(
+          encryptedPassword
+        )}&timezone=${encodeURIComponent(timeZone)}`;
 
       // Fetch local user data
 
@@ -745,7 +744,7 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
       alert("An error occurred while confirming meeting");
       // setLoading(false);
     }
-    finally{
+    finally {
       setLoading(false);
     }
   };
@@ -898,7 +897,7 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
     } catch (error) {
       // setLoading(false);
       console.error("Error fetching Assigned Mentors:", error);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -974,34 +973,33 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
       {/* Mentor pills */}
       {!parsedUserData.is_mentor ? (
         <div className="flex gap-3 overflow-x-auto pb-1">
-          {loading?
+          {loading ?
             <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
-                              <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-                            </div>
-          :(assignedMentorData.length === 0 ? (
-            <div className="font-bold text-md">No Mentor Assigned</div>
-          ) : (
-            assignedMentorData?.map((m, index) => (
-              <button
-                key={index}
-                // onClick={() => setSelectedMentor(m)}
-                onClick={() => handleMentorSelection(m?.mentor_id)}
-                className={`flex items-center gap-3 rounded-2xl border px-3 py-2 transition shadow-sm hover:shadow ${
-                  selectedMentor?.mentor_id === m?.mentor_id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 bg-white"
-                }`}
-                aria-pressed={selectedMentor?.mentor_id === m?.mentor_id}
-              >
-                <img
-                  src={m?.profile_picture}
-                  alt={m?.name}
-                  className="h-8 w-8 rounded-full"
-                />
-                <span className="text-sm font-medium">{m?.name}</span>
-              </button>
-            ))
-          ))}
+              <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+            </div>
+            : (assignedMentorData.length === 0 ? (
+              <div className="font-bold text-md">No Mentor Assigned</div>
+            ) : (
+              assignedMentorData?.map((m, index) => (
+                <button
+                  key={index}
+                  // onClick={() => setSelectedMentor(m)}
+                  onClick={() => handleMentorSelection(m?.mentor_id)}
+                  className={`flex items-center gap-3 rounded-2xl border px-3 py-2 transition shadow-sm hover:shadow ${selectedMentor?.mentor_id === m?.mentor_id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 bg-white"
+                    }`}
+                  aria-pressed={selectedMentor?.mentor_id === m?.mentor_id}
+                >
+                  <img
+                    src={m?.profile_picture}
+                    alt={m?.name}
+                    className="h-8 w-8 rounded-full"
+                  />
+                  <span className="text-sm font-medium">{m?.name}</span>
+                </button>
+              ))
+            ))}
         </div>
       ) : (
         <div></div>
@@ -1125,19 +1123,16 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                   disabled={isDisabled}
                   onClick={() => setSelectedDate(new Date(cell.date))}
                   className={`aspect-square rounded-lg border text-xs transition flex items-center justify-center
-                ${
-                  isDisabled
-                    ? "opacity-40 cursor-not-allowed"
-                    : "hover:bg-gray-50"
-                }
-                ${
-                  isAvailableDay
-                    ? "bg-blue-50 border-blue-300"
-                    : "border-gray-200 bg-white"
-                }
-                ${
-                  isSelected ? "border-blue-600 bg-blue-100 font-semibold" : ""
-                }`}
+                ${isDisabled
+                      ? "opacity-40 cursor-not-allowed"
+                      : "hover:bg-gray-50"
+                    }
+                ${isAvailableDay
+                      ? "bg-blue-50 border-blue-300"
+                      : "border-gray-200 bg-white"
+                    }
+                ${isSelected ? "border-blue-600 bg-blue-100 font-semibold" : ""
+                    }`}
                 >
                   {cell.date.getDate()}
                 </button>
@@ -1187,11 +1182,10 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                       disabled={isPastSlot}
                       onClick={() => setSelectedSlot(t)}
                       className={`rounded-xl border px-3 py-1.5 text-sm transition
-                ${
-                  selectedSlot === t
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:bg-gray-50"
-                }
+                ${selectedSlot === t
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-200 hover:bg-gray-50"
+                        }
                 ${isPastSlot ? "opacity-40 cursor-not-allowed" : ""}`}
                     >
                       {t}
@@ -1254,39 +1248,39 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                     <Video className="h-4 w-4" />
                     <span className="hidden sm:inline sm:text-base">Join</span>
                   </a>
-          <button
-        className="inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium hover:bg-gray-50"
-        onClick={() => {
-          setSelectedIntent(m.intent);
-          setOpenIntentDialog(true);
-        }}
-      >
-        <Lightbulb className="h-4 w-4" />
-        <span className="hidden sm:inline sm:text-base">Intent</span>
-      </button>
+                  <button
+                    className="inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium hover:bg-gray-50"
+                    onClick={() => {
+                      setSelectedIntent(m.intent);
+                      setOpenIntentDialog(true);
+                    }}
+                  >
+                    <Lightbulb className="h-4 w-4" />
+                    <span className="hidden sm:inline sm:text-base">Intent</span>
+                  </button>
 
-      {/* Single Dialog */}
-      <Dialog
-        open={openIntentDialog}
-        onClose={() => setOpenIntentDialog(false)}
-        // fullWidth
-        // maxWidth="sm"
-       hideBackdrop
-      >
-        <DialogContent
-         className="relative"
-        >
-    
-        <X onClick={()=>setOpenIntentDialog(false)} className="absolute cursor-pointer top-0 right-0 text-red-500 font-bold"/>
+                  {/* Single Dialog */}
+                  <Dialog
+                    open={openIntentDialog}
+                    onClose={() => setOpenIntentDialog(false)}
+                    // fullWidth
+                    // maxWidth="sm"
+                    hideBackdrop
+                  >
+                    <DialogContent
+                      className="relative"
+                    >
 
-          {/* Dialog Body */}
-          {/* {selectedIntent && ( */}
-            <SupportDetailsCard data={selectedIntent} />
-          {/* )} */}
-        </DialogContent>
-      </Dialog>
+                      <X onClick={() => setOpenIntentDialog(false)} className="absolute cursor-pointer top-0 right-0 text-red-500 font-bold" />
 
-                
+                      {/* Dialog Body */}
+                      {/* {selectedIntent && ( */}
+                      <SupportDetailsCard data={selectedIntent} />
+                      {/* )} */}
+                    </DialogContent>
+                  </Dialog>
+
+
                   <button
                     className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
                     onClick={() =>
@@ -1327,7 +1321,7 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                     isOpen={isPopupOpen}
                     onClose={() => setIsPopupOpen(false)}
                     feedbackData={selectedfeedbackData}
-                    userId={parsedUserData?.is_mentor?parsedDegree?.mentor_id:parsedUserData?.user_id}
+                    userId={parsedUserData?.is_mentor ? parsedDegree?.mentor_id : parsedUserData?.user_id}
                     userType={parsedUserData?.is_mentor}
                   />
                 </div>
@@ -1339,11 +1333,10 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
               <button
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 rounded-lg border text-sm ${
-                  currentPage === 1
+                className={`px-3 py-1 rounded-lg border text-sm ${currentPage === 1
                     ? "text-gray-400 cursor-not-allowed"
                     : "hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 Previous
               </button>
@@ -1357,11 +1350,10 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                   setCurrentPage((p) => Math.min(p + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded-lg border text-sm ${
-                  currentPage === totalPages
+                className={`px-3 py-1 rounded-lg border text-sm ${currentPage === totalPages
                     ? "text-gray-400 cursor-not-allowed"
                     : "hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 Next
               </button>
