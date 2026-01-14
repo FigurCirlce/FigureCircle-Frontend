@@ -53,7 +53,8 @@ const PublicRoutes = [
     },
      {
         path:'/new-milestone/:userId/:mentorId',
-        component:<MilestoneTimelineForm/>
+        // component:<MilestoneTimelineForm/>
+        component:<MilestoneRoadmapPreview/>
     },
      {
         path:'/',

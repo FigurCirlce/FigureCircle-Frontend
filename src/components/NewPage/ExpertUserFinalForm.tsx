@@ -276,7 +276,18 @@ const ExpertOnboardingCompact=() =>{
     { day: "Monday", startTime: "10:00", endTime: "12:00" },
   ]);
 
- 
+  const getMinExperience = (description: string) => {
+  const match = description.match(/\d+/);
+  return match ? parseInt(match[0], 10) : Infinity;
+};
+
+ const sortByExperience = (arr: any) =>
+  [...arr].sort(
+    (a, b) =>
+      getMinExperience(a.description) -
+      getMinExperience(b.description)
+  );
+
 
  
   // ✅ Handles availability fields (day/start/end)
@@ -528,7 +539,9 @@ const ExpertOnboardingCompact=() =>{
               "response-data--api/experience-level",
               response.data.experience_level
             );
-            setExperienceArray(response.data.experience_level);
+            const data=response.data.experience_level;
+            const sortedData=sortByExperience(data);
+            setExperienceArray(sortedData);
           } catch (error) {
             console.error("Error fetching data:", error);
           }

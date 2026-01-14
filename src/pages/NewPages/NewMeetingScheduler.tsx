@@ -1304,6 +1304,7 @@ const [selectedIntent, setSelectedIntent] = useState<any>(null);
                     isOpen={isMilestonePopupOpen}
                     onClose={() => setIsMilestonePopupOpen(false)}
                     MilestoneData={selectedMilestoneData}
+                    is_mentor={parsedUserData?.is_mentor}
                   />
                   <button
                     className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"

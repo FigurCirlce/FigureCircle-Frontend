@@ -150,13 +150,15 @@
 // export default MilestonePopup;
 import React from "react";
 import { X, BadgeInfo, Calendar, Clock } from "lucide-react";
+import MilestoneRoadmapPreviewTSX from "@/pages/NewPages/TrialNewMilestone";
 
 export interface MilestoneData {
   check_id: number;
   check_meeting_id: number;
   created_at: string;
   history_count: number;
-  milestones: Milestone[];
+  // milestones: Milestone[];
+  current_milestone:Milestone[];
   mentor_id: number;
   serial_number: number;
   user_id: number;
@@ -173,6 +175,7 @@ interface MilestonePopupProps {
   isOpen: boolean;
   onClose: () => void;
   MilestoneData: MilestoneData | null;
+  is_mentor:boolean;
 }
 
 function convertDateTime(datetimeStr: string | number | Date): string {
@@ -193,6 +196,7 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
   isOpen,
   onClose,
   MilestoneData,
+  is_mentor
 }) => {
   if (!isOpen) return null;
 
@@ -204,14 +208,16 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
   };
 
   console.log("MilestoneData----", MilestoneData);
-
+  console.log("is_mentor----", is_mentor);
   return (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
-      {!MilestoneData || !MilestoneData.milestones || MilestoneData.milestones.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      {!MilestoneData || !MilestoneData.current_milestone || MilestoneData.current_milestone.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center p-6 border-b">
-            <p className="text-red-500">
-              No Milestone submitted for this meeting yet!!
+          {!is_mentor? <div className="flex justify-between items-center w-full">
+            <p className="text-red-500 ">
+               "No Milestone submitted for this meeting yet!!"
+            
             </p>
             <button
               onClick={onClose}
@@ -219,6 +225,14 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
             >
               <X size={24} />
             </button>
+            </div>
+            : <div className="w-full relative"><MilestoneRoadmapPreviewTSX/>
+             <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors absolute top-0 right-0"
+            >
+              <X size={30} />
+            </button></div>}
           </div>
         </div>
       ) : (
@@ -262,7 +276,7 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
 
                 <div className="text-sm text-gray-600">
                   <span className="font-semibold">Milestones:</span>{" "}
-                  {MilestoneData.milestones.length}
+                  {MilestoneData.current_milestone.length}
                 </div>
               </div>
 
@@ -271,7 +285,7 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
                   All Milestones
                 </h3>
-                {MilestoneData.milestones.map((milestone, index) => (
+                {MilestoneData.current_milestone.map((milestone, index) => (
                   <div
                     key={index}
                     className="border-b pb-4 last:border-b-0 bg-white p-4 rounded-lg shadow-sm"
