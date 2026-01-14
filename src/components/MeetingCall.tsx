@@ -1,13 +1,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
-import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Monitor, PhoneOff, Users, ChevronLeft, ChevronRight, ExternalLink, Target, MessageSquare } from 'lucide-react';
 import axios from 'axios';
 import baseURL from '@/config/config';
 import { toast } from 'react-toastify';
 import { useUserContext } from './context/userContext';
-import { Maximize } from 'lucide-react';
-import { Minimize } from 'lucide-react';
+import { Maximize, Minimize } from 'lucide-react';
 interface MeetingCallProps {
   roomId: string;
   password: string;
@@ -623,179 +622,266 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
   };
 
   const renderParticipantVideos = () => {
+    // Helper function to get initials from name
+    const getInitials = (name: string) => {
+      if (!name) return '?';
+      const words = name.trim().split(' ');
+      if (words.length === 1) {
+        return words[0].charAt(0).toUpperCase();
+      }
+      return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+    };
+
+    // Generate consistent color based on name
+    const getAvatarColor = (name: string) => {
+      const colors = [
+        'from-blue-500 to-blue-700',
+        'from-purple-500 to-purple-700',
+        'from-green-500 to-green-700',
+        'from-pink-500 to-pink-700',
+        'from-indigo-500 to-indigo-700',
+        'from-teal-500 to-teal-700',
+        'from-orange-500 to-orange-700',
+        'from-cyan-500 to-cyan-700',
+      ];
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return colors[Math.abs(hash) % colors.length];
+    };
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Screen sharing video */}
         {(isScreenSharing || screenSharingPeerId) && (
-          // <div className={`relative bg-black rounded-lg overflow-hidden ${isScreenSharePinned ? 'col-span-full row-span-2' : ''
-          //   }`}>
-          <div className={`relative bg-black rounded-lg overflow-hidden ${isScreenSharePinned ? 'col-span-full ' : ''
-            }`}>
+          <div className={`relative bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-200 ${isScreenSharePinned ? 'col-span-full' : ''}`}>
             <video
               ref={screenVideoRef}
               autoPlay
               playsInline
-              className={`w-full  ${isScreenSharePinned ? 'h-[82vh]' : 'h-[240px]'} object-contain`}
+              className={`w-full ${isScreenSharePinned ? 'h-[82vh]' : 'h-[240px]'} object-contain bg-gray-900`}
             />
-            <div className="absolute top-2 right-2 z-10 flex gap-2">
-              {/* Multi-screen share navigation arrows */}
+            <div className="absolute top-3 right-3 z-10 flex gap-2">
               {activeScreenSharers.size > 1 && (
                 <>
                   <button
                     onClick={cycleToPrevScreenShare}
-                    className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
+                    className="p-2 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-md transition-all"
                     title="Previous screen share"
                   >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={18} />
                   </button>
                   <button
                     onClick={cycleToNextScreenShare}
-                    className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
+                    className="p-2 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-md transition-all"
                     title="Next screen share"
                   >
-                    <ChevronRight size={20} />
+                    <ChevronRight size={18} />
                   </button>
                 </>
               )}
               <button
                 onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
-                className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
+                className="p-2 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-md transition-all"
               >
-                {isScreenSharePinned ? <Minimize size={20} /> : <Maximize size={20} />}
+                {isScreenSharePinned ? <Minimize size={18} /> : <Maximize size={18} />}
               </button>
             </div>
-            <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded flex items-center gap-2">
-              <span>
-                📺 {displayedScreenShareId === peer?.id ? `${myName} (You)` : `${participantName}'s Screen`}
-              </span>
-              {activeScreenSharers.size > 1 && (
-                <span className="text-xs bg-blue-600 px-2 py-0.5 rounded">
-                  {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1} of {activeScreenSharers.size}
+            <div className="absolute bottom-3 left-3 flex items-center gap-2">
+              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(displayedScreenShareId === peer?.id ? myName : participantName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
+                {getInitials(displayedScreenShareId === peer?.id ? myName : participantName)}
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                <span className="text-gray-800 text-sm font-medium">
+                  📺 {displayedScreenShareId === peer?.id ? `${myName} (You)` : participantName}
                 </span>
-              )}
+                {activeScreenSharers.size > 1 && (
+                  <span className="ml-2 text-xs bg-blue-500 px-2 py-0.5 rounded-full text-white">
+                    {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1}/{activeScreenSharers.size}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {/* Local video */}
-        <div className={` bg-black rounded-lg overflow-hidden ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? 'absolute top-[23rem] right-10 w-[220px] h-[140px]' : 'relative'}`}>
+        <div className={`relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? 'absolute top-[23rem] right-10 w-[220px] h-[140px] z-20' : ''}`}>
+          {/* Always show avatar placeholder behind video */}
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
+              {getInitials(myName)}
+            </div>
+          </div>
           <video
             ref={localVideoRef}
             autoPlay
             playsInline
             muted
-            className="w-full h-[240px] object-cover"
+            className={`w-full h-[240px] object-cover relative z-10 ${!isVideoEnabled ? 'opacity-0' : ''}`}
           />
-          <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-            {myName} {isHost ? "(Host)" : ""}
+          {/* Status indicators */}
+          <div className="absolute top-3 right-3 flex gap-2 z-20">
+            {!isAudioEnabled && (
+              <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                <MicOff size={14} className="text-white" />
+              </div>
+            )}
+            {!isVideoEnabled && (
+              <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                <VideoOff size={14} className="text-white" />
+              </div>
+            )}
+          </div>
+          {/* Name badge */}
+          <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2">
+            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
+              {getInitials(myName)}
+            </div>
+            <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+              <span className="text-gray-800 text-sm font-medium">{myName}</span>
+              {isHost && (
+                <span className="ml-2 text-xs bg-emerald-500 px-2 py-0.5 rounded-full text-white">Host</span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Remote videos */}
-        {Array.from(peers.entries()).map(([peerId, { stream }]) => (
-          <div key={peerId} className={`relative bg-black rounded-lg overflow-hidden `}>
-            <video
-              autoPlay
-              playsInline
-              className="w-full h-[240px] object-cover"
-              ref={video => {
-                if (video) video.srcObject = stream;
-              }}
-            //   onClick={isScreenSharing || screenSharingPeerId ? (event) => {
-            //     const videoElement = event.target as HTMLVideoElement;
-            //     if (videoElement.requestFullscreen) {
-            //       videoElement.requestFullscreen();
-            //     }
-            //   }
-            // :undefined}
-            />
-            {/*<div className="absolute top-2 right-2 z-10">
-              <button
-                onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
-                className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700"
-              >
-                {isScreenSharePinned ? <PinOff size={20} /> : <Pin size={20} />}
-              </button>
-            </div>*/}
-            <div className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-              {participantName}
-            </div>
-          </div>
-        ))}
+        {
+          Array.from(peers.entries()).map(([peerId, { stream }]) => {
+            return (
+              <div key={peerId} className="relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+                {/* Always show avatar placeholder */}
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                  <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
+                    {getInitials(participantName)}
+                  </div>
+                </div>
+                <video
+                  autoPlay
+                  playsInline
+                  className="w-full h-[240px] object-cover relative z-10"
+                  ref={video => {
+                    if (video) video.srcObject = stream;
+                  }}
+                />
+                {/* Name badge */}
+                <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2">
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
+                    {getInitials(participantName)}
+                  </div>
+                  <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                    <span className="text-gray-800 text-sm font-medium">{participantName}</span>
+                  </div>
+                </div>
+                {/* Connection indicator */}
+                <div className="absolute top-3 right-3 z-20">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg ring-2 ring-white" title="Connected"></div>
+                </div>
+              </div>
+            );
+          })
+        }
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4 relative">
-      <div className="max-w-7xl mx-auto min-h-screen ">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 relative">
+      <div className="max-w-7xl mx-auto min-h-screen">
         {(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? (
           <>
-            <div className="flex items-center text-gray-300 absolute top-5 z-10">
+            <div className="flex items-center text-gray-700 absolute top-5 z-10 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
               <Users className="mr-2" size={20} />
-              <span>{participants.size} / {MAX_PARTICIPANTS} participants</span>
+              <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span>
             </div>
-            <div className='flex flex-col gap-3 absolute top-10 right-8 z-10'>
-              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+            <div className='flex flex-col gap-3 absolute top-16 right-8 z-10'>
+              {/* Milestone Card - Pinned Mode */}
+              <a
+                href={milestoneUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg border border-blue-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-blue-500 rounded-xl shadow-md">
+                    <Target size={18} className="text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-blue-800">Milestone</span>
+                </div>
+                <div className="flex items-center gap-2 text-blue-600 group-hover:text-blue-800">
+                  <span className="text-sm font-medium">Open Link</span>
+                  <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
 
-                <p className="text-sm text-gray-600">Milestone URL:</p>
-                <a
-                  href={milestoneUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 font-medium underline hover:text-blue-700"
-                >
-                  Click here to open
-                </a>
-              </div>
-              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
-
-                <p className="text-sm text-gray-600">Milestone URL:</p>
-                <a
-                  href={milestoneUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 font-medium underline hover:text-blue-700"
-                >
-                  Click here to open
-                </a>
-              </div>
+              {/* Feedback Card - Pinned Mode */}
+              <a
+                href={feedbackUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-lg border border-purple-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-purple-500 rounded-xl shadow-md">
+                    <MessageSquare size={18} className="text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-purple-800">Feedback</span>
+                </div>
+                <div className="flex items-center gap-2 text-purple-600 group-hover:text-purple-800">
+                  <span className="text-sm font-medium">Give Feedback</span>
+                  <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
             </div>
           </>
         ) : (
-          <div className="mb-4 flex items-center justify-between ">
-            <div className="flex items-center text-gray-300">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center text-gray-700 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
               <Users className="mr-2" size={20} />
-              <span>{participants.size} / {MAX_PARTICIPANTS} participants</span>
+              <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span>
             </div>
 
-            <div className='flex flex-col items-center gap-3'>
-              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+            <div className='flex flex-row items-center gap-3'>
+              {/* Milestone Card */}
+              <a
+                href={milestoneUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg border border-blue-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer min-w-[180px]"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-blue-500 rounded-xl shadow-md">
+                    <Target size={18} className="text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-blue-800">Milestone</span>
+                </div>
+                <div className="flex items-center gap-2 text-blue-600 group-hover:text-blue-800">
+                  <span className="text-sm font-medium">Open Link</span>
+                  <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
 
-                <p className="text-sm text-gray-600">Milestone URL:</p>
-                <a
-                  href={milestoneUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 font-medium underline hover:text-blue-700"
-                >
-                  Click here to open
-                </a>
-              </div>
-
-              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
-
-                <p className="text-sm text-gray-600">Feedback</p>
-                <a
-                  href={feedbackUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 font-medium underline hover:text-blue-700"
-                >
-                  Click here to open
-                </a>
-              </div>
+              {/* Feedback Card */}
+              <a
+                href={feedbackUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-lg border border-purple-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer min-w-[180px]"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-purple-500 rounded-xl shadow-md">
+                    <MessageSquare size={18} className="text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-purple-800">Feedback</span>
+                </div>
+                <div className="flex items-center gap-2 text-purple-600 group-hover:text-purple-800">
+                  <span className="text-sm font-medium">Give Feedback</span>
+                  <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </a>
             </div>
 
             {/* {(isScreenSharing || screenSharingPeerId) && (
@@ -810,25 +896,25 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
         {renderParticipantVideos()}
 
         {/* Controls */}
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-800 p-4 z-10">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-10">
           <div className="max-w-7xl mx-auto flex justify-center space-x-4">
             <button
               onClick={toggleAudio}
-              className={`p-3 rounded-full text-white hover:opacity-90 ${isAudioEnabled ? 'bg-gray-600' : 'bg-red-600'
+              className={`p-4 rounded-full text-white hover:scale-105 transition-transform shadow-lg ${isAudioEnabled ? 'bg-gray-600' : 'bg-red-500'
                 }`}
             >
               {isAudioEnabled ? <Mic size={24} /> : <MicOff size={24} />}
             </button>
             <button
               onClick={toggleVideo}
-              className={`p-3 rounded-full text-white hover:opacity-90 ${isVideoEnabled ? 'bg-gray-600' : 'bg-red-600'
+              className={`p-4 rounded-full text-white hover:scale-105 transition-transform shadow-lg ${isVideoEnabled ? 'bg-gray-600' : 'bg-red-500'
                 }`}
             >
               {isVideoEnabled ? <Video size={24} /> : <VideoOff size={24} />}
             </button>
             <button
               onClick={isScreenSharing ? stopScreenSharing : startScreenSharing}
-              className={`p-3 rounded-full text-white hover:opacity-90 ${isScreenSharing ? 'bg-blue-600' : 'bg-gray-600'
+              className={`p-4 rounded-full text-white hover:scale-105 transition-transform shadow-lg ${isScreenSharing ? 'bg-blue-500' : 'bg-gray-600'
                 }`}
               disabled={!!screenSharingPeerId && screenSharingPeerId !== peer?.id}
             >
@@ -836,7 +922,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
             </button>
             <button
               onClick={endCall}
-              className="p-3 rounded-full text-white hover:opacity-90 bg-red-600"
+              className="p-4 rounded-full text-white hover:scale-105 transition-transform shadow-lg bg-red-500"
             >
               <PhoneOff size={24} />
             </button>
