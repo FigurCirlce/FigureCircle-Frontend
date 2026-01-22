@@ -44,7 +44,7 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userData, setUserData] = useState<UserData>(() => {
-    const saved = localStorage.getItem("userData");
+    const saved = localStorage.getItem("userData") ?? localStorage.getItem("user");
     return saved ? JSON.parse(saved) : defaultUser;
   });
 

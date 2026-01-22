@@ -4,7 +4,7 @@ import Register from 'pages/Register';
 // import HomePage from 'pages/NewPages/HomePage';
 import ContactForm from '../../pages/NewPages/ContactUs';
 import FeedBackForm from '../../pages/NewPages/FeedbackForm';
-import MilestoneTimelineForm from '@/pages/NewPages/MilestoneTimelineForm';
+// import MilestoneTimelineForm from '@/pages/NewPages/MilestoneTimelineForm';
 import NewHomepage from '@/pages/NewPages/NewHomepage';
 import NewDesignHomepage from '../../pages/NewPages/NewDesignHomepage';
 import RegistrationFlow from '@/components/NewPage/Homepage/NewUserLogin';
@@ -20,6 +20,7 @@ import MilestoneFlowExpertTimeline from '@/pages/NewPages/NewMilestoneExpert';
 // import MentorsWireframe1 from '@/pages/NewPages/MentorPages';
 // import NewRecommendMentor from '@/pages/NewPages/NewRecommendMentor';
 import MilestoneRoadmapPreview from '@/pages/NewPages/TrialNewMilestone';
+import MilestonePage from '@/pages/NewPages/TrialNewMilestone'
 
 
 // import Dashboard from '../../pages/NewPages/Dashboard'
@@ -54,7 +55,7 @@ const PublicRoutes = [
      {
         path:'/new-milestone/:userId/:mentorId',
         // component:<MilestoneTimelineForm/>
-        component:<MilestoneRoadmapPreview/>
+         component:<MilestoneRoadmapPreview/>
     },
      {
         path:'/',
@@ -89,7 +90,7 @@ const PublicRoutes = [
             path:`/test`,
             // component:<MentorsWireframe/>
             // component:<NewRecommendMentor/>
-            component:<MilestoneRoadmapPreview/>
+            component:<MilestonePage/>
         },
         //  {
         //     path:`/test`,

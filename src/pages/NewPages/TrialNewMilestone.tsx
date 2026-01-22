@@ -324,7 +324,7 @@
 
 
 
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -333,7 +333,7 @@ import {
   Circle,
   Edit3,
   GripVertical,
-  Lock,
+  Loader2,
   Plus,
   ShieldAlert,
   Trash2,
@@ -342,6 +342,8 @@ import {
 import axios from "axios";
 import baseURL from "@/config/config";
 import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
+import AvailMilestones from "./Milestone";
 
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(" ");
@@ -435,6 +437,20 @@ const[mentorData,setMentorData]=useState<any>();
   const [due, setDue] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const[milestoneData,setMilestoneData]=useState<any>([]);
+  //@ts-ignore
+   const [stateMilestone, setStateMilestone] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+    const { userId, mentorId } = useParams<{
+      userId: string;
+      mentorId: string;
+    }>();
+
+    console.log("userId-----",userId);
+    console.log("mentorId-----",mentorId);
+
+    
+
 
   const userData=localStorage.getItem("user");
   const parsedUserData=userData?JSON.parse(userData):null;
@@ -498,6 +514,140 @@ const[mentorData,setMentorData]=useState<any>();
  const notifySuccess = () =>
     toast.success("User mentorship created successfully!");
 
+
+ const fetchMilestoneData = async () => {
+       const token = localStorage.getItem("token");
+       const scheduleData=localStorage.getItem("scheduleData");
+       const parseScheduleData=scheduleData?JSON.parse(scheduleData):null;
+ 
+       if (!token) {
+         toast.error("Token not found!");
+         return;
+       }
+       try {
+         setLoading(true);
+         const response = await axios.get(`${baseURL}/api/milestone`, {
+           // params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
+           params: { user_id: parseScheduleData.user_id, mentor_id: parseScheduleData.mentor_id},
+           headers: { Authorization: `Bearer ${token}` },
+         });
+
+      
+ 
+         if (response.data) {
+           console.log("response-----datttaaa-----response", response.data);
+
+const data=response.data;
+// if(data){
+
+   const mileData={
+            check_id: response.data.check_id,
+  check_meeting_id: response.data.check_meeting_id,
+  created_at: response.data.created_at,
+  history_count: response.data.history_count,
+  milestones: response.data?.current_milestone, // ✅ correct
+  mentor_id: response.data.mentor_id,
+  serial_number: response.data.serial_number,
+  user_id: response.data.user_id,
+           }
+           setStateMilestone(true);
+
+           if(Array.isArray(data) && data.length === 0){
+            setMilestoneData([]);
+           }
+ else{
+           setMilestoneData(mileData);
+  
+ }
+
+
+
+// console.log("milestone---dattaaa----milestone",mileData);
+         } else {
+           console.log("No milestones found.");
+         }
+       } catch (error) {
+         console.log("Failed to fetch milestone data.");
+         console.error("Error fetching milestones:", error);
+       } finally {
+         setLoading(false);
+         console.log(false);
+       }
+     };
+
+   useEffect(() => {
+     // if (!userId || !mentorId) {
+     //     setErrorMessage('Invalid user or mentor ID.');
+     //     setLoading(false);
+     //     return;
+     // }
+     // console.log("mentor_id",mentorId);
+     console.log("userId", userId);
+     console.log("mentorId", mentorId);
+
+//      const fetchMilestoneData = async () => {
+//        const token = localStorage.getItem("token");
+//        const scheduleData=localStorage.getItem("scheduleData");
+//        const parseScheduleData=scheduleData?JSON.parse(scheduleData):null;
+ 
+//        if (!token) {
+//          toast.error("Token not found!");
+//          return;
+//        }
+//        try {
+//          setLoading(true);
+//          const response = await axios.get(`${baseURL}/api/milestone`, {
+//            // params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
+//            params: { user_id: parseScheduleData.user_id, mentor_id: parseScheduleData.mentor_id},
+//            headers: { Authorization: `Bearer ${token}` },
+//          });
+
+      
+ 
+//          if (response.data) {
+//            console.log("response-----datttaaa-----response", response.data);
+
+// const data=response.data;
+// // if(data){
+
+//    const mileData={
+//             check_id: response.data.check_id,
+//   check_meeting_id: response.data.check_meeting_id,
+//   created_at: response.data.created_at,
+//   history_count: response.data.history_count,
+//   milestones: response.data?.current_milestone, // ✅ correct
+//   mentor_id: response.data.mentor_id,
+//   serial_number: response.data.serial_number,
+//   user_id: response.data.user_id,
+//            }
+//            setStateMilestone(true);
+
+//            if(Array.isArray(data) && data.length === 0){
+//             setMilestoneData([]);
+//            }
+//  else{
+//            setMilestoneData(mileData);
+  
+//  }
+
+
+
+// // console.log("milestone---dattaaa----milestone",mileData);
+//          } else {
+//            console.log("No milestones found.");
+//          }
+//        } catch (error) {
+//          console.log("Failed to fetch milestone data.");
+//          console.error("Error fetching milestones:", error);
+//        } finally {
+//          setLoading(false);
+//          console.log(false);
+//        }
+//      };
+ 
+     fetchMilestoneData();
+   }, []);
+
  
 
     const handleSubmit = async () => {
@@ -520,12 +670,14 @@ const[mentorData,setMentorData]=useState<any>();
 
    
 const crunchedMilestones = crunchMilestones(milestones);
+
+
         const dataToSend = {
           // user_id: parsedUserData.is_mentor ? userId : userId,
-           user_id: user_id,
+           user_id: mentorId,
           mentor_id: mentorData?.mentor_id,
           milestone: crunchedMilestones,
-          check_meeting_id: user_id,
+          check_meeting_id: userId,
           check_id: mentorData?.mentor_id,
         };
   
@@ -541,6 +693,7 @@ const crunchedMilestones = crunchMilestones(milestones);
         );
         console.log("responseMilestone-------", response);
         notifySuccess();
+        fetchMilestoneData();
       } catch (error) {
         console.error("Milestone submission failed:", error);
       }
@@ -593,8 +746,23 @@ const crunchedMilestones = crunchMilestones(milestones);
     setMilestones((prev) => prev.filter((m) => m.id !== id));
   };
 
+  
   return (
+    <>
     <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+   
+      {loading ? (
+              <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+                <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+              </div>
+            ) : milestoneData && !Array.isArray(milestoneData)? (
+                  
+                      <AvailMilestones
+                        data={milestoneData}
+                        userType={parsedUserData.is_mentor?"mentor":"user"}
+                      />
+                    
+                  ) :parsedUserData?.is_mentor ?
       <div className="mx-auto max-w-5xl">
         <div className="flex items-centeer justify-center gap-4">
           <div className="">
@@ -768,7 +936,18 @@ const crunchedMilestones = crunchMilestones(milestones);
           implemented.
         </p> */}
       </div>
+      :(<div className="flex justify-center bg-slate-50">
+  <div className="bg-white border border-slate-200 rounded-xl px-6 py-5 shadow-sm max-w-md text-center">
+    <p className="text-slate-600 text-sm">
+      Milestone yet to be submitted by mentor
+    </p>
+  </div>
+</div>
+)
+}
     </div>
+        
+    </>
   );
 }
 

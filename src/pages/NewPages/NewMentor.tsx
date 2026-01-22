@@ -624,7 +624,7 @@ const MentorsWireframe2 = () => {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
-  const user = localStorage.getItem("user");
+  const user = localStorage.getItem("user")??localStorage.getItem("userData") ??localStorage.getItem("userlocaldata");
   const userData = user ? JSON.parse(user) : null;
 
   // Mock user data (replace with actual localStorage in production)
@@ -645,7 +645,7 @@ const MentorsWireframe2 = () => {
   // setSelectedExpertData(selectedMentor);
   //     },[selectedId]);
   const fetchMeetingData = async () => {
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem("user") ?? localStorage.getItem("userData")??localStorage.getItem("userlocaldata");
     const parsedUserData = user ? JSON.parse(user) : null;
 
     // console.log("user_id FetchMeetingData----", user_id);

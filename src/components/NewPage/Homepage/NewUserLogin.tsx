@@ -631,7 +631,14 @@ const [customRole, setCustomRole] = useState("");
           setToken(currentToken);
         }
 
-        const res = await axios.get(`${baseURL}/dream-list?degree=${degree}`, {
+        const res = await axios.get(`${baseURL}/dream-list`, {
+  params: {
+    degree: degree,
+    // education:userInfo.high_education ,
+    industry: userInfo.industry,
+    experience: userInfo.work_experience,
+    // stream: userInfo.interested_stream,
+  },
           headers: { Authorization: `Bearer ${currentToken}` },
         });
 

@@ -32,8 +32,9 @@ const MilestoneTimelineForm: React.FC = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [mentorData, setmentorData] = useState<any>();
   // const[mentorId,setMentorId]=useState<any>();
-  const [stateMilestone, setStateMilestone] = useState<boolean>(false);
-  const [milestoneData, setMilestoneData] = useState<MilestoneData[]>([]);
+  // const [stateMilestone, setStateMilestone] = useState<boolean>(false);
+const [milestoneData, setMilestoneData] = useState<MilestoneData | null>(null);
+
   const [formData, setFormData] = useState<Milestone>({
     milestone: "",
     description: "",
@@ -53,9 +54,13 @@ const MilestoneTimelineForm: React.FC = () => {
     toast.success("User mentorship created successfully!");
 
   const fetchMentorInfo = async () => {
+    console.log('userId---------211',userId);
+        console.log('mentorId----211',mentorId);
+
     try {
       const response = await axios.get(
-        `${baseURL}/api/mentor/details?user_id=${parsedUserData.user_id}`,
+        // `${baseURL}/api/mentor/details?user_id=${parsedUserData.user_id}`,
+         `${baseURL}/api/mentor/details?user_id=${parsedUserData.user_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -74,7 +79,9 @@ const MilestoneTimelineForm: React.FC = () => {
   };
 
   useEffect(() => {
+    if(parsedUserData.is_mentor){
     fetchMentorInfo();
+    }
   }, []);
 
   useEffect(() => {
@@ -97,7 +104,7 @@ const MilestoneTimelineForm: React.FC = () => {
         setLoading(true);
         const response = await axios.get(`${baseURL}/api/milestone`, {
           // params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id: mentorId },
-          params: { user_id: userId, mentor_id: mentorId },
+          params: { user_id: parsedUserData.is_mentor?userId:parsedUserData.user_id, mentor_id:mentorData?.mentor_id ?? mentorId },
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -105,8 +112,25 @@ const MilestoneTimelineForm: React.FC = () => {
           // setMilestones(response.data.milestone);
           // setMilestonesSerial(response.data);
           console.log("response-----datttaaa-----response", response.data);
-          setStateMilestone(true);
-          setMilestoneData([response.data]);
+//            const data =
+//   response.data.current_milestone ??
+//   response.data.milestones ??
+//   [];
+
+// setMilestoneData(Array.isArray(data) ? data : []);
+setMilestoneData({
+  check_id: response.data.check_id,
+  check_meeting_id: response.data.check_meeting_id,
+  created_at: response.data.created_at,
+  history_count: response.data.history_count,
+  milestones: response.data.current_milestone, // ✅ correct
+  mentor_id: response.data.mentor_id,
+  serial_number: response.data.serial_number,
+  user_id: response.data.user_id,
+});
+
+          // setStateMilestone(true);
+          // setMilestoneData(data);
           console.log("milestones", response.data);
         } else {
           console.log("No milestones found.");
@@ -175,12 +199,13 @@ const MilestoneTimelineForm: React.FC = () => {
       const token = localStorage.getItem("token");
       console.log("user_id", user_id);
       const dataToSend = {
-        user_id: parsedUserData.is_mentor ? userId : userId,
+        user_id: mentorId,
         mentor_id: mentorData.mentor_id,
         milestone: milestones,
         check_meeting_id: userId,
         check_id: mentorData.mentor_id,
       };
+      console.log("dataToSend-----",dataToSend);
 
       const response = await axios.post(
         `${baseURL}/mentor/milestone`,
@@ -205,22 +230,13 @@ const MilestoneTimelineForm: React.FC = () => {
         <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
           <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
         </div>
-      ) : stateMilestone ? (
-        milestoneData.map((item) => (
+      ) : milestoneData ? (
+      
           <AvailMilestones
-            data={{
-              check_id: item.check_id,
-              check_meeting_id: item.check_meeting_id,
-              created_at: item.created_at,
-              history_count: item.history_count,
-              milestones: item.milestones, // Now passing the array directly
-              mentor_id: item.mentor_id,
-              serial_number: item.serial_number,
-              user_id: item.user_id,
-            }}
+            data={milestoneData}
           />
-        ))
-      ) : !parsedUserData.is_mentor ? (
+        
+      ) : !parsedUserData.is_mentor? (
         <div className="flex justify-center items-center">
           <div className="text-lg font-bold">
             Milestone Creation Pending by Mentor

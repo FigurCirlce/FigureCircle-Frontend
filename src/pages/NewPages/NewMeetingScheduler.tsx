@@ -17,6 +17,7 @@ import MilestonePopup from "@/components/NewPage/MilestonePopup";
 import { Dialog, DialogContent } from "@mui/material";
 import { Lightbulb } from 'lucide-react';
 
+
 // —— Types ——
 interface Mentor {
   mentor_id: number;
@@ -30,6 +31,10 @@ interface Mentor {
   name: string;
 }
 
+interface email{
+email:string;
+user_id:number;
+}
 interface Schedule {
   id: number;
   name: string;
@@ -42,7 +47,15 @@ interface Schedule {
   mentor_phone?: string;
   mentor_linkedin?: string;
   timezone?: string;
+  user_info:email;
 
+}
+
+interface user_work{
+  industry:string;
+role:string;
+role_based:string;
+work_experience:string;
 }
 interface Intent {
   id: number;
@@ -54,6 +67,8 @@ interface Intent {
   support_types: string;
   area_exploring: string | null;
   created_at: string;
+  user_work:user_work;
+   user_info:email;
 }
 
 
@@ -71,6 +86,7 @@ interface Meeting {
   mentorName: string;
   // milestoneLink: string;
   // feedbackLink: string;
+ 
   mentor_email: string;
   email: string;
   name: string;
@@ -314,10 +330,19 @@ const SupportDetailsCard = ({
       </h2>
       {data ?
         <div className="text-sm space-y-2">
-          {/* <p>
+          <p>
           <span className="font-medium">Email:</span> {data?.email}
-        </p> */}
-
+        </p>
+         <p>
+          <span className="font-medium">Work Experience:</span> {data?.user_work?.work_experience}
+        </p>
+        
+ <p>
+          <span className="font-medium">Industry:</span> {data?.user_work?.industry}
+        </p>
+        <p>
+          <span className="font-medium">Dream Role:</span> {data?.user_work?.role_based}
+        </p>
           <p>
             <span className="font-medium">Goal / Challenge:</span>{" "}
             {data?.goal_challenge}
@@ -332,6 +357,8 @@ const SupportDetailsCard = ({
             <span className="font-medium">Area Exploring:</span>{" "}
             {data?.area_exploring ?? "Not specified"}
           </p>
+
+          
 
           {/* <p>
           <span className="font-medium">Mentor ID:</span> {data.mentor_id}
@@ -675,6 +702,7 @@ const MeetingSchedulerPreview = () => {
       const parsedUser = userData ? JSON.parse(userData) : null;
 
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // const meetingLink = `/v2/meetingcall/${randomId}/${selectedMentor.mentor_id
       const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id
         }?start=${encodeURIComponent(
           encryptedStartDate
@@ -1232,7 +1260,7 @@ const MeetingSchedulerPreview = () => {
               >
                 <div>
                   <div className="font-semibold">
-                    {parsedUserData.is_mentor ? m.name : m.mentor_name}
+                    {parsedUserData.is_mentor ? m?.intent?.user_info?.email : m.mentor_name}
                   </div>
                   <div className="text-sm text-gray-600">
                     • {new Date(m?.start_datetime).toLocaleString()} •{" "}
@@ -1299,6 +1327,7 @@ const MeetingSchedulerPreview = () => {
                     onClose={() => setIsMilestonePopupOpen(false)}
                     MilestoneData={selectedMilestoneData}
                     is_mentor={parsedUserData?.is_mentor}
+                    userId={m.intent.user_info.user_id}
                   />
                   <button
                     className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm font-medium hover:bg-gray-50"
