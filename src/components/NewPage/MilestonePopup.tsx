@@ -360,11 +360,21 @@ export interface Milestone {
   mentorFees?: number;
 }
 
+export interface MilestoneHistory {
+  id: number;
+  edited_at: string;        // "Wed, 21 Jan 2026 13:18:53 GMT"
+  edited_by: string;        // mentor email
+  milestone_state: Milestone[];
+}
+
+
+
 export interface MilestoneData {
   check_id: number;
   check_meeting_id: number;
   created_at: string;
   history_count: number;
+  history: MilestoneHistory[];
   current_milestone: Milestone[];
   mentor_id: number;
   serial_number: number;
@@ -406,6 +416,8 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [dataToSend,setDataToSend]=useState({});
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<"current" | "history">("current");
+
 
 
   console.log("milestoneData----",MilestoneData);
@@ -563,8 +575,36 @@ const inlineEditActive =
 
         {/* Milestones */}
         <div className="px-6 py-4">
-          <h3 className="text-sm font-semibold mb-3">All Milestones</h3>
+          <div className="flex gap-6 mb-4 border-b">
+  <button
+    onClick={() => setActiveTab("current")}
+    className={`pb-2 text-sm font-medium ${
+      activeTab === "current"
+        ? "border-b-2 border-blue-600 text-blue-600"
+        : "text-gray-500"
+    }`}
+  >
+    All Milestones
+  </button>
 
+  <button
+    onClick={() => setActiveTab("history")}
+    className={`pb-2 text-sm font-medium ${
+      activeTab === "history"
+        ? "border-b-2 border-blue-600 text-blue-600"
+        : "text-gray-500"
+    }`}
+  >
+    History
+    {MilestoneData.history_count > 0 && (
+      <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-600">
+        {MilestoneData.history_count}
+      </span>
+    )}
+  </button>
+</div>
+
+{activeTab === "current" && (
           <div className="space-y-3">
             {milestones.map((m, index) => (
               <div
@@ -634,6 +674,59 @@ const inlineEditActive =
               </div>
             ))}
           </div>
+)}
+
+{/* {activeTab === "history" && (
+  <div className="text-sm text-gray-600 py-6 text-center">
+    {MilestoneData.history_count > 0 ? (
+      <p>
+        This milestone has <strong>{MilestoneData.history_count}</strong> previous
+        versions.
+        <br />
+        History details will appear here once available.
+      </p>
+    ) : (
+      <p>No milestone history available.</p>
+    )}
+  </div>
+)} */}
+{activeTab === "history" && (
+  <div className="space-y-4">
+    {MilestoneData.history_count > 0 && MilestoneData.history?.length ? (
+      MilestoneData.history.map((entry, hIndex) => (
+        <div key={entry.id} className="space-y-2">
+          {/* History meta */}
+          <p className="text-xs text-gray-400">
+            Edited by {entry.edited_by} • {formatDateTime(entry.edited_at)}
+          </p>
+
+          {/* Milestones snapshot */}
+          {entry.milestone_state.map((item, mIndex) => (
+            <div
+              key={`${hIndex}-${mIndex}`}
+              className="border rounded-lg p-4 bg-gray-50 shadow-sm"
+            >
+              <p className="text-sm font-semibold">{item.milestone}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {item.description}
+              </p>
+              <p className="text-xs text-gray-600 mt-2">
+                Due: {item.expectedCompletionDate}
+              </p>
+            </div>
+          ))}
+        </div>
+      ))
+    ) : (
+      <p className="text-center text-gray-500">
+        No milestone history available.
+      </p>
+    )}
+  </div>
+)}
+
+
+
 
           {/* Actions */}
           {is_mentor && (

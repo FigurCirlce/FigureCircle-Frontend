@@ -952,6 +952,7 @@ const MeetingSchedulerPreview = () => {
             user_id: parsedUserData?.is_mentor
               ? mentorId
               : parsedUserData.user_id,
+              include_history:true
           },
           headers: {
             Authorization: `Bearer ${token}`,
