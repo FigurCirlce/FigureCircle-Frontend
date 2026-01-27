@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   Select,
   SelectContent,
@@ -142,6 +143,7 @@ const ProfileRecWidget = () => {
   const [profile, setProfile] = useState<any>([]);
   //@ts-ignore
   const [loading, setLoading] = useState(false);
+  // const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reco, setReco] = useState<any | null>(null);
   const [role_options, setRole_Options] = useState<any>([]);
@@ -577,7 +579,7 @@ const ProfileRecWidget = () => {
                 </div>
 
                 {/* Dream Role */}
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <Label className="text-sm text-muted-foreground mb-1 block">
                       Dream Role
@@ -601,6 +603,9 @@ const ProfileRecWidget = () => {
                           ))}
                         </SelectGroup>
                       </SelectContent>
+          
+
+
                     </Select>
                   </div>
 
@@ -625,7 +630,64 @@ const ProfileRecWidget = () => {
                       <span className="hidden sm:inline">Reset</span>
                     </Button>
                   </div>
-                </div>
+                </div> */}
+                <div className="flex items-end gap-3">
+  <div className="w-64">
+    <Label className="text-sm text-muted-foreground mb-1 block">
+      Dream Role
+    </Label>
+    <Select
+      value={profile.dreamRole}
+      onValueChange={(v) =>
+        setProfile({ ...profile, dreamRole: v })
+      }
+    >
+      <SelectTrigger className="h-9 w-[90%] border-primary/20">
+        <SelectValue placeholder="Select dream role" />
+      </SelectTrigger>
+      <SelectContent 
+        position="popper"
+        sideOffset={4}
+        className="max-h-[300px] w-50 z-50"
+      >
+        <div className="max-h-[280px] overflow-y-auto">
+          <SelectGroup>
+            <SelectLabel>Popular Roles</SelectLabel>
+            {allRoles.map((r: string) => (
+              <SelectItem key={r} value={r}>
+                {r}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </div>
+      </SelectContent>
+    </Select>
+  </div>
+
+  <div className="flex gap-2">
+    <Button
+      onClick={updateBasicInfo}
+      disabled={saving}
+      className="bg-green-500 h-9"
+    >
+      <Save className="w-4 h-4 sm:mr-2" />
+      <span className="hidden sm:inline">
+        {saving ? "Saving..." : "Save"}
+      </span>
+    </Button>
+    <Button
+      variant="ghost"
+      onClick={() => {
+        fetchBasicInfo();
+      }}
+      className="h-9 bg-red-200"
+    >
+      <X className="w-4 h-4 text-red-600 font-bold sm:mr-2 " />
+      <span className="hidden sm:inline">Reset</span>
+    </Button>
+  </div>
+</div>
+                
               </CardContent>
             </Card>
 

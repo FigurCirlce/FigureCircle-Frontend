@@ -59,17 +59,23 @@ console.log("feedbackData----",feedbackData);
     // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
       
-      { Object.keys(feedbackData).length === 0?<div className="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b"> 
-          <p className="text-red-500">
-            No feedback submitted for this meeting yet!!
+      { Object.keys(feedbackData).length === 0? <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
+                  <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative"> 
+                     <button
+                      onClick={onClose}
+                      className="absolute top-4 right-4 text-gray-500"
+                    >
+                      <X size={22} />
+                    </button>
+          <p className="text-center text-slate-600 text-sm">
+            No feedback submitted for this meeting yet.
           </p>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            <X size={24} />
-          </button></div></div>:(feedbackData.map((item:any)=>(
+         </div>
+          
+           
+          
+          
+          </div>:(feedbackData.map((item:any)=>(
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -153,7 +159,7 @@ console.log("feedbackData----",feedbackData);
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                {/* <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="font-semibold text-gray-700">Mentor Responsibility:</span>
                     <div className="flex items-center mt-1">
@@ -181,7 +187,7 @@ console.log("feedbackData----",feedbackData);
                       </span>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* <div className="text-sm text-gray-500 pt-2">
                   <p>Meeting ID: {item.check_meeting_id}</p>

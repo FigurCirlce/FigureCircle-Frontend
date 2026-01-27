@@ -31,9 +31,10 @@ interface Mentor {
   name: string;
 }
 
-interface email{
+interface user_info{
 email:string;
 user_id:number;
+first_name:string;
 }
 interface Schedule {
   id: number;
@@ -47,7 +48,7 @@ interface Schedule {
   mentor_phone?: string;
   mentor_linkedin?: string;
   timezone?: string;
-  user_info:email;
+  user_info:user_info;
 
 }
 
@@ -56,6 +57,10 @@ interface user_work{
 role:string;
 role_based:string;
 work_experience:string;
+}
+
+interface user_education{
+  high_education:string;
 }
 interface Intent {
   id: number;
@@ -68,7 +73,8 @@ interface Intent {
   area_exploring: string | null;
   created_at: string;
   user_work:user_work;
-   user_info:email;
+   user_info:user_info;
+   user_education:user_education;
 }
 
 
@@ -331,7 +337,13 @@ const SupportDetailsCard = ({
       {data ?
         <div className="text-sm space-y-2">
           <p>
-          <span className="font-medium">Email:</span> {data?.email}
+          <span className="font-medium">Name:</span> {data?.user_info.first_name}
+        </p>
+        <p>
+          <span className="font-medium">Education:</span> {data?.user_education.high_education}
+        </p>
+         <p>
+          <span className="font-medium">Dream Role:</span> {data?.user_work?.role_based}
         </p>
          <p>
           <span className="font-medium">Work Experience:</span> {data?.user_work?.work_experience}
@@ -340,9 +352,7 @@ const SupportDetailsCard = ({
  <p>
           <span className="font-medium">Industry:</span> {data?.user_work?.industry}
         </p>
-        <p>
-          <span className="font-medium">Dream Role:</span> {data?.user_work?.role_based}
-        </p>
+       
           <p>
             <span className="font-medium">Goal / Challenge:</span>{" "}
             {data?.goal_challenge}
@@ -353,10 +363,13 @@ const SupportDetailsCard = ({
             {data?.support_types}
           </p>
 
+ {data?.area_exploring &&
+ 
           <p>
             <span className="font-medium">Area Exploring:</span>{" "}
             {data?.area_exploring ?? "Not specified"}
           </p>
+}
 
           
 

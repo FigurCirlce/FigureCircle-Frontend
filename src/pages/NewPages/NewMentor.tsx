@@ -235,7 +235,9 @@ function MentorInspector({
   const resumeUrl = m.resume || "#";
 
   return (
-    <aside className="sticky top-20 self-start w-full md:w-[360px] lg:w-[400px] xl:w-[440px] bg-pink-400">
+    // <aside className="sticky top-20 self-start w-full md:w-[360px] lg:w-[400px] xl:w-[440px]">
+    <aside className="fixed top-50 right-5 w-full md:w-[360px] lg:w-[400px] xl:w-[440px]">
+
       <div className="rounded-2xl border bg-white shadow-sm">
         <div className="flex items-start justify-between p-4 border-b">
           <div className="flex gap-3">
@@ -992,6 +994,9 @@ const MentorsWireframe2 = () => {
         );
 
         notifyMeetingScheduledSuccess();
+        setTimeout(() => {
+        notifyNextStep();
+        }, 2000);
         // setDurationOpen(false);
         // setSelectedMentorId(null);
         await fetchMeetingData();
@@ -1215,6 +1220,7 @@ const MentorsWireframe2 = () => {
       ...prev,
       [mentorUserId]: true,
     }));
+notifyPaymentNextStep();
     fetchAssignedMentor();
   };
 
@@ -1243,6 +1249,32 @@ const MentorsWireframe2 = () => {
     toast.success(msg, {
       position: "top-right",
       autoClose: 3000,
+      hideProgressBar: false,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+  };
+
+const notifyPaymentNextStep = (
+  message = "Expert successfully added to dashboard. You may schedule meetings in the Scheduled Meetings section."
+) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 3000,
+    hideProgressBar: false,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "colored",
+  });
+};
+
+    const notifyNextStep = (
+    msg = "Your meeting has been scheduled successfully. Please visit the Schedule Meeting section to access meeting details."
+  ) => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 4000,
       hideProgressBar: false,
       pauseOnHover: true,
       draggable: true,

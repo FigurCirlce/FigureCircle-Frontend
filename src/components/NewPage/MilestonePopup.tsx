@@ -346,7 +346,7 @@
 
 // export default MilestonePopup;
 import React, { useEffect, useState } from "react";
-import { X, BadgeInfo, Calendar, Clock } from "lucide-react";
+import { X, Calendar, Clock } from "lucide-react";
 import CreateMilestone from "./MilestoneNewForm";
 import axios from "axios";
 import baseURL from "@/config/config";
@@ -606,73 +606,74 @@ const inlineEditActive =
 
 {activeTab === "current" && (
           <div className="space-y-3">
-            {milestones.map((m, index) => (
-              <div
-                key={index}
-                className="border rounded-lg p-4 bg-white shadow-sm"
-              >
-                <div className="flex items-start gap-3">
-                  <BadgeInfo className="text-blue-500 mt-1" />
+            
+            <div className="relative">
+  {/* spine */}
+  <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-gray-200" />
 
-                  <div className="flex-1">
-                    {/* Title */}
-                    {is_mentor ? (
-                      <input
-                        value={m.milestone}
-                        onChange={(e) =>
-                          handleChange(index, "milestone", e.target.value)
-                        }
-                         className={`${inlineEditBase} ${
-    is_mentor ? inlineEditIdle : ""
-  } focus:${inlineEditActive} text-sm font-semibold`}
-                      />
-                    ) : (
-                      <p className="text-sm font-semibold text-gray-800">
-                        {m.milestone}
-                      </p>
-                    )}
+  <div className="space-y-6">
+    {milestones.map((m, index) => (
+      <div key={index} className="relative pl-12">
+        {/* dot */}
+        <div className="absolute left-[10px] top-4 h-3 w-3 rounded-full bg-blue-500" />
 
-                    {/* Description */}
-                    {is_mentor ? (
-                      <input
-                        value={m.description}
-                        onChange={(e) =>
-                          handleChange(index, "description", e.target.value)
-                        }
-                         className={`${inlineEditBase} ${
-    is_mentor ? inlineEditIdle : ""
-  } focus:${inlineEditActive} text-sm font-semibold`}
-                      />
-                    ) : (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {m.description}
-                      </p>
-                    )}
+        {/* milestone card */}
+        <div className="border rounded-xl p-4 bg-white shadow-sm">
+          {/* TITLE */}
+          {is_mentor ? (
+            <input
+              value={m.milestone}
+              onChange={(e) =>
+                handleChange(index, "milestone", e.target.value)
+              }
+              className={`${inlineEditBase} ${inlineEditIdle} focus:${inlineEditActive} text-sm font-semibold`}
+            />
+          ) : (
+            <p className="text-sm font-semibold">{m.milestone}</p>
+          )}
 
-                    {/* Due date */}
-                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
-                      <Calendar className="h-3 w-3 text-green-600" />
-                      {is_mentor ? (
-                        <input
-                          type="date"
-                          value={m.expectedCompletionDate}
-                          onChange={(e) =>
-                            handleChange(
-                              index,
-                              "expectedCompletionDate",
-                              e.target.value
-                            )
-                          }
-                          className="border-none focus:ring-0 text-xs p-0"
-                        />
-                      ) : (
-                        <span>Due: {m.expectedCompletionDate}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* DESCRIPTION */}
+          {is_mentor ? (
+            <input
+              value={m.description}
+              onChange={(e) =>
+                handleChange(index, "description", e.target.value)
+              }
+              className={`${inlineEditBase} ${inlineEditIdle} focus:${inlineEditActive} text-xs mt-1`}
+            />
+          ) : (
+            <p className="text-xs text-gray-500 mt-1">
+              {m.description}
+            </p>
+          )}
+
+          {/* DATE */}
+          <div className="flex items-center gap-2 mt-3 text-xs text-gray-600">
+            <Calendar className="h-3 w-3 text-green-600" />
+            {is_mentor ? (
+              <input
+                type="date"
+                value={m.expectedCompletionDate}
+                onChange={(e) =>
+                  handleChange(
+                    index,
+                    "expectedCompletionDate",
+                    e.target.value
+                  )
+                }
+                className="border-none focus:ring-0 text-xs p-0"
+              />
+            ) : (
+              <span>Due: {m.expectedCompletionDate}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+            
           </div>
 )}
 
@@ -729,7 +730,7 @@ const inlineEditActive =
 
 
           {/* Actions */}
-          {is_mentor && (
+          {is_mentor && activeTab === "current" &&(
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={onClose}
