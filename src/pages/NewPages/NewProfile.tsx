@@ -119,14 +119,12 @@ function IntentCard({ active, title, subtitle, icon: Icon, onClick }: any) {
       whileTap={{ scale: 0.98 }}
       type="button"
       onClick={onClick}
-      className={`flex w-full items-start gap-3 rounded-2xl border bg-gradient-to-r from-white to-muted/30 p-4 shadow-sm transition ${
-        active ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-      }`}
+      className={`flex w-full items-start gap-3 rounded-2xl border bg-gradient-to-r from-white to-muted/30 p-4 shadow-sm transition ${active ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+        }`}
     >
       <div
-        className={`rounded-lg p-2 ${
-          active ? "bg-primary/10 text-primary" : "bg-muted text-foreground"
-        }`}
+        className={`rounded-lg p-2 ${active ? "bg-primary/10 text-primary" : "bg-muted text-foreground"
+          }`}
       >
         <Icon className="size-5" />
       </div>
@@ -231,21 +229,21 @@ const ProfileRecWidget = () => {
         setReco({
           courses: Array.isArray(data.courses)
             ? data.courses.map((c: any) => ({
-                title: c.title || c,
-                provider: c.provider || c.source || "",
-              }))
+              title: c.title || c,
+              provider: c.provider || c.source || "",
+            }))
             : [],
           certs: Array.isArray(data.certifications)
             ? data.certifications.map((c: any) => ({
-                title: c.title || c,
-                by: c.by || "",
-              }))
+              title: c.title || c,
+              by: c.by || "",
+            }))
             : [],
           comps: Array.isArray(data.competitions)
             ? data.competitions.map((c: any) => ({
-                title: c.title || c,
-                host: c.host || "",
-              }))
+              title: c.title || c,
+              host: c.host || "",
+            }))
             : [],
         });
       }
@@ -280,11 +278,10 @@ const ProfileRecWidget = () => {
 
       const url = parsedUser?.is_mentor
         ? // mentor update route from InfoCard: /update_mentor/{mentor_id}
-          `${baseURL}/update_mentor/${
-            profile.__raw?.mentor_id ?? profile.__raw?.mentorId ?? ""
-          }`
+        `${baseURL}/update_mentor/${profile.__raw?.mentor_id ?? profile.__raw?.mentorId ?? ""
+        }`
         : // user basic info update:
-          `${baseURL}/api/basic-info`;
+        `${baseURL}/api/basic-info`;
 
       // choose HTTP method: InfoCard used PUT for both. Use PUT.
       await axios.put(url, payload, {
@@ -324,7 +321,11 @@ const ProfileRecWidget = () => {
     try {
       const response = await axios.get(`${baseURL}/api/industry`);
       console.log("response-data--industry", response.data.industry);
-      setIndustryArray(response.data.industry);
+      // Remove duplicates based on description
+      const uniqueIndustries = Array.from(
+        new Map(response.data.industry.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setIndustryArray(uniqueIndustries);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -347,7 +348,11 @@ const ProfileRecWidget = () => {
     try {
       const response = await axios.get(`${baseURL}/api/education`);
       console.log("response-data--education", response.data.education);
-      setEducationArray(response.data.education);
+      // Remove duplicates based on description
+      const uniqueEducation = Array.from(
+        new Map(response.data.education.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setEducationArray(uniqueEducation);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -375,14 +380,14 @@ const ProfileRecWidget = () => {
   };
 
   const allRoles = useMemo(() => {
-  if (
-    profile.dreamRole &&
-    !role_options.includes(profile.dreamRole)
-  ) {
-    return [profile.dreamRole, ...role_options];
-  }
-  return role_options;
-}, [profile.dreamRole, role_options]);
+    if (
+      profile.dreamRole &&
+      !role_options.includes(profile.dreamRole)
+    ) {
+      return [profile.dreamRole, ...role_options];
+    }
+    return role_options;
+  }, [profile.dreamRole, role_options]);
 
 
 
@@ -632,62 +637,62 @@ const ProfileRecWidget = () => {
                   </div>
                 </div> */}
                 <div className="flex items-end gap-3">
-  <div className="w-64">
-    <Label className="text-sm text-muted-foreground mb-1 block">
-      Dream Role
-    </Label>
-    <Select
-      value={profile.dreamRole}
-      onValueChange={(v) =>
-        setProfile({ ...profile, dreamRole: v })
-      }
-    >
-      <SelectTrigger className="h-9 w-[90%] border-primary/20">
-        <SelectValue placeholder="Select dream role" />
-      </SelectTrigger>
-      <SelectContent 
-        position="popper"
-        sideOffset={4}
-        className="max-h-[300px] w-50 z-50"
-      >
-        <div className="max-h-[280px] overflow-y-auto">
-          <SelectGroup>
-            <SelectLabel>Popular Roles</SelectLabel>
-            {allRoles.map((r: string) => (
-              <SelectItem key={r} value={r}>
-                {r}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </div>
-      </SelectContent>
-    </Select>
-  </div>
+                  <div className="w-64">
+                    <Label className="text-sm text-muted-foreground mb-1 block">
+                      Dream Role
+                    </Label>
+                    <Select
+                      value={profile.dreamRole}
+                      onValueChange={(v) =>
+                        setProfile({ ...profile, dreamRole: v })
+                      }
+                    >
+                      <SelectTrigger className="h-9 w-[90%] border-primary/20">
+                        <SelectValue placeholder="Select dream role" />
+                      </SelectTrigger>
+                      <SelectContent
+                        position="popper"
+                        sideOffset={4}
+                        className="max-h-[300px] w-50 z-50"
+                      >
+                        <div className="max-h-[280px] overflow-y-auto">
+                          <SelectGroup>
+                            <SelectLabel>Popular Roles</SelectLabel>
+                            {allRoles.map((r: string) => (
+                              <SelectItem key={r} value={r}>
+                                {r}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </div>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-  <div className="flex gap-2">
-    <Button
-      onClick={updateBasicInfo}
-      disabled={saving}
-      className="bg-green-500 h-9"
-    >
-      <Save className="w-4 h-4 sm:mr-2" />
-      <span className="hidden sm:inline">
-        {saving ? "Saving..." : "Save"}
-      </span>
-    </Button>
-    <Button
-      variant="ghost"
-      onClick={() => {
-        fetchBasicInfo();
-      }}
-      className="h-9 bg-red-200"
-    >
-      <X className="w-4 h-4 text-red-600 font-bold sm:mr-2 " />
-      <span className="hidden sm:inline">Reset</span>
-    </Button>
-  </div>
-</div>
-                
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={updateBasicInfo}
+                      disabled={saving}
+                      className="bg-green-500 h-9"
+                    >
+                      <Save className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">
+                        {saving ? "Saving..." : "Save"}
+                      </span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        fetchBasicInfo();
+                      }}
+                      className="h-9 bg-red-200"
+                    >
+                      <X className="w-4 h-4 text-red-600 font-bold sm:mr-2 " />
+                      <span className="hidden sm:inline">Reset</span>
+                    </Button>
+                  </div>
+                </div>
+
               </CardContent>
             </Card>
 
@@ -741,10 +746,10 @@ const ProfileRecWidget = () => {
                             ))}
                         {(!Array.isArray(block.list) ||
                           block.list.length === 0) && (
-                          <div className="text-xs text-muted-foreground">
-                            No recommendations found for this category.
-                          </div>
-                        )}
+                            <div className="text-xs text-muted-foreground">
+                              No recommendations found for this category.
+                            </div>
+                          )}
                       </div>
                       {full > 4 && (
                         <div className="pt-1 text-right text-xs text-muted-foreground">

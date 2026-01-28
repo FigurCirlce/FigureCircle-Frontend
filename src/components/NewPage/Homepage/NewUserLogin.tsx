@@ -248,7 +248,7 @@ const RegistrationFlow: React.FC<any> = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-const [customRole, setCustomRole] = useState("");
+  const [customRole, setCustomRole] = useState("");
 
   const [selectedRole, setSelectedRole] = useState("");
   //@ts-ignore
@@ -401,11 +401,10 @@ const [customRole, setCustomRole] = useState("");
             <div
               key={intent.id}
               onClick={() => toggleSupport(intent.title)}
-              className={`cursor-pointer border-2 rounded-xl p-4 transition ${
-                selectedSupports.includes(intent.title)
+              className={`cursor-pointer border-2 rounded-xl p-4 transition ${selectedSupports.includes(intent.title)
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
-              }`}
+                }`}
             >
               <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
               <p className="text-sm text-gray-600">{intent.desc}</p>
@@ -456,7 +455,11 @@ const [customRole, setCustomRole] = useState("");
     try {
       const response = await axios.get(`${baseURL}/api/education`);
       console.log("response-data--education", response.data.education);
-      setEducationArray(response.data.education);
+      // Remove duplicates based on description
+      const uniqueEducation = Array.from(
+        new Map(response.data.education.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setEducationArray(uniqueEducation);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -466,7 +469,11 @@ const [customRole, setCustomRole] = useState("");
     try {
       const response = await axios.get(`${baseURL}/api/industry`);
       console.log("response-data--industry", response.data.industry);
-      setIndustryArray(response.data.industry);
+      // Remove duplicates based on description
+      const uniqueIndustries = Array.from(
+        new Map(response.data.industry.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setIndustryArray(uniqueIndustries);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -479,10 +486,10 @@ const [customRole, setCustomRole] = useState("");
         "response-data--api/experience-level",
         response.data.experience_level
       );
-      console.log("experience--level",response.data.experience_level);
-      const data=response.data.experience_level;
-      const sorted=sortByExperience(data);
-      console.log("sortedddd----data",sorted);
+      console.log("experience--level", response.data.experience_level);
+      const data = response.data.experience_level;
+      const sorted = sortByExperience(data);
+      console.log("sortedddd----data", sorted);
       setExperienceArray(sorted);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -598,7 +605,7 @@ const [customRole, setCustomRole] = useState("");
       await handleLogin();
       await fetchBasicInfo();
       navigate(`/dashboard`);
-    } catch (e) {}
+    } catch (e) { }
 
     // setRecommendations(newUserInfo?.high_education);
   };
@@ -632,13 +639,13 @@ const [customRole, setCustomRole] = useState("");
         }
 
         const res = await axios.get(`${baseURL}/dream-list`, {
-  params: {
-    degree: degree,
-    // education:userInfo.high_education ,
-    industry: userInfo.industry,
-    experience: userInfo.work_experience,
-    // stream: userInfo.interested_stream,
-  },
+          params: {
+            degree: degree,
+            // education:userInfo.high_education ,
+            industry: userInfo.industry,
+            experience: userInfo.work_experience,
+            // stream: userInfo.interested_stream,
+          },
           headers: { Authorization: `Bearer ${currentToken}` },
         });
 
@@ -716,20 +723,18 @@ const [customRole, setCustomRole] = useState("");
         {["Login", "Info", "Recommendations"].map((label, index) => (
           <div key={label} className="flex items-center space-x-2">
             <div
-              className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
-                (showRecommendations ? 3 : step) === index + 1
+              className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${(showRecommendations ? 3 : step) === index + 1
                   ? "border-blue-500 bg-blue-100 text-blue-600"
                   : "border-gray-300 text-gray-400"
-              }`}
+                }`}
             >
               {index + 1}
             </div>
             <span
-              className={`text-sm ${
-                (showRecommendations ? 3 : step) === index + 1
+              className={`text-sm ${(showRecommendations ? 3 : step) === index + 1
                   ? "text-blue-600 font-medium"
                   : "text-gray-500"
-              }`}
+                }`}
             >
               {label}
             </span>
@@ -766,44 +771,44 @@ const [customRole, setCustomRole] = useState("");
               <p className="text-red-500 text-sm">{errors.email}</p>
             )}
             <div className="relative">
-            <input
-             type={showPassword ? "text" : "password"}
-              className="border p-2 rounded w-full"
-              placeholder="Password"
-              onChange={handleChange}
-              value={formData.password}
-              name="password"
-            />
-             <button
-    type="button"
-    onClick={() => setShowPassword((prev) => !prev)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-  >
-    {showPassword ? <Eye color="black" size={'20px'}/> : <EyeOff color="black" size={'20px'}/>}
-  </button>
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password}</p>
-            )}
+              <input
+                type={showPassword ? "text" : "password"}
+                className="border p-2 rounded w-full"
+                placeholder="Password"
+                onChange={handleChange}
+                value={formData.password}
+                name="password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                {showPassword ? <Eye color="black" size={'20px'} /> : <EyeOff color="black" size={'20px'} />}
+              </button>
+              {errors.password && (
+                <p className="text-red-500 text-sm">{errors.password}</p>
+              )}
             </div>
             <div className="relative">
-            <input
-              type={showConfirmPassword?"text":"password"}
-              className="border p-2 rounded w-full"
-              placeholder="Confirm Password"
-              onChange={handleChange}
-              value={formData.confirmPassword}
-              name="confirmPassword"
-            />{" "}
-               <button
-    type="button"
-    onClick={() => setShowConfirmPassword((prev) => !prev)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-  >
-    {showConfirmPassword ? <Eye color="black" size={'20px'}/> : <EyeOff color="black" size={'20px'}/>}
-  </button>
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
-            )}
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                className="border p-2 rounded w-full"
+                placeholder="Confirm Password"
+                onChange={handleChange}
+                value={formData.confirmPassword}
+                name="confirmPassword"
+              />{" "}
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                {showConfirmPassword ? <Eye color="black" size={'20px'} /> : <EyeOff color="black" size={'20px'} />}
+              </button>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+              )}
             </div>
             <button
               className="w-full bg-blue-600 text-white py-2 rounded"
@@ -826,11 +831,10 @@ const [customRole, setCustomRole] = useState("");
           <div className="grid grid-cols-3 gap-4">
             <div
               onClick={() => setProfileType("student")}
-              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${
-                profileType === "student"
+              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${profileType === "student"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200"
-              }`}
+                }`}
             >
               <GraduationCap />
               <span className="text-sm">Student</span>
@@ -838,11 +842,10 @@ const [customRole, setCustomRole] = useState("");
 
             <div
               onClick={() => setProfileType("professional")}
-              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${
-                profileType === "professional"
+              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${profileType === "professional"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200"
-              }`}
+                }`}
             >
               <Briefcase />
               <span className="text-sm">Professional</span>
@@ -850,11 +853,10 @@ const [customRole, setCustomRole] = useState("");
 
             <div
               onClick={() => setProfileType("other")}
-              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${
-                profileType === "other"
+              className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${profileType === "other"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200"
-              }`}
+                }`}
             >
               <User />
               <span className="text-sm">Other</span>
@@ -927,11 +929,10 @@ const [customRole, setCustomRole] = useState("");
               Back
             </button>
             <button
-              className={`px-4 py-2 rounded text-white ${
-                !profileType || !selectedSupports
+              className={`px-4 py-2 rounded text-white ${!profileType || !selectedSupports
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600"
-              }`}
+                }`}
               onClick={handleInfoDetail}
               disabled={!profileType || !selectedSupports}
             >
@@ -955,15 +956,14 @@ const [customRole, setCustomRole] = useState("");
               <button
                 key={role}
                 className={`px-3 py-1 border rounded transition
-      ${
-        selectedRole === role
-          ? "bg-blue-600 text-white border-blue-600"
-          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-      }`}
+      ${selectedRole === role
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
                 onClick={() => {
                   // setSelectedRole(role)
                   setSelectedRole(selectedRole === role ? "" : role);
-                   setCustomRole("");  
+                  setCustomRole("");
                 }}
               >
                 {role}
@@ -973,12 +973,12 @@ const [customRole, setCustomRole] = useState("");
           <input
             className="border p-2 rounded w-full mt-4"
             placeholder="Or type your own role"
-           value={customRole}
-      onChange={(e) => {
-        const value = e.target.value;
-        setCustomRole(value);
-        setSelectedRole(value); 
-      }}
+            value={customRole}
+            onChange={(e) => {
+              const value = e.target.value;
+              setCustomRole(value);
+              setSelectedRole(value);
+            }}
           />
           <div className="flex justify-between mt-4">
             <button

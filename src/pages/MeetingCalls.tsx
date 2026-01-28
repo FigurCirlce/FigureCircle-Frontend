@@ -12,6 +12,8 @@ const MeetingCallHandler = () => {
     const [joinedRoom, setJoinedRoom] = useState(false);
     const [error, setError] = useState('');
     const [hostPeerId, setHostPeerId] = useState('');
+    const [waitingForMentor, setWaitingForMentor] = useState(false);
+    const [waitingAttempts, setWaitingAttempts] = useState(0);
     const navigate = useNavigate();
     const secretKey = 'meetingkeys';
     const peerRef = useRef<Peer | null>(null);
@@ -133,14 +135,76 @@ const MeetingCallHandler = () => {
                     peerRef.current = myPeer;
                     setIsHost(true);
 
+
                 } else {
                     // MENTEE: Create a participant peer and will call the host
                     const participantId = `${baseRoomId}-mentee-${userData?.user_id || Date.now()}`;
                     console.log('🎯 Creating PARTICIPANT peer as MENTEE:', participantId);
 
-                    // Wait a bit to ensure mentor (host) has time to create their peer
-                    console.log('⏳ Waiting 2 seconds for host to be ready...');
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    // CRITICAL: Wait for mentor (host) to be available before joining
+                    console.log('⏳ Waiting for mentor to join the call...');
+                    setWaitingForMentor(true);
+                    let mentorAvailable = false;
+                    let attempts = 0;
+                    const maxAttempts = 30; // 30 seconds max wait time
+
+                    // Poll to check if mentor's peer ID is available
+                    while (!mentorAvailable && attempts < maxAttempts) {
+                        setWaitingAttempts(attempts + 1);
+                        try {
+                            // Create a temporary peer to check if host exists
+                            const tempPeer = new Peer({
+                                host: '0.peerjs.com',
+                                secure: true,
+                                port: 443,
+                            });
+
+                            await new Promise<void>((resolve) => {
+                                tempPeer.on('open', () => {
+                                    // Try to connect to the host
+                                    const testConn = tempPeer.connect(hostId);
+
+                                    testConn.on('open', () => {
+                                        console.log('✅ Mentor is available!');
+                                        mentorAvailable = true;
+                                        setWaitingForMentor(false);
+                                        testConn.close();
+                                        tempPeer.destroy();
+                                        resolve();
+                                    });
+
+                                    testConn.on('error', () => {
+                                        console.log(`Attempt ${attempts + 1}: Mentor not available yet...`);
+                                        testConn.close();
+                                        tempPeer.destroy();
+                                        resolve();
+                                    });
+
+                                    // Timeout for this attempt
+                                    setTimeout(() => {
+                                        if (!mentorAvailable) {
+                                            testConn.close();
+                                            tempPeer.destroy();
+                                            resolve();
+                                        }
+                                    }, 1000);
+                                });
+                            });
+
+                        } catch (checkError) {
+                            console.log('Error checking mentor availability:', checkError);
+                        }
+
+                        if (!mentorAvailable) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            attempts++;
+                        }
+                    }
+                    setWaitingForMentor(false);
+
+                    if (!mentorAvailable) {
+                        throw new Error('Mentor has not joined yet. Please try again in some time.');
+                    }
 
                     myPeer = await createPeer(participantId);
                     console.log('✅ MENTEE joined as PARTICIPANT');
@@ -197,9 +261,38 @@ const MeetingCallHandler = () => {
 
     if (!joinedRoom) {
         return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="bg-gray-800 text-white p-4 rounded-md shadow-lg">
-                    <p>Connecting to meeting...</p>
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                <div className="bg-gray-800/80 backdrop-blur-sm text-white p-8 rounded-2xl shadow-2xl border border-gray-700 max-w-md w-full mx-4">
+                    {waitingForMentor ? (
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center animate-pulse">
+                                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h2 className="text-xl font-semibold mb-3">Waiting for Mentor</h2>
+                            <p className="text-gray-400 mb-4">
+                                Your mentor hasn't joined the meeting yet. Please wait or try again in a few moments.
+                            </p>
+                            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-6">
+                                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                <span className="ml-2">Checking... ({waitingAttempts}/30)</span>
+                            </div>
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm"
+                            >
+                                Go Back to Dashboard
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="text-center">
+                            <div className="w-12 h-12 mx-auto mb-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-lg">Connecting to meeting...</p>
+                        </div>
+                    )}
                 </div>
             </div>
         );

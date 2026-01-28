@@ -31,8 +31,10 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  //@ts-ignore
   const [participants, setParticipants] = useState<Set<string>>(new Set());
   const peerConnectionsRef = useRef<Map<string, PeerData>>(new Map());
+  //@ts-ignore
   const MAX_PARTICIPANTS = 8;
   const [screenSharingStream, setScreenSharingStream] = useState<MediaStream | null>(null);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -48,6 +50,11 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
   const [milestoneUrl, setMilestoneUrl] = useState("");
   const [feedbackUrl, setFeedbackUrl] = useState("");
   const [milestoneUserId, setMilestoneUserId] = useState<number | null>(null);
+
+  // Track remote video enabled states
+  const [remoteVideoEnabled, setRemoteVideoEnabled] = useState<Map<string, boolean>>(new Map());
+  // Track remote audio enabled states
+  const [remoteAudioEnabled, setRemoteAudioEnabled] = useState<Map<string, boolean>>(new Map());
 
   // Get user name from localStorage
   const [myName, setMyName] = useState<string>('You');
@@ -293,6 +300,25 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
       });
 
       setParticipants(prev => new Set([...prev, call.peer]));
+
+      // Send our current media state to the new peer so they know our camera/mic status
+      if (peer) {
+        setTimeout(() => {
+          try {
+            const conn = peer.connect(call.peer);
+            conn.on('open', () => {
+              conn.send({
+                type: 'mediaState',
+                peerId: peer.id,
+                videoEnabled: isVideoEnabled,
+                audioEnabled: isAudioEnabled
+              });
+            });
+          } catch (error) {
+            console.error('Error sending initial media state:', error);
+          }
+        }, 500); // Small delay to ensure connection is stable
+      }
     });
 
     call.on('close', () => {
@@ -321,12 +347,35 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
     peerConnectionsRef.current = peers;
   }, [peers]);
 
+  // Function to notify peers about media state changes
+  const notifyPeersAboutMediaState = (videoEnabled: boolean, audioEnabled: boolean) => {
+    if (!peer) return;
+
+    peers.forEach(({ call }) => {
+      try {
+        const conn = peer.connect(call.peer);
+        conn.on('open', () => {
+          conn.send({
+            type: 'mediaState',
+            peerId: peer.id,
+            videoEnabled,
+            audioEnabled
+          });
+        });
+      } catch (error) {
+        console.error('Error sending media state:', error);
+      }
+    });
+  };
+
   const toggleAudio = () => {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
         setIsAudioEnabled(audioTrack.enabled);
+        // Notify peers about audio state change
+        notifyPeersAboutMediaState(isVideoEnabled, audioTrack.enabled);
       }
     }
   };
@@ -337,6 +386,8 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
         setIsVideoEnabled(videoTrack.enabled);
+        // Notify peers about video state change
+        notifyPeersAboutMediaState(videoTrack.enabled, isAudioEnabled);
       }
     }
   };
@@ -366,7 +417,8 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
           //@ts-ignore
-          cursor: 'always'
+          cursor: 'always',
+          displaySurface: 'monitor' // Minimize browser notification
         },
         audio: false
       });
@@ -419,9 +471,54 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
         }
       });
 
-      // Handle screen sharing stop
-      stream.getVideoTracks()[0].onended = () => {
-        stopScreenSharing();
+      // CRITICAL FIX: Handle screen sharing stop from browser notification
+      // This event fires when user clicks "Stop sharing" in the browser notification
+      const videoTrack = stream.getVideoTracks()[0];
+      videoTrack.onended = () => {
+        console.log('Screen share stopped from browser notification');
+
+        // Stop all tracks in the screen sharing stream
+        stream.getTracks().forEach(track => track.stop());
+
+        // Clear the video element
+        if (screenVideoRef.current) {
+          screenVideoRef.current.srcObject = null;
+        }
+
+        // Reset all screen sharing state
+        setScreenSharingStream(null);
+        setIsScreenSharing(false);
+        setScreenSharingPeerId(null);
+        setIsScreenSharePinned(false);
+
+        // Remove from active sharers
+        if (peer?.id) {
+          setActiveScreenSharers(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(peer.id);
+            return newSet;
+          });
+          setScreenShareStreams(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(peer.id);
+            return newMap;
+          });
+          setDisplayedScreenShareId(null);
+        }
+
+        // Notify all peers that screen sharing has stopped
+        peers.forEach(({ call }) => {
+          if (peer) {
+            const conn = peer.connect(call.peer);
+            conn.on('open', () => {
+              conn.send({
+                type: 'screenShare',
+                action: 'stop',
+                peerId: peer.id
+              });
+            });
+          }
+        });
       };
 
     } catch (error) {
@@ -434,6 +531,11 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
     if (screenSharingStream) {
       // Stop all tracks in the screen sharing stream
       screenSharingStream.getTracks().forEach(track => track.stop());
+
+      // Clear the video element
+      if (screenVideoRef.current) {
+        screenVideoRef.current.srcObject = null;
+      }
 
       // Reset screen sharing state
       setScreenSharingStream(null);
@@ -453,16 +555,9 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
           return newMap;
         });
 
-        // If we were displaying this screen share, switch to another or unpin
-        if (displayedScreenShareId === peer.id) {
-          const remainingSharers = Array.from(activeScreenSharers).filter(id => id !== peer.id);
-          if (remainingSharers.length > 0) {
-            setDisplayedScreenShareId(remainingSharers[0]);
-          } else {
-            setDisplayedScreenShareId(null);
-            setIsScreenSharePinned(false);
-          }
-        }
+        // Always clear displayed screen share and unpin when stopping
+        setDisplayedScreenShareId(null);
+        setIsScreenSharePinned(false);
       }
 
       // Notify all peers that screen sharing has stopped
@@ -524,6 +619,24 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
             }
           }
         }
+        // Handle media state updates from peers
+        else if (data.type === 'mediaState') {
+          console.log('Received media state from peer:', data.peerId, 'video:', data.videoEnabled, 'audio:', data.audioEnabled);
+
+          // Update remote video enabled state
+          setRemoteVideoEnabled(prev => {
+            const newMap = new Map(prev);
+            newMap.set(data.peerId, data.videoEnabled);
+            return newMap;
+          });
+
+          // Update remote audio enabled state
+          setRemoteAudioEnabled(prev => {
+            const newMap = new Map(prev);
+            newMap.set(data.peerId, data.audioEnabled);
+            return newMap;
+          });
+        }
       });
     });
 
@@ -574,17 +687,29 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
 
   //setting screen share 
   useEffect(() => {
+    if (!screenVideoRef.current) return;
+
+    // Clear screen share if no active sharing
+    if (!isScreenSharing && !displayedScreenShareId) {
+      screenVideoRef.current.srcObject = null;
+      console.log("Screen sharing cleared");
+      return;
+    }
+
     // For local screen sharing
-    if (isScreenSharing && screenVideoRef.current && screenSharingStream && displayedScreenShareId === peer?.id) {
+    if (isScreenSharing && screenSharingStream && displayedScreenShareId === peer?.id) {
       screenVideoRef.current.srcObject = screenSharingStream;
       console.log("Local screen sharing stream set successfully!");
     }
     // For remote screen sharing
-    else if (displayedScreenShareId && screenVideoRef.current) {
+    else if (displayedScreenShareId) {
       const displayedStream = screenShareStreams.get(displayedScreenShareId);
       if (displayedStream) {
         screenVideoRef.current.srcObject = displayedStream;
         console.log("Remote screen sharing stream set successfully!");
+      } else {
+        // Clear if stream not found
+        screenVideoRef.current.srcObject = null;
       }
     }
   }, [isScreenSharing, screenSharingStream, displayedScreenShareId, screenShareStreams, peer?.id]);
@@ -621,46 +746,46 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
     switchScreenShare(sharers[prevIndex]);
   };
 
+  // Helper function to get initials from name
+  const getInitials = (name: string) => {
+    if (!name) return '?';
+    const words = name.trim().split(' ');
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+  };
+
+  // Generate consistent color based on name
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      'from-blue-500 to-blue-700',
+      'from-purple-500 to-purple-700',
+      'from-green-500 to-green-700',
+      'from-pink-500 to-pink-700',
+      'from-indigo-500 to-indigo-700',
+      'from-teal-500 to-teal-700',
+      'from-orange-500 to-orange-700',
+      'from-cyan-500 to-cyan-700',
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   const renderParticipantVideos = () => {
-    // Helper function to get initials from name
-    const getInitials = (name: string) => {
-      if (!name) return '?';
-      const words = name.trim().split(' ');
-      if (words.length === 1) {
-        return words[0].charAt(0).toUpperCase();
-      }
-      return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-    };
-
-    // Generate consistent color based on name
-    const getAvatarColor = (name: string) => {
-      const colors = [
-        'from-blue-500 to-blue-700',
-        'from-purple-500 to-purple-700',
-        'from-green-500 to-green-700',
-        'from-pink-500 to-pink-700',
-        'from-indigo-500 to-indigo-700',
-        'from-teal-500 to-teal-700',
-        'from-orange-500 to-orange-700',
-        'from-cyan-500 to-cyan-700',
-      ];
-      let hash = 0;
-      for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      return colors[Math.abs(hash) % colors.length];
-    };
-
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Screen sharing video */}
-        {(isScreenSharing || screenSharingPeerId) && (
-          <div className={`relative bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-200 ${isScreenSharePinned ? 'col-span-full' : ''}`}>
+        {/* Screen sharing video - Only show in grid when NOT pinned */}
+        {(isScreenSharing || screenSharingPeerId) && !isScreenSharePinned && (
+          <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-200">
             <video
               ref={screenVideoRef}
               autoPlay
               playsInline
-              className={`w-full ${isScreenSharePinned ? 'h-[82vh]' : 'h-[240px]'} object-contain bg-gray-900`}
+              className="w-full h-[240px] object-contain bg-gray-900"
             />
             <div className="absolute top-3 right-3 z-10 flex gap-2">
               {activeScreenSharers.size > 1 && (
@@ -707,7 +832,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
         )}
 
         {/* Local video */}
-        <div className={`relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? 'absolute top-[23rem] right-10 w-[220px] h-[140px] z-20' : ''}`}>
+        <div className={`relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 min-h-[240px] ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? 'absolute top-[23rem] right-10 w-[220px] h-[140px] z-20' : ''}`}>
           {/* Always show avatar placeholder behind video */}
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
             <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
@@ -719,7 +844,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
             autoPlay
             playsInline
             muted
-            className={`w-full h-[240px] object-cover relative z-10 ${!isVideoEnabled ? 'opacity-0' : ''}`}
+            className={`w-full h-[240px] object-cover relative z-10 ${!isVideoEnabled ? 'hidden' : ''}`}
           />
           {/* Status indicators */}
           <div className="absolute top-3 right-3 flex gap-2 z-20">
@@ -751,8 +876,13 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
         {/* Remote videos */}
         {
           Array.from(peers.entries()).map(([peerId, { stream }]) => {
+            // Check if video track is enabled - use data channel state, default to false (show avatar first)
+            const hasVideoEnabled = remoteVideoEnabled.get(peerId) ?? false;
+            // Check if audio is enabled - default to true if unknown
+            const hasAudioEnabled = remoteAudioEnabled.get(peerId) ?? true;
+
             return (
-              <div key={peerId} className="relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+              <div key={peerId} className="relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 min-h-[240px]">
                 {/* Always show avatar placeholder */}
                 <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
                   <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
@@ -762,9 +892,55 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
                 <video
                   autoPlay
                   playsInline
-                  className="w-full h-[240px] object-cover relative z-10"
+                  className={`w-full h-[240px] object-cover relative z-10 ${!hasVideoEnabled ? 'hidden' : ''}`}
                   ref={video => {
-                    if (video) video.srcObject = stream;
+                    if (video && stream) {
+                      video.srcObject = stream;
+
+                      // Check if video track is enabled
+                      const videoTrack = stream.getVideoTracks()[0];
+                      if (videoTrack) {
+                        // Update state with current track status
+                        const updateRemoteVideoState = () => {
+                          setRemoteVideoEnabled(prev => {
+                            const newMap = new Map(prev);
+                            // Check both enabled property and if track has ended
+                            const isEnabled = videoTrack.enabled && videoTrack.readyState === 'live';
+                            if (newMap.get(peerId) !== isEnabled) {
+                              newMap.set(peerId, isEnabled);
+                              return newMap;
+                            }
+                            return prev;
+                          });
+                        };
+
+                        // Initial check
+                        updateRemoteVideoState();
+
+                        // Listen for track mute/unmute events
+                        videoTrack.onmute = () => {
+                          setRemoteVideoEnabled(prev => {
+                            const newMap = new Map(prev);
+                            newMap.set(peerId, false);
+                            return newMap;
+                          });
+                        };
+
+                        videoTrack.onunmute = () => {
+                          setRemoteVideoEnabled(prev => {
+                            const newMap = new Map(prev);
+                            newMap.set(peerId, true);
+                            return newMap;
+                          });
+                        };
+
+                        // Poll for changes as fallback (since enabled property changes don't fire events)
+                        const interval = setInterval(updateRemoteVideoState, 500);
+
+                        // Cleanup
+                        return () => clearInterval(interval);
+                      }
+                    }
                   }}
                 />
                 {/* Name badge */}
@@ -776,8 +952,18 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
                     <span className="text-gray-800 text-sm font-medium">{participantName}</span>
                   </div>
                 </div>
-                {/* Connection indicator */}
-                <div className="absolute top-3 right-3 z-20">
+                {/* Status indicators */}
+                <div className="absolute top-3 right-3 z-20 flex gap-2">
+                  {!hasAudioEnabled && (
+                    <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                      <MicOff size={14} className="text-white" />
+                    </div>
+                  )}
+                  {!hasVideoEnabled && (
+                    <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                      <VideoOff size={14} className="text-white" />
+                    </div>
+                  )}
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg ring-2 ring-white" title="Connected"></div>
                 </div>
               </div>
@@ -795,7 +981,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
           <>
             <div className="flex items-center text-gray-700 absolute top-5 z-10 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
               <Users className="mr-2" size={20} />
-              <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span>
+              {/* <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span> */}
             </div>
             <div className='flex flex-col gap-3 absolute top-16 right-8 z-10'>
               {/* Milestone Card - Pinned Mode */}
@@ -836,12 +1022,66 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
                 </div>
               </a>
             </div>
+
+            {/* Full-screen screen share video for pinned mode */}
+            <div className="relative w-full h-screen flex items-center justify-center bg-gray-900">
+              <video
+                ref={screenVideoRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain"
+              />
+              {/* Controls overlay */}
+              <div className="absolute top-4 right-4 flex gap-2 z-20">
+                {activeScreenSharers.size > 1 && (
+                  <>
+                    <button
+                      onClick={cycleToPrevScreenShare}
+                      className="p-3 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-lg transition-all"
+                      title="Previous screen share"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      onClick={cycleToNextScreenShare}
+                      className="p-3 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-lg transition-all"
+                      title="Next screen share"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => setIsScreenSharePinned(false)}
+                  className="p-3 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-lg transition-all"
+                  title="Minimize"
+                >
+                  <Minimize size={20} />
+                </button>
+              </div>
+              {/* Name badge */}
+              <div className="absolute bottom-6 left-6 flex items-center gap-3 z-20">
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarColor(displayedScreenShareId === peer?.id ? myName : participantName)} flex items-center justify-center text-white text-lg font-bold shadow-xl ring-4 ring-white`}>
+                  {getInitials(displayedScreenShareId === peer?.id ? myName : participantName)}
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                  <span className="text-gray-800 text-base font-medium">
+                    📺 {displayedScreenShareId === peer?.id ? `${myName} (You)` : participantName}
+                  </span>
+                  {activeScreenSharers.size > 1 && (
+                    <span className="ml-2 text-sm bg-blue-500 px-2 py-1 rounded-full text-white">
+                      {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1}/{activeScreenSharers.size}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </>
         ) : (
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center text-gray-700 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
               <Users className="mr-2" size={20} />
-              <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span>
+              {/* <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span> */}
             </div>
 
             <div className='flex flex-row items-center gap-3'>

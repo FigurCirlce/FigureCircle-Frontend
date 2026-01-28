@@ -11,9 +11,9 @@ import { toast } from "react-toastify";
 interface EducationItem {
   id: number;
   description: string;
-  name:string;
-  created_at:string;
-  updated_at:string;
+  name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface FormData {
@@ -24,7 +24,7 @@ interface FormData {
   fee: string;
   milestones: number;
   profile_picture: File | null;
-  resume:File | null;
+  resume: File | null;
   availability: {
     day: string;
     startTime: string;
@@ -44,8 +44,8 @@ interface StepTwoProps {
   formData: {
     fullName: string;
     email: string;
-    phone:string;
-    password:string;
+    phone: string;
+    password: string;
   };
 }
 
@@ -62,7 +62,7 @@ interface SearchableSelectProps {
   valueKey?: string;
 }
 
-const SearchableSelect : React.FC<SearchableSelectProps> = ({
+const SearchableSelect: React.FC<SearchableSelectProps> = ({
   value,
   onChange,
   options,
@@ -80,12 +80,12 @@ const SearchableSelect : React.FC<SearchableSelectProps> = ({
   //   }
   // }, [value, options, labelKey, valueKey]);
 
-useEffect(() => {
-  const selected = options.find(opt => opt[valueKey] === value);
-  if (selected) {
-    setSearchTerm(selected[labelKey] as string);
-  }
-}, [value, options, labelKey, valueKey]);
+  useEffect(() => {
+    const selected = options.find(opt => opt[valueKey] === value);
+    if (selected) {
+      setSearchTerm(selected[labelKey] as string);
+    }
+  }, [value, options, labelKey, valueKey]);
 
 
   // const filteredOptions = options.filter(item =>
@@ -93,22 +93,22 @@ useEffect(() => {
   // );
 
   const filteredOptions = options.filter((item) => {
-  const label = item[labelKey];
-  return (
-    typeof label === 'string' &&
-    label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-});
+    const label = item[labelKey];
+    return (
+      typeof label === 'string' &&
+      label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   const handleSelect = (selectedValue: string | number) => {
     onChange(selectedValue);
     const selected = options.find(opt => opt[valueKey] === selectedValue);
     // setSearchTerm(selected?.[labelKey] || '');
-     setSearchTerm(
-    typeof selected?.[labelKey] === 'string'
-      ? selected[labelKey] as string
-      : String(selected?.[labelKey] ?? '')
-  );
+    setSearchTerm(
+      typeof selected?.[labelKey] === 'string'
+        ? selected[labelKey] as string
+        : String(selected?.[labelKey] ?? '')
+    );
     setShowOptions(false);
   };
 
@@ -171,30 +171,30 @@ const StepTwoMentor: ForwardRefRenderFunction<any, StepTwoProps> = (
         endTime: "12:00",
       },
     ],
-    intent_price:[],
+    intent_price: [],
   });
-// State for intent_price array
-const [intentPrice, setIntentPrice] = useState< { intent: string; price: number }[]>([
-  { intent: "", price: 0 }, // initial row
-]);
-     const[educationArray,setEducationArray]=useState<EducationItem[]>([]);
-     //@ts-ignore
-     const[IndustryArray,setIndustryArray]=useState<EducationItem[]>([]);
-      const[ExperienceArray,setExperienceArray]=useState<EducationItem[]>([]);
-    const[CurrentRoleArray,setCurrentRoleArray]=useState<EducationItem[]>([]);
-    const[skillsArray,setSkillArray]=useState<EducationItem[]>([]);
+  // State for intent_price array
+  const [intentPrice, setIntentPrice] = useState<{ intent: string; price: number }[]>([
+    { intent: "", price: 0 }, // initial row
+  ]);
+  const [educationArray, setEducationArray] = useState<EducationItem[]>([]);
+  //@ts-ignore
+  const [IndustryArray, setIndustryArray] = useState<EducationItem[]>([]);
+  const [ExperienceArray, setExperienceArray] = useState<EducationItem[]>([]);
+  const [CurrentRoleArray, setCurrentRoleArray] = useState<EducationItem[]>([]);
+  const [skillsArray, setSkillArray] = useState<EducationItem[]>([]);
 
 
   // const [errors, setErrors] = useState<Errors>({});
 
- const handleLogin = async () => {
-      const dataToLogin={
-        username:formData.email,
-        password:formData.password
-      }
+  const handleLogin = async () => {
+    const dataToLogin = {
+      username: formData.email,
+      password: formData.password
+    }
     try {
       const response = await axios.post(`${baseURL}/login`, dataToLogin);
-console.log("responseLoginnnnn-------",response);
+      console.log("responseLoginnnnn-------", response);
       console.log("response", response.data.access_token);
 
       const token = response.data.access_token;
@@ -203,7 +203,7 @@ console.log("responseLoginnnnn-------",response);
       ).toUTCString()}; path=/`;
       localStorage.setItem("user", JSON.stringify(response.data));
       localStorage.setItem("token", token);
-      const user=response.data;
+      const user = response.data;
       localStorage.setItem("userlocaldata", JSON.stringify(user));
 
       // dispatch(setUser(user));
@@ -211,33 +211,33 @@ console.log("responseLoginnnnn-------",response);
       // Show success toast
       console.log("Login successful");
       // navigate(`/dashboard`);
-//       if(type!=="mentor"){
-//       if (response.data.data_fill === true ) {
-//           console.log("---fetchbasicInfo-----");
-//        await fetchBasicInfo();
-//         navigate("/dashboard");
-//       }
-//       else{
-//         navigate('/basic-info');
-//       }
-//     }
-//     else{
-//       console.log("mentor--loginnnn");
-// fetchMentorInfo();
+      //       if(type!=="mentor"){
+      //       if (response.data.data_fill === true ) {
+      //           console.log("---fetchbasicInfo-----");
+      //        await fetchBasicInfo();
+      //         navigate("/dashboard");
+      //       }
+      //       else{
+      //         navigate('/basic-info');
+      //       }
+      //     }
+      //     else{
+      //       console.log("mentor--loginnnn");
+      // fetchMentorInfo();
 
-//     }
-  //  if (response.data.is_mentor) {
-  //     console.log("Mentor login detected");
-     
-  //   } else {
+      //     }
+      //  if (response.data.is_mentor) {
+      //     console.log("Mentor login detected");
+
+      //   } else {
       // if (response.data.data_fill === true) {
-        
-        // await fetchBasicInfo();
-        
-      
-    // }
-  }
-     catch (error) {
+
+      // await fetchBasicInfo();
+
+
+      // }
+    }
+    catch (error) {
       // notifyError(error); // Show error toast
       console.error("Login failed:", error);
     } finally {
@@ -247,70 +247,78 @@ console.log("responseLoginnnnn-------",response);
 
 
 
-   const fetchEducationData = async () => {
-            try {
-                    const response = await axios.get(`${baseURL}/api/education`);
-                  console.log("response-data--education",response.data.education);
-                    setEducationArray(response.data.education);
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+  const fetchEducationData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/api/education`);
+      console.log("response-data--education", response.data.education);
+      // Remove duplicates based on description
+      const uniqueEducation = Array.from(
+        new Map(response.data.education.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setEducationArray(uniqueEducation);
 
-         const fetchIndustryData = async () => {
-            try {
-                    const response = await axios.get(`${baseURL}/api/industry`);
-                  console.log("response-data--industry",response.data.industry);
-                    setIndustryArray(response.data.industry);
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
-          const fetchExperienceData = async () => {
-            try {
-                    const response = await axios.get(`${baseURL}/api/experience-level`);
-                  console.log("response-data--api/experience-level",response.data.experience_level);
-                    setExperienceArray(response.data.experience_level);
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+  const fetchIndustryData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/api/industry`);
+      console.log("response-data--industry", response.data.industry);
+      // Remove duplicates based on description
+      const uniqueIndustries = Array.from(
+        new Map(response.data.industry.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setIndustryArray(uniqueIndustries);
 
-         const fetchRoleData = async () => {
-            try {
-                    const response = await axios.get(`${baseURL}/api/role`);
-                  console.log("response-data--education",response.data.role);
-                    setCurrentRoleArray(response.data.role);
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
-            const fetchSkillData = async () => {
-            try {
-                    const response = await axios.get(`${baseURL}/api/skills`);
-                  console.log("response-data--education",response.data.skills);
-                    setSkillArray(response.data.skills);
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+  const fetchExperienceData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/api/experience-level`);
+      console.log("response-data--api/experience-level", response.data.experience_level);
+      setExperienceArray(response.data.experience_level);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const fetchRoleData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/api/role`);
+      console.log("response-data--education", response.data.role);
+      setCurrentRoleArray(response.data.role);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const fetchSkillData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/api/skills`);
+      console.log("response-data--education", response.data.skills);
+      setSkillArray(response.data.skills);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
 
 
-     useEffect(() => {
-        fetchEducationData();
-        fetchIndustryData();
-        fetchExperienceData();
-        fetchRoleData();
-        fetchSkillData();
-    }, []);
+  useEffect(() => {
+    fetchEducationData();
+    fetchIndustryData();
+    fetchExperienceData();
+    fetchRoleData();
+    fetchSkillData();
+  }, []);
 
 
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -351,7 +359,7 @@ console.log("responseLoginnnnn-------",response);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    
+
     e.preventDefault();
     // await handleLogin();
     console.log("-------formdata------", formData);
@@ -369,13 +377,13 @@ console.log("responseLoginnnnn-------",response);
       email: formData.email,
       profile_picture: profileImageUrl,
       resume: resumeUrl,
-      interested_field:"N/A",
-      phone:formData.phone,
-    
+      interested_field: "N/A",
+      phone: formData.phone,
+
       intent_price: form.intent_price.map(item => ({
-    ...item,
-    price: parseFloat(item.price.toFixed(2)), // ensures float
-  }))
+        ...item,
+        price: parseFloat(item.price.toFixed(2)), // ensures float
+      }))
 
     };
 
@@ -411,7 +419,7 @@ console.log("responseLoginnnnn-------",response);
     //   }
     // setUserInfo(prev => ({ ...prev, data_filed: true }));
     console.log("newUSERINFO----------", newMentorData);
-     const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       const response = await axios.post(
         `${baseURL}/add_new_mentor`,
@@ -443,33 +451,33 @@ console.log("responseLoginnnnn-------",response);
     handleSubmit,
   }));
 
-   const handleInputChange = (field: string, value: string) => {
-  setForm(prev => ({ ...prev, [field]: value }));
-};
+  const handleInputChange = (field: string, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
 
 
   return (
     <div className="max-w-full mx-auto p-4 bg-white rounded-2xl shadow-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex gap-3 w-full">
-         
-          <div className="w-1/2">
-           <label className="block text-sm font-medium mb-1">
-            Highest Education
-            </label>
-               <SearchableSelect
-  value={form.degree}
-  // onChange={(val: string) => handleInputChange('degree', val)}
-  onChange={(val: string | number) => handleInputChange('degree', String(val))}
 
-  options={educationArray.map(item => ({
-    label: item.description,
-    value: item.description,
-  }))}
-  placeholder="Highest Education"
-/>
+          <div className="w-1/2">
+            <label className="block text-sm font-medium mb-1">
+              Highest Education
+            </label>
+            <SearchableSelect
+              value={form.degree}
+              // onChange={(val: string) => handleInputChange('degree', val)}
+              onChange={(val: string | number) => handleInputChange('degree', String(val))}
+
+              options={educationArray.map(item => ({
+                label: item.description,
+                value: item.description,
+              }))}
+              placeholder="Highest Education"
+            />
           </div>
-      
+
 
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -489,15 +497,15 @@ console.log("responseLoginnnnn-------",response);
             <label className="block text-sm font-medium mb-1">
               Work Experience (years)
             </label>
-             <SearchableSelect
-  value={form.work_experience}
-  onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
-  options={ExperienceArray.map(item => ({
-    label: item.description,
-    value: item.description,
-  }))}
-  placeholder="Work Experience"
-/>
+            <SearchableSelect
+              value={form.work_experience}
+              onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
+              options={ExperienceArray.map(item => ({
+                label: item.description,
+                value: item.description,
+              }))}
+              placeholder="Work Experience"
+            />
             {/* {errors.work_experience && <p className="text-xs text-red-600 mt-1">{errors.work_experience}</p>} */}
           </div>
 
@@ -505,15 +513,15 @@ console.log("responseLoginnnnn-------",response);
             <label className="block text-sm font-medium mb-1">
               Current Role
             </label>
-             <SearchableSelect
-  value={form.current_role}
-  onChange={(val: string | number) => handleInputChange('current_role', String(val))}
-  options={CurrentRoleArray.map(item => ({
-    label: item.description,
-    value: item.description,
-  }))}
-  placeholder="Current Role"
-/>
+            <SearchableSelect
+              value={form.current_role}
+              onChange={(val: string | number) => handleInputChange('current_role', String(val))}
+              options={CurrentRoleArray.map(item => ({
+                label: item.description,
+                value: item.description,
+              }))}
+              placeholder="Current Role"
+            />
             {/* {errors.current_role && <p className="text-xs text-red-600 mt-1">{errors.current_role}</p>} */}
           </div>
         </div>
@@ -521,15 +529,15 @@ console.log("responseLoginnnnn-------",response);
         <div className="flex gap-3 w-full">
           <div className="w-1/2">
             <label className="block text-sm font-medium mb-1">Skill Expertise</label>
-             <SearchableSelect
-  value={form.expertise}
-  onChange={(val: string | number) => handleInputChange('expertise', String(val))}
-  options={skillsArray.map(item => ({
-    label: item.description,
-    value: item.description,
-  }))}
-  placeholder="Skill Expertise"
-/>
+            <SearchableSelect
+              value={form.expertise}
+              onChange={(val: string | number) => handleInputChange('expertise', String(val))}
+              options={skillsArray.map(item => ({
+                label: item.description,
+                value: item.description,
+              }))}
+              placeholder="Skill Expertise"
+            />
             {/* {errors.expertise && <p className="text-xs text-red-600 mt-1">{errors.expertise}</p>} */}
           </div>
 
@@ -574,36 +582,36 @@ console.log("responseLoginnnnn-------",response);
 
             {/* {errors.profile_picture && <p className="text-xs text-red-600 mt-1">{errors.profile_picture}</p>} */}
           </div>
-          
-   
+
+
 
         </div>
-           <div className="">
-  <h1 className="mb-2 font-semibold">Share Your Expertise</h1>
-  {intentPrice.map((item, index) => (
-    <div key={index} className="flex space-x-3 mb-2">
-      {/* Intent Name */}
-      <input
-        type="text"
-        name={`intent${index}`}
-        value={item.intent}
-        onChange={(e) => {
-          const updated = [...intentPrice];
-          updated[index].intent = e.target.value;
-          setIntentPrice(updated);
+        <div className="">
+          <h1 className="mb-2 font-semibold">Share Your Expertise</h1>
+          {intentPrice.map((item, index) => (
+            <div key={index} className="flex space-x-3 mb-2">
+              {/* Intent Name */}
+              <input
+                type="text"
+                name={`intent${index}`}
+                value={item.intent}
+                onChange={(e) => {
+                  const updated = [...intentPrice];
+                  updated[index].intent = e.target.value;
+                  setIntentPrice(updated);
 
-          // Update parent form data
-          setForm({
-      ...form,
-      intent_price: updated,
-    });
-        }}
-        placeholder="e.g. Career Guidance"
-        className="w-1/2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+                  // Update parent form data
+                  setForm({
+                    ...form,
+                    intent_price: updated,
+                  });
+                }}
+                placeholder="e.g. Career Guidance"
+                className="w-1/2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
-      {/* Price */}
-      {/* <input
+              {/* Price */}
+              {/* <input
         type="number"
         name={`price${index}`}
         value={item.price}
@@ -623,54 +631,54 @@ console.log("responseLoginnnnn-------",response);
       /> */}
 
 
-<input
-  type="number"
-  step="0.01"   // allows decimals
-  min="0"
-  name={`price${index}`}
-  value={item.price === 0 ? "" : item.price}
-  onChange={(e) => {
-    const val = e.target.value;
-    const updated = [...intentPrice];
-    updated[index].price = val === "" ? 0.0 : parseFloat(val);
-    setIntentPrice(updated);
-    setForm({ ...form, intent_price: updated });
-  }}
-  placeholder="Enter Price"
-  className="w-1/3 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-/>
+              <input
+                type="number"
+                step="0.01"   // allows decimals
+                min="0"
+                name={`price${index}`}
+                value={item.price === 0 ? "" : item.price}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const updated = [...intentPrice];
+                  updated[index].price = val === "" ? 0.0 : parseFloat(val);
+                  setIntentPrice(updated);
+                  setForm({ ...form, intent_price: updated });
+                }}
+                placeholder="Enter Price"
+                className="w-1/3 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
 
-      {/* Add / Remove Button */}
-     {index === intentPrice.length - 1 ? (
-  <button
-    type="button"
-    onClick={() => {
-      const updated = [...intentPrice, { intent: "", price: 0 }];
-      setIntentPrice(updated);
-      setForm({ ...form, intent_price: updated });
-    }}
-    className="px-3 py-2 h-[40px] bg-green-500 text-white rounded hover:bg-green-600"
-  >
-    +
-  </button>
-) : (
-  <button
-    type="button"
-    onClick={() => {
-      const filtered = intentPrice.filter((_, i) => i !== index);
-      setIntentPrice(filtered);
-      setForm({ ...form, intent_price: filtered });
-    }}
-    className="px-2 py-2 h-[40px] bg-red-500 text-white rounded hover:bg-red-600"
-  >
-    ❌
-  </button>
-)}
+              {/* Add / Remove Button */}
+              {index === intentPrice.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...intentPrice, { intent: "", price: 0 }];
+                    setIntentPrice(updated);
+                    setForm({ ...form, intent_price: updated });
+                  }}
+                  className="px-3 py-2 h-[40px] bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  +
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const filtered = intentPrice.filter((_, i) => i !== index);
+                    setIntentPrice(filtered);
+                    setForm({ ...form, intent_price: filtered });
+                  }}
+                  className="px-2 py-2 h-[40px] bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  ❌
+                </button>
+              )}
 
-    </div>
-  ))}
-</div>
+            </div>
+          ))}
+        </div>
 
       </form>
     </div>

@@ -112,16 +112,14 @@ function Stepper({ step }: { step: number }) {
         return (
           <div key={label} className="flex flex-col items-center w-20">
             <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-semibold shadow ${
-                done ? "bg-green-500" : active ? "bg-blue-600" : "bg-gray-300"
-              }`}
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-semibold shadow ${done ? "bg-green-500" : active ? "bg-blue-600" : "bg-gray-300"
+                }`}
             >
               {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
             </div>
             <span
-              className={`mt-1 text-[10px] ${
-                active ? "text-blue-700" : "text-muted-foreground"
-              }`}
+              className={`mt-1 text-[10px] ${active ? "text-blue-700" : "text-muted-foreground"
+                }`}
             >
               {label}
             </span>
@@ -144,11 +142,10 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-2xl text-sm border transition shadow-sm hover:shadow ${
-        selected
+      className={`px-3 py-1.5 rounded-2xl text-sm border transition shadow-sm hover:shadow ${selected
           ? "bg-blue-50 border-blue-400 text-blue-700"
           : "bg-white border-gray-300 text-gray-700"
-      }`}
+        }`}
     >
       {children}
     </button>
@@ -184,8 +181,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   //   item[labelKey].toLowerCase().includes(searchTerm.toLowerCase())
   // );
 
-  
-  
+
+
 
   const filteredOptions = options.filter((item) => {
     const label = item[labelKey];
@@ -246,7 +243,7 @@ const ExpertOnboardingPreview = () => {
   const [step, setStep] = useState(1);
   //@ts-ignore
   const [errors, setErrors] = useState<FormErrors>({});
-  
+
   //@ts-ignore
   const [title, setTitle] = useState("");
   //@ts-ignore
@@ -263,9 +260,9 @@ const ExpertOnboardingPreview = () => {
   });
   const navigate = useNavigate();
   // expertise
- 
+
   const [services, setServices] = useState<string[]>(["skill-roadmap"]); // sensible default
- 
+
   const [expertform, setExpertForm] = useState<ExpertData>({
     linkedin: "https://linkedin.com/in/",
     expertise: "",
@@ -314,7 +311,11 @@ const ExpertOnboardingPreview = () => {
     try {
       const response = await axios.get(`${baseURL}/api/education`);
       console.log("response-data--education", response.data.education);
-      setEducationArray(response.data.education);
+      // Remove duplicates based on description
+      const uniqueEducation = Array.from(
+        new Map(response.data.education.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setEducationArray(uniqueEducation);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -324,7 +325,11 @@ const ExpertOnboardingPreview = () => {
     try {
       const response = await axios.get(`${baseURL}/api/industry`);
       console.log("response-data--industry", response.data.industry);
-      setIndustryArray(response.data.industry);
+      // Remove duplicates based on description
+      const uniqueIndustries = Array.from(
+        new Map(response.data.industry.map((item: EducationItem) => [item.description, item])).values()
+      ) as EducationItem[];
+      setIndustryArray(uniqueIndustries);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -390,7 +395,7 @@ const ExpertOnboardingPreview = () => {
       ).toUTCString()}; path=/`;
       localStorage.setItem("user", JSON.stringify(response.data));
       localStorage.setItem("token", token);
-      const user=response.data;
+      const user = response.data;
       localStorage.setItem("userlocaldata", JSON.stringify(user));
 
       // dispatch(setUser(user));
@@ -508,14 +513,14 @@ const ExpertOnboardingPreview = () => {
   };
 
   const handleFileChange = (
-      e: React.ChangeEvent<HTMLInputElement>,
-      field: "profile_picture" | "resume"
-    ) => {
-      const file = e.target.files?.[0] || null;
-      setExpertForm((prev) => ({ ...prev, [field]: file }));
-    };
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "profile_picture" | "resume"
+  ) => {
+    const file = e.target.files?.[0] || null;
+    setExpertForm((prev) => ({ ...prev, [field]: file }));
+  };
 
- const uploadToCloudinary = async (file: File): Promise<string> => {
+  const uploadToCloudinary = async (file: File): Promise<string> => {
     const cloudName = "dpwysillm";
     const uploadPreset = "figurecircule";
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -538,96 +543,96 @@ const ExpertOnboardingPreview = () => {
     }
   };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-      
-      e.preventDefault();
-      // await handleLogin();
-      console.log("-------formdata------", formData);
-  
-      const profileImageUrl = expertform.profile_picture
-        ? await uploadToCloudinary(expertform.profile_picture)
-        : null;
-      const resumeUrl = expertform.resume
-        ? await uploadToCloudinary(expertform.resume)
-        : null;
-  
-      const newMentorData = {
-        ...expertform,
-        name: formData.fullName,
-        email: formData.email,
-        profile_picture: profileImageUrl,
-        resume: resumeUrl,
-        interested_field:"N/A",
-        phone:formData.phone,
-      
-        intent_price: expertform.intent_price.map(item => ({
-      ...item,
-      price: parseFloat(item.price.toFixed(2)), // ensures float
-    }))
-  
-      };
-  
-      //   const newMentorData={
-  
-      // name: "John Doe",
-      // email: "testing.doe@examplesssssss.com",
-      // phone: "+1234567890",
-      // linkedin: "https://linkedin.com/in/johndoe",
-      // expertise: "Data Science, AI",
-      // degree: "MSc Computer Science",
-      // background: "5 years in AI research and development.",
-      // fee: "100",
-      // milestones: 5,
-      // profile_picture: "https://example.com/profile.jpg",
-      // resume: "https://example.com/resume.pdf",
-      // availability: [
-      //   {
-      //     "day": "Monday",
-      //     "startTime": "10:00",
-      //     "endTime": "12:00"
-      //   },
-      //   {
-      //     "day": "Wednesday",
-      //     "startTime": "14:00",
-      //     "endTime": "16:00"
-      //   }
-      // ],
-      // current_role: "Senior Data Scientist",
-      // work_experience: "7 years",
-      // interested_field: "Machine Learning, NLP"
-  
-      //   }
-      // setUserInfo(prev => ({ ...prev, data_filed: true }));
-      console.log("newUSERINFO----------", newMentorData);
-       const token = localStorage.getItem("token");
-      try {
-        const response = await axios.post(
-          `${baseURL}/add_new_mentor`,
-  
-          newMentorData,
-          {
-            headers: {
-              //             Authorization: `Bearer ${
-  
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.status === 201) {
-          //   setStatus("success");
-          notifySuccess();
-          // navigate('/dashboard');
-          // alert("mentor created successfully");
-          await handleLogin();
-          await fetchMentorInfo();
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        alert("Submission failed. Please try again.");
-        console.error("Error submitting data:", error);
-        // setStatus("error");
-      }
+  const handleSubmit = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+    // await handleLogin();
+    console.log("-------formdata------", formData);
+
+    const profileImageUrl = expertform.profile_picture
+      ? await uploadToCloudinary(expertform.profile_picture)
+      : null;
+    const resumeUrl = expertform.resume
+      ? await uploadToCloudinary(expertform.resume)
+      : null;
+
+    const newMentorData = {
+      ...expertform,
+      name: formData.fullName,
+      email: formData.email,
+      profile_picture: profileImageUrl,
+      resume: resumeUrl,
+      interested_field: "N/A",
+      phone: formData.phone,
+
+      intent_price: expertform.intent_price.map(item => ({
+        ...item,
+        price: parseFloat(item.price.toFixed(2)), // ensures float
+      }))
+
     };
+
+    //   const newMentorData={
+
+    // name: "John Doe",
+    // email: "testing.doe@examplesssssss.com",
+    // phone: "+1234567890",
+    // linkedin: "https://linkedin.com/in/johndoe",
+    // expertise: "Data Science, AI",
+    // degree: "MSc Computer Science",
+    // background: "5 years in AI research and development.",
+    // fee: "100",
+    // milestones: 5,
+    // profile_picture: "https://example.com/profile.jpg",
+    // resume: "https://example.com/resume.pdf",
+    // availability: [
+    //   {
+    //     "day": "Monday",
+    //     "startTime": "10:00",
+    //     "endTime": "12:00"
+    //   },
+    //   {
+    //     "day": "Wednesday",
+    //     "startTime": "14:00",
+    //     "endTime": "16:00"
+    //   }
+    // ],
+    // current_role: "Senior Data Scientist",
+    // work_experience: "7 years",
+    // interested_field: "Machine Learning, NLP"
+
+    //   }
+    // setUserInfo(prev => ({ ...prev, data_filed: true }));
+    console.log("newUSERINFO----------", newMentorData);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.post(
+        `${baseURL}/add_new_mentor`,
+
+        newMentorData,
+        {
+          headers: {
+            //             Authorization: `Bearer ${
+
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 201) {
+        //   setStatus("success");
+        notifySuccess();
+        // navigate('/dashboard');
+        // alert("mentor created successfully");
+        await handleLogin();
+        await fetchMentorInfo();
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      alert("Submission failed. Please try again.");
+      console.error("Error submitting data:", error);
+      // setStatus("error");
+    }
+  };
 
 
   const validate = (): FormErrors => {
@@ -649,14 +654,14 @@ const ExpertOnboardingPreview = () => {
       prev[serviceId]
         ? prev
         : {
-            ...prev,
-            [serviceId]: {
-              duration:
-                SERVICES.find((s) => s.id === serviceId)?.defaultDur ||
-                "30 min",
-              price: "",
-            },
-          }
+          ...prev,
+          [serviceId]: {
+            duration:
+              SERVICES.find((s) => s.id === serviceId)?.defaultDur ||
+              "30 min",
+            price: "",
+          },
+        }
     );
   }
 
@@ -675,7 +680,7 @@ const ExpertOnboardingPreview = () => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center gap-3 p-3 bg-gradient-to-b from-white to-slate-50">
       <header className="pt-1 text-center">
-       
+
         <h1 className="font-bold text-xl mb-3">Expert Onboarding</h1>
         <div className="mt-2">
           <Stepper step={step} />
@@ -756,11 +761,11 @@ const ExpertOnboardingPreview = () => {
                 </label>
                 <SearchableSelect
                   value={expertform.work_experience}
-  onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
-  options={ExperienceArray.map(item => ({
-    label: item.description,
-    value: item.description,
-  }))}
+                  onChange={(val: string | number) => handleInputChange('work_experience', String(val))}
+                  options={ExperienceArray.map(item => ({
+                    label: item.description,
+                    value: item.description,
+                  }))}
                 />
               </div>
               <div className="md:col-span-2">
@@ -768,11 +773,11 @@ const ExpertOnboardingPreview = () => {
                   <Briefcase className="h-3 w-3" /> Industry / Domain
                 </label>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {IndustryArray.map((item,index) => (
+                  {IndustryArray.map((item, index) => (
                     <Chip
                       key={index}
                       // selected={industries.includes(item.name)}
-                       selected={industries.includes(item.description)}
+                      selected={industries.includes(item.description)}
                       onClick={() => toggle(industries, item.description, setIndustries)}
                     >
                       {item.description}
@@ -840,37 +845,37 @@ const ExpertOnboardingPreview = () => {
                 <Input
                   placeholder="e.g., SQL, Growth, PMF, Monetization, Python"
                   value={expertform.expertise}
-                  onChange={(e) => handleInputChange("expertise",e.target.value)}
+                  onChange={(e) => handleInputChange("expertise", e.target.value)}
                 />
               </div>
               <div className="w-full flex">
                 <div>
-            <label className="block text-sm font-medium mb-1">
-              Upload Profile Picture
-            </label>
-            <input
-              name="profile_picture"
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={(e) => handleFileChange(e, "profile_picture")}
-            />
+                  <label className="block text-sm font-medium mb-1">
+                    Upload Profile Picture
+                  </label>
+                  <input
+                    name="profile_picture"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => handleFileChange(e, "profile_picture")}
+                  />
 
-            {/* {errors.profile_picture && <p className="text-xs text-red-600 mt-1">{errors.profile_picture}</p>} */}
-          </div>
-            <div className="">
-            <label className="block text-sm font-medium mb-1">
-              Resume upload
-            </label>
-            <input
-              name="resume"
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={(e) => handleFileChange(e, "resume")}
-            />
+                  {/* {errors.profile_picture && <p className="text-xs text-red-600 mt-1">{errors.profile_picture}</p>} */}
+                </div>
+                <div className="">
+                  <label className="block text-sm font-medium mb-1">
+                    Resume upload
+                  </label>
+                  <input
+                    name="resume"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => handleFileChange(e, "resume")}
+                  />
 
-            {/* {errors.resume && <p className="text-xs text-red-600 mt-1">{errors.resume}</p>} */}
-          </div>
-          </div>
+                  {/* {errors.resume && <p className="text-xs text-red-600 mt-1">{errors.resume}</p>} */}
+                </div>
+              </div>
             </div>
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setStep(2)}>
@@ -912,22 +917,22 @@ const ExpertOnboardingPreview = () => {
                       </label>
                       <Input
                         value={value.duration}
-                     onChange={(e) => {
-  setIntentPrice((p) => ({
-    ...p,
-    [id]: { ...value, duration: e.target.value },
-  }));
+                        onChange={(e) => {
+                          setIntentPrice((p) => ({
+                            ...p,
+                            [id]: { ...value, duration: e.target.value },
+                          }));
 
-  setExpertForm((prev) => ({
-    ...prev,
-    intent_price: {
-      ...prev.intent_price,
-      [id]: { ...value, duration: e.target.value },
-    },
-  }));
-}}
+                          setExpertForm((prev) => ({
+                            ...prev,
+                            intent_price: {
+                              ...prev.intent_price,
+                              [id]: { ...value, duration: e.target.value },
+                            },
+                          }));
+                        }}
 
-                   />
+                      />
                     </div>
                     <div className="md:col-span-4">
                       <label className="text-[11px] text-slate-500">
@@ -958,7 +963,7 @@ const ExpertOnboardingPreview = () => {
         )}
       </Card>
 
-     
+
     </div>
   );
 };
