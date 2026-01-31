@@ -11,7 +11,6 @@ import LandingDashboard from './landingDashboard.tsx';
 // import pic from '../../assets/pic.jpg';
 import axios from 'axios';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 // import NewRecommendMentor from './NewRecommendMentor.tsx';
 import baseURL from '@/config/config.tsx';
 import NotificationBell from '@/components/NewPage/NotificationBell.tsx';
@@ -20,6 +19,8 @@ import MeetingSchedulerPreview from '@/pages/NewPages/NewMeetingScheduler.tsx';
 import Navbar from '@/components/NewPage/Navbar.tsx';
 import ProfileRecWidget from '@/pages/NewPages/NewProfile.tsx';
 import MentorsWireframe2 from '@/pages/NewPages/NewMentor.tsx';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
 
 export interface Mentor {
   name: string;
@@ -32,7 +33,12 @@ export interface Mentor {
 
 
 const Dashboard: React.FC = () => {
-    const [activePage, setActivePage] = useState("Dashboard");
+    const [searchParams] = useSearchParams();
+    const tabFromURL = searchParams.get('tab');
+    const [activePage, setActivePage] = useState(
+  tabFromURL === 'schedule' ? 'Schedule Meeting' : 'Dashboard'
+);
+
      {/*@ts-ignore*/}
     const[recommendedMentors,getRecommendedMentors]=useState<Mentor[]>([]);
     // @ts-ignore
@@ -111,7 +117,7 @@ const Dashboard: React.FC = () => {
       case "Mentors":
         //@ts-ignore
         // return <div> <NewRecommendMentor/></div>;
-        return <div><MentorsWireframe2/></div>;
+        return <div><MentorsWireframe2 setActivePage={setActivePage}/></div>;
 
         
       case "Schedule Meeting":
@@ -192,6 +198,12 @@ const Dashboard: React.FC = () => {
   // const handleHome=()=>{
   //   navigate('/');
   // }
+  useEffect(() => {
+  if (tabFromURL === 'schedule') {
+    setActivePage('Schedule Meeting');
+  }
+}, [tabFromURL]);
+
   
   return (
     <>

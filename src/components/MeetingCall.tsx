@@ -7,6 +7,7 @@ import baseURL from '@/config/config';
 import { toast } from 'react-toastify';
 import { useUserContext } from './context/userContext';
 import { Maximize, Minimize } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 interface MeetingCallProps {
   roomId: string;
   password: string;
@@ -61,6 +62,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
   const [participantName, setParticipantName] = useState<string>('Participant');
 
   const { setSchedule } = useUserContext();
+  const navigate=useNavigate();
 
   // Load user name from localStorage on mount
   useEffect(() => {
@@ -408,7 +410,9 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
 
     // Navigate to dashboard
     // window.location.href = '/';
-    window.location.href = '/dashboard';
+    // window.location.href = '/dashboard';
+   navigate('/dashboard?tab=schedule');
+
   };
 
   const startScreenSharing = async () => {

@@ -8,7 +8,8 @@ import {
   IndianRupee,
 } from "lucide-react";
 
-import baseURL from "@/config/config"; // Replace with actual API URL
+import baseURL from "@/config/config"; 
+// import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
@@ -109,6 +110,9 @@ interface Schedule {
   timezone?: string;
 }
 
+interface MentorProps {
+  setActivePage: React.Dispatch<React.SetStateAction<string>>;
+}
 interface MentorCardProps {
   m: Mentor;
   isSelected: boolean;
@@ -568,11 +572,12 @@ function IntentDialog({ open, onClose, onSubmit }: any) {
 //   );
 // }
 
-const MentorsWireframe2 = () => {
+const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("recommended");
   const [selectedId, setSelectedId] = useState<any>(null);
   const [openDialog, setOpenDialog] = useState(false);
+
   // const [scheduledMap, setScheduledMap] = useState({});
   //@ts-ignore
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -628,7 +633,7 @@ const MentorsWireframe2 = () => {
 
   const user = localStorage.getItem("user")??localStorage.getItem("userData") ??localStorage.getItem("userlocaldata");
   const userData = user ? JSON.parse(user) : null;
-
+// const navigate=useNavigate();
   // Mock user data (replace with actual localStorage in production)
   // const [userData] = useState({
   //   user_id: 1,
@@ -903,6 +908,7 @@ const MentorsWireframe2 = () => {
       if (user && userData) {
         // const parsedUserData = JSON.parse(userData);
         // const parsedUserData2 = JSON.parse(userData2);
+        
         const parsedUser = JSON.parse(user);
         // console.log("parsedUserData---", parsedUserData);
         console.log("parsedUserData2----", parsedUser);
@@ -968,10 +974,13 @@ const MentorsWireframe2 = () => {
 
         console.log("meetingLink----", meetingLink);
 
+        const degree=localStorage.getItem("degree");
+        const parsedDegree=degree?JSON.parse(degree):null;
+
         // Prepare schedule data
         const scheduleData = {
-          name: parsedUser.firstname || "",
-          email: parsedUser.emailid || "",
+          name: parsedDegree.firstname || "",
+          email: parsedDegree.emailid || "",
           start_datetime: startDate,
           end_datetime: endDate,
           duration: 60, // always 60
@@ -995,7 +1004,10 @@ const MentorsWireframe2 = () => {
 
         notifyMeetingScheduledSuccess();
         setTimeout(() => {
-        notifyNextStep();
+        // notifyNextStep();
+        // navigate('/dashboard?tab=schedule');
+setActivePage("Schedule Meeting");
+
         }, 2000);
         // setDurationOpen(false);
         // setSelectedMentorId(null);
@@ -1220,7 +1232,9 @@ const MentorsWireframe2 = () => {
       ...prev,
       [mentorUserId]: true,
     }));
-notifyPaymentNextStep();
+// notifyPaymentNextStep();
+setActivePage("Schedule Meeting");
+
     fetchAssignedMentor();
   };
 
@@ -1256,31 +1270,31 @@ notifyPaymentNextStep();
     });
   };
 
-const notifyPaymentNextStep = (
-  message = "Expert successfully added to dashboard. You may schedule meetings in the Scheduled Meetings section."
-) => {
-  toast.success(message, {
-    position: "top-right",
-    autoClose: 3000,
-    hideProgressBar: false,
-    pauseOnHover: true,
-    draggable: true,
-    theme: "colored",
-  });
-};
+// const notifyPaymentNextStep = (
+//   message = "Expert successfully added to dashboard. You may schedule meetings in the Scheduled Meetings section."
+// ) => {
+//   toast.success(message, {
+//     position: "top-right",
+//     autoClose: 3000,
+//     hideProgressBar: false,
+//     pauseOnHover: true,
+//     draggable: true,
+//     theme: "colored",
+//   });
+// };
 
-    const notifyNextStep = (
-    msg = "Your meeting has been scheduled successfully. Please visit the Schedule Meeting section to access meeting details."
-  ) => {
-    toast.success(msg, {
-      position: "top-right",
-      autoClose: 4000,
-      hideProgressBar: false,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-    });
-  };
+  //   const notifyNextStep = (
+  //   msg = "Your meeting has been scheduled successfully. Please visit the Schedule Meeting section to access meeting details."
+  // ) => {
+  //   toast.success(msg, {
+  //     position: "top-right",
+  //     autoClose: 4000,
+  //     hideProgressBar: false,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     theme: "colored",
+  //   });
+  // };
 
   //     const handleSubmit = async (selectedSlot: any) => {
   //     // console.log("formdata----", formData);

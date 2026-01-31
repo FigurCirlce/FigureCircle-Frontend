@@ -566,44 +566,44 @@ import RecommendationsPanel from "./CoursesRecommendation";
 import MilestoneFlowExpertTimeline from "@/pages/NewPages/NewMilestoneExpert";
 import MilestoneFlowTimeline from "@/components/NewPage/Homepage/NewMilestoneUser";
 import ChatWidget from "@/components/NewPage/ChatBox";
-import { Loader2 } from "lucide-react";
+import { Calendar, Loader2 } from "lucide-react";
 // Define Interfaces
-interface ProgressAPIResponse {
-  latest_feedback: {
-    created_at: string;
-    milestone: string;
-    milestone_achieved: boolean;
-    progress_rating: number;
-  };
-  metadata: {
-    last_updated: string;
-    mentor_id: number;
-    total_feedback_entries: number;
-    user_id: number;
-  };
-  milestones: {
-    completed: MilestoneEntry[];
-    pending: MilestoneEntry[];
-  };
-  progress_summary: {
-    completed_count: number;
-    milestones_completed: string;
-    pending_count: number;
-    progress_percentage: number;
-    total_milestones: number;
-  };
-}
+// interface ProgressAPIResponse {
+//   latest_feedback: {
+//     created_at: string;
+//     milestone: string;
+//     milestone_achieved: boolean;
+//     progress_rating: number;
+//   };
+//   metadata: {
+//     last_updated: string;
+//     mentor_id: number;
+//     total_feedback_entries: number;
+//     user_id: number;
+//   };
+//   milestones: {
+//     completed: MilestoneEntry[];
+//     pending: MilestoneEntry[];
+//   };
+//   progress_summary: {
+//     completed_count: number;
+//     milestones_completed: string;
+//     pending_count: number;
+//     progress_percentage: number;
+//     total_milestones: number;
+//   };
+// }
 
-interface MilestoneEntry {
-  completed: boolean;
-  completion_date: string | null;
-  description: string;
-  expected_completion_date: string;
-  id: number;
-  mentor_fees: string;
-  milestone: string;
-  progress_rating: number | null;
-}
+// interface MilestoneEntry {
+//   completed: boolean;
+//   completion_date: string | null;
+//   description: string;
+//   expected_completion_date: string;
+//   id: number;
+//   mentor_fees: string;
+//   milestone: string;
+//   progress_rating: number | null;
+// }
 interface LandingDashboardProps {
   setActivePage: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -666,7 +666,7 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
   );
   const [openChatMentor, setOpenChatMentor] = useState<number | null>(null);
   const [selectedExpertData, setSelectedExpertData] =
-    useState<ProgressAPIResponse | null>(null);
+    useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [course, setCourse] = useState<string[]>([]);
   const [certificate, setCertificate] = useState<string[]>([]);
@@ -773,50 +773,99 @@ const paginatedMenteeData = assignedMentorData.slice(
     // fetchBasicInfo();
   }, []);
 
-  useEffect(() => {
-    if (selectedExpertKey == null) return;
-    console.log("SelectedExpertKey", selectedExpertKey);
-    // console.log("userDatttaDegree---", degree);
-    const degree = localStorage.getItem("degree"); //degree has user_id
-    const degreeData = degree ? JSON.parse(degree) : null;
-    const user_id = degreeData?.id;
-    //  const user = localStorage.getItem("user"); //degree has user_id
-    // const parsedUser= user ? JSON.parse(user) : null;
-    
-    console.log("user_id", user_id);
-    const fetchProgressData = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${baseURL}/progress/enhanced`, {
-          params: {
-            user_id: parseUser.is_mentor
-              ? selectedExpertKey
-              : parseUser.user_id,
-            mentor_id: parseUser.is_mentor
-              ? parsedDegree?.mentor_id
-              : selectedExpertKey,
-            // mentor_id:2
-          },
-          headers: { Authorization: `Bearer ${token}` },
-        });
 
-        // if (Array.isArray(res.data) && res.data.length > 0) {
-        if (res.data) {
-          console.log("trueeeeeee");
-          console.log("res.data-------", res.data);
-        
-          setSelectedExpertData(res.data);
-        }
-      } catch (error) {
-        
-        console.error("Error fetching progress data", error);
-      }finally{
-        setLoading(false);
+   const handleMilestone = async (mentorId: Number | null) => {
+    const userData=localStorage.getItem("user");
+    const parsedUserData=userData?JSON.parse(userData):null;
+
+      try {
+        const response = await axios.get(
+          `${baseURL}/api/milestone`,
+  
+          {
+            params: {
+              mentor_id: parsedUserData?.is_mentor
+                ? parsedDegree?.mentor_id
+                : mentorId,
+              user_id: parsedUserData?.is_mentor
+                ? mentorId
+                : parsedUserData.user_id
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        console.log("response-milestone---", response.data);
+        const data = response.data.current_milestone;
+
+const uniqueMilestones = data.filter(
+  (v: { milestone: any; description: any; expectedCompletionDate: any; }, i: any, a: any[]) =>
+    a.findIndex(
+      t =>
+        t.milestone === v.milestone &&
+        t.description === v.description &&
+        t.expectedCompletionDate === v.expectedCompletionDate
+    ) === i
+);
+
+setSelectedExpertData(uniqueMilestones);
+
+      } catch (e) {
+        console.log(e);
       }
     };
 
-    fetchProgressData();
-  }, [selectedExpertKey]);
+  useEffect(()=>{
+ if (selectedExpertKey == null) return;
+ handleMilestone(selectedExpertKey);
+  },[selectedExpertKey]);
+
+  // useEffect(() => {
+  //   if (selectedExpertKey == null) return;
+  //   console.log("SelectedExpertKey", selectedExpertKey);
+  //   // console.log("userDatttaDegree---", degree);
+  //   const degree = localStorage.getItem("degree"); //degree has user_id
+  //   const degreeData = degree ? JSON.parse(degree) : null;
+  //   const user_id = degreeData?.id;
+  //   //  const user = localStorage.getItem("user"); //degree has user_id
+  //   // const parsedUser= user ? JSON.parse(user) : null;
+    
+  //   console.log("user_id", user_id);
+  //   const fetchProgressData = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const res = await axios.get(`${baseURL}/progress/enhanced`, {
+  //         params: {
+  //           user_id: parseUser.is_mentor
+  //             ? selectedExpertKey
+  //             : parseUser.user_id,
+  //           mentor_id: parseUser.is_mentor
+  //             ? parsedDegree?.mentor_id
+  //             : selectedExpertKey,
+  //           // mentor_id:2
+  //         },
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+
+  //       // if (Array.isArray(res.data) && res.data.length > 0) {
+  //       if (res.data) {
+  //         console.log("trueeeeeee");
+  //         console.log("res.data-------", res.data);
+        
+  //         setSelectedExpertData(res.data);
+  //       }
+  //     } catch (error) {
+        
+  //       console.error("Error fetching progress data", error);
+  //     }finally{
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchProgressData();
+  // }, [selectedExpertKey]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -1117,121 +1166,51 @@ const paginatedMenteeData = assignedMentorData.slice(
                     : "Progress with Experts"}
                 </h2>
                 {selectedExpertData ? (
-                  <>
-                    <div className="my-3">
-                      <div className="flex justify-between text-sm font-semibold text-gray-700 mb-1">
-                        <div>
-                          Milestones Completed:{" "}
-                          <span>
-                            {
-                              selectedExpertData?.progress_summary
-                                ?.milestones_completed
-                            }
-                          </span>
-                        </div>
-                        <div>
-                          {
-                            selectedExpertData?.progress_summary
-                              ?.progress_percentage
-                          }
-                          %
-                        </div>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-                        <div
-                          className="bg-green-500 h-2.5 rounded-full"
-                          style={{
-                            width: `${selectedExpertData?.progress_summary?.progress_percentage}%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
+                  <div className="space-y-3">
+                             
+                             <div className="relative">
+                   {/* spine */}
+                   <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-gray-200" />
+                 
+                   <div className="space-y-6">
+                     {selectedExpertData.map((m: any,index:number)=> (
+                       <div key={index} className="relative pl-12">
+                         {/* dot */}
+                         <div className="absolute left-[10px] top-4 h-3 w-3 rounded-full bg-blue-500" />
+                 
+                         {/* milestone card */}
+                         <div className="border rounded-xl p-4 bg-white shadow-sm">
+                           {/* TITLE */}
+                           
+                             <p className="text-sm font-semibold">{m.milestone}</p>
+                           
+                 
+                           {/* DESCRIPTION */}
+                           
+                             <p className="text-xs text-gray-500 mt-1">
+                               {m.description}
+                             </p>
 
-                    <div className="mb-4 ">
-                      <div className="text-sm font-semibold text-gray-700">
-                        Latest Feedback
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {selectedExpertData?.latest_feedback?.milestone ||
-                          "Not Available"}
-                      </div>
-                    </div>
-                    {/* Milestones */}
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-gray-700 text-sm mb-1">
-                        {/* Milestones ({selectedExpertData.milestones.completed.milestone}) */}
-                        Milestones Completed
-                      </h4>
-                      {/* <ul className="text-sm text-gray-600 list-disc ml-5">
-                {selectedExpertData?.milestones.completed.description}{selectedExpertData?.milestones.completed.completion_date}
-              </ul>
-            </div> */}
-                      <ul className="text-sm text-gray-600 list-disc ml-5">
-                        {selectedExpertData?.milestones?.completed?.length > 0
-                          ? selectedExpertData.milestones.completed.map(
-                              (milestone, index) => (
-                                <li key={index}>
-                                  {/* {milestone.milestone} - {milestone.completion_date} */}
-                                  {milestone.milestone} ({milestone.description}
-                                  ) -{" "}
-                                  {milestone.completion_date
-                                    ? new Date(
-                                        milestone.completion_date
-                                      ).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                      })
-                                    : "Not completed yet"}
-                                </li>
-                              )
-                            )
-                          : "Not Available"}
-                      </ul>
-                    </div>
-
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-gray-700 text-sm mb-1">
-                        Pending Task
-                      </h4>
-                      <ul className="text-sm text-gray-600 list-disc ml-5">
-                        {selectedExpertData?.milestones?.pending?.map(
-                          (pending, index) => (
-                            <li key={index}>
-                              {/* {milestone.milestone} - {milestone.completion_date} */}
-                              {pending.milestone} ({pending.description}) -{" "}
-                              {new Date(
-                                pending.expected_completion_date
-                              ).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })}
-                            </li>
-                          )
-                        )}
-                        {/* {selectedExpert.pending.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))} */}
-                      </ul>
-                    </div>
-
-                    {/* Completed Tasks */}
-                    {/* <div>
-              <h4 className="font-semibold text-gray-700 text-sm mb-1">
-                Completed Tasks
-              </h4>
-              <ul className="text-sm text-gray-600 list-disc ml-5">
-                {selectedExpertData?.milestones?.progress_summary?.map((pending, index) => (
-      <li key={index}>
-        {/* {milestone.milestone} - {milestone.completion_date} */}
-                    {/* {pending.milestone} ({pending.description}) - {pending.expected_completion_date}
-      </li>
-    ))}
-              
-              </ul> */}
-                    {/* </div>    */}
-                  </>
+                              <p className={`text-xs ${m.status==="completed"?"text-green-500":"text-yellow-500"} mt-1`}>
+                               {m.status}
+                             </p>
+                           
+                 
+                           {/* DATE */}
+                           <div className="flex items-center gap-2 mt-3 text-xs text-gray-600">
+                             <Calendar className="h-3 w-3 text-green-600" />
+                            
+                               <span>Due: {m.expectedCompletionDate}</span>
+                             
+                           </div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+                 
+                             
+                           </div>
                 ) : (
                   <p className="flex justify-center font-semibold text-lg">
                     Not Available

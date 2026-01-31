@@ -58,6 +58,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUserData(user);
   };
 const setSchedule = (data: ScheduleData) => {
+  console.log("Schedule---datttaaa",data);
     localStorage.setItem("scheduleData", JSON.stringify(data));
     setScheduleData(data);
   };
