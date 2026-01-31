@@ -448,49 +448,73 @@ const MentorProfileWidget = () => {
     linkedin: "",
     expertise: "",
     background: "",
-     profile_picture: null,
-     resume:null,
+    profile_picture: null,
+    resume: null,
     milestones: 0,
     intent_price: [],
   });
 
+  const [assignedMentees, setAssignedMentees] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(false);
-  const user=localStorage.getItem("user");
-  const parsedUser=user?JSON.parse(user):null;
-  const degree=localStorage.getItem("degree");
-  const parsedDegree=degree?JSON.parse(degree):null;
+  const user = localStorage.getItem("user");
+  const parsedUser = user ? JSON.parse(user) : null;
+  const degree = localStorage.getItem("degree");
+  const parsedDegree = degree ? JSON.parse(degree) : null;
 
-  const fetchMentorData=async()=>{
-const res=await axios.get(`${baseURL}/api/mentor/details?user_id=${parsedUser?.user_id}`);
-console.log("fecthdata0--mentor",res.data);
-const data=res.data;
- setMentor(data);
-}
+  const fetchMentorData = async () => {
+    const res = await axios.get(`${baseURL}/api/mentor/details?user_id=${parsedUser?.user_id}`);
+    console.log("fecthdata0--mentor", res.data);
+    const data = res.data;
+    setMentor(data);
+  }
   useEffect(() => {
-    // const data = {
-    //   name: "John Doe",
-    //   email: "newRandomMentor121@gmail.com",
-    //   phone: "+1234567890",
-    //   linkedin: "https://linkedin.com/in/johndoe",
-    //   expertise: "Data Science, AI",
-    //   background: "5 years in AI research and development.",
-    //   milestones: 5,
-    //   intent_price: [
-    //     { intent: "Career Guidance", price: 100 },
-    //   ],
-    // };
-
-
-fetchMentorData();
-   
+    fetchMentorData();
   }, []);
 
-const updateField = (field: string, value: any) => {
-  setMentor((prev:any) => ({
-    ...prev,
-    [field]: value,
-  }));
-};
+  const fetchAssignedMentees = async () => {
+    if (!parsedDegree?.mentor_id) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `${baseURL}/mentor_assigned_users_count/${parsedDegree.mentor_id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.data?.assigned_users) {
+        setAssignedMentees(res.data.assigned_users);
+      }
+    } catch (error) {
+      console.error("Error fetching assigned mentees:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignedMentees();
+  }, [parsedDegree?.mentor_id]);
+
+  const handleRemoveMentee = async (userId: number) => {
+    if (!window.confirm("Are you sure you want to remove this mentee?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${baseURL}/unassign_user`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { user_id: userId }
+      });
+      fetchAssignedMentees();
+    } catch (error) {
+      console.error("Error removing mentee:", error);
+      alert("Failed to remove mentee.");
+    }
+  };
+
+  const updateField = (field: string, value: any) => {
+    setMentor((prev: any) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
 
 
@@ -525,37 +549,37 @@ const updateField = (field: string, value: any) => {
   //   });
   // };
   const updateIntentPrice = (label: string, value: string) => {
-  setMentor((prev: any) => {
-    const updated = prev.intent_price.map((item: any) =>
-      item.intent === label
-        ? { ...item, price: value === "" ? "" : Number(value) }
-        : item
-    );
+    setMentor((prev: any) => {
+      const updated = prev.intent_price.map((item: any) =>
+        item.intent === label
+          ? { ...item, price: value === "" ? "" : Number(value) }
+          : item
+      );
 
-    return { ...prev, intent_price: updated };
-  });
-};
+      return { ...prev, intent_price: updated };
+    });
+  };
 
 
   const saveProfile = async () => {
     setLoading(true);
     try {
-        const token=localStorage.getItem("token");
-        const res=await axios.put(`${baseURL}/update_mentor/${parsedDegree?.mentor_id}`,mentor,
-             {
-      headers: {
-        Authorization: `Bearer ${token}`,  
-        "Content-Type": "application/json",
-      },
-    }
-        );
-        console.log("res---update--mentor",res.data);
-    //   console.log("Saving mentor data:", mentor);
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`${baseURL}/update_mentor/${parsedDegree?.mentor_id}`, mentor,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("res---update--mentor", res.data);
+      //   console.log("Saving mentor data:", mentor);
 
       setTimeout(() => {
         setLoading(false);
         fetchMentorData();
-    }, 1200);
+      }, 1200);
 
     } catch (err) {
       console.error("Error saving profile", err);
@@ -572,49 +596,49 @@ const updateField = (field: string, value: any) => {
   //     setMentor((prev: any) => ({ ...prev, [field]: file }));
   //   };
   const handleFileChange = async (
-  e: React.ChangeEvent<HTMLInputElement>,
-  field: "profile_picture" | "resume"
-) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "profile_picture" | "resume"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const url = await uploadToCloudinary(file);
+    const url = await uploadToCloudinary(file);
 
-  setMentor((prev :any)=> ({
-    ...prev,
-    [field]: url,  // store URL, not File
-  }));
-};
+    setMentor((prev: any) => ({
+      ...prev,
+      [field]: url,  // store URL, not File
+    }));
+  };
 
 
-        const uploadToCloudinary = async (file: File): Promise<string> => {
-        const cloudName = "dpwysillm";
-        const uploadPreset = "figurecircule";
-        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", uploadPreset);
-    
-        try {
-          const response = await axios.post(cloudinaryUrl, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-        console.log("file",response.data);
-          return response.data.secure_url;
-        } catch (error) {
-          console.error("Cloudinary upload error:", error);
-          throw new Error("Failed to upload file.");
-        }
-      };
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const cloudName = "dpwysillm";
+    const uploadPreset = "figurecircule";
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    try {
+      const response = await axios.post(cloudinaryUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("file", response.data);
+      return response.data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      throw new Error("Failed to upload file.");
+    }
+  };
 
   return (
-    <div className="max-w-3xl mx-[5%] w-full"> 
+    <div className="max-w-3xl mx-[5%] w-full">
       <Card className="shadow-sm rounded-2xl w-full">
         <CardContent className="p-4 px-6 space-y-6">
-        <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
+          <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <Users className="size-5 text-primary" /> Your Profile
             </CardTitle>
@@ -655,48 +679,48 @@ const updateField = (field: string, value: any) => {
                 onChange={(e) => updateField("milestones", Number(e.target.value))}
               />
             </div>
-         <div>
-  <Label>Profile Picture (Any File)</Label>
+            <div>
+              <Label>Profile Picture (Any File)</Label>
 
-  {/* Show already uploaded URL */}
-  {mentor.profile_picture && (
-    <a
-      href={mentor.profile_picture}
-      target="_blank"
-      className="text-green-600 underline block mb-2"
-    >
-      View Uploaded Profile Picture
-    </a>
-  )}
+              {/* Show already uploaded URL */}
+              {mentor.profile_picture && (
+                <a
+                  href={mentor.profile_picture}
+                  target="_blank"
+                  className="text-green-600 underline block mb-2"
+                >
+                  View Uploaded Profile Picture
+                </a>
+              )}
 
-  <input
-    name="profile_picture"
-    type="file"
-    accept="*/*"               // accept ANY file
-    onChange={(e) => handleFileChange(e, "profile_picture")}
-  />
-</div>
+              <input
+                name="profile_picture"
+                type="file"
+                accept="*/*"               // accept ANY file
+                onChange={(e) => handleFileChange(e, "profile_picture")}
+              />
+            </div>
 
-<div>
-  <Label>Resume Upload</Label>
+            <div>
+              <Label>Resume Upload</Label>
 
-  {mentor.resume && (
-    <a
-      href={mentor.resume}
-      target="_blank"
-      className="text-green-600 underline block mb-2"
-    >
-      View Uploaded Resume
-    </a>
-  )}
+              {mentor.resume && (
+                <a
+                  href={mentor.resume}
+                  target="_blank"
+                  className="text-green-600 underline block mb-2"
+                >
+                  View Uploaded Resume
+                </a>
+              )}
 
-  <input
-    name="resume"
-    type="file"
-    accept="*/*"              // any file supported
-    onChange={(e) => handleFileChange(e, "resume")}
-  />
-</div>
+              <input
+                name="resume"
+                type="file"
+                accept="*/*"              // any file supported
+                onChange={(e) => handleFileChange(e, "resume")}
+              />
+            </div>
 
 
           </div>
@@ -731,13 +755,13 @@ const updateField = (field: string, value: any) => {
                     {selected && (
                       <div>
                         <Label>Price</Label>
-                      <Input
-  type="number"
-  value={selected.price ?? ""}
-  onChange={(e) => updateIntentPrice(opt.id, e.target.value)}
-  placeholder="Enter price"
-  min="0"
-/>
+                        <Input
+                          type="number"
+                          value={selected.price ?? ""}
+                          onChange={(e) => updateIntentPrice(opt.id, e.target.value)}
+                          placeholder="Enter price"
+                          min="0"
+                        />
 
                       </div>
                     )}
@@ -751,6 +775,35 @@ const updateField = (field: string, value: any) => {
           <Button className="w-full mt-4" onClick={saveProfile} disabled={loading}>
             {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "Save Profile"}
           </Button>
+
+          {/* ASSIGNED MENTEES SECTION */}
+          <div className="mt-8 border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Users className="size-5 text-blue-500" /> Assigned Mentees
+            </h3>
+            {assignedMentees.length === 0 ? (
+              <p className="text-gray-500 text-sm italic">No mentees assigned yet.</p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {assignedMentees.map((mentee) => (
+                  <div key={mentee.user_id} className="border p-3 rounded-xl flex items-center justify-between bg-gray-50">
+                    <div>
+                      <p className="font-medium text-sm">{mentee.first_name} {mentee.last_name || mentee.username}</p>
+                      <p className="text-xs text-gray-500">{mentee.email}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleRemoveMentee(mentee.user_id)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
