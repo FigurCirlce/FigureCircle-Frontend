@@ -149,6 +149,7 @@ const ProfileRecWidget = () => {
   const [ExperienceArray, setExperienceArray] = useState<EducationItem[]>([]);
   const [IndustryArray, setIndustryArray] = useState<EducationItem[]>([]);
   const [educationArray, setEducationArray] = useState<EducationItem[]>([]);
+  const [assignedMentors, setAssignedMentors] = useState<any[]>([]);
   // const [experience, setExperience] = useState("");
   //   const rec = useMemo(() => reco ?? RECO_LIB[profile.dreamRole] ?? RECO_LIB["Software Engineer"], [profile.dreamRole, reco])
 
@@ -211,6 +212,34 @@ const ProfileRecWidget = () => {
       // keep default START profile silently
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAssignedMentors = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/get_assigned_mentors`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      if (response.data?.mentors) {
+        setAssignedMentors(response.data.mentors);
+      }
+    } catch (error) {
+      console.error("Error fetching assigned mentors:", error);
+    }
+  };
+
+  const handleUnassignMentor = async (mentorId: number) => {
+    if (!window.confirm("Are you sure you want to unassign this expert?")) return;
+    try {
+      await axios.delete(`${baseURL}/unassign_mentor`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: { mentor_id: mentorId }
+      });
+      fetchAssignedMentors();
+    } catch (error) {
+      console.error("Error unassigning mentor:", error);
     }
   };
 
@@ -397,6 +426,9 @@ const ProfileRecWidget = () => {
     fetchExperienceData();
     fetchEducationData();
     fetchDreamProfiles();
+    if (parsedUser && !parsedUser.is_mentor) {
+      fetchAssignedMentors();
+    }
   }, []);
 
   return (
@@ -762,6 +794,43 @@ const ProfileRecWidget = () => {
               </CardContent>
             </Card>
           </div>
+
+          {!parsedUser?.is_mentor && assignedMentors.length > 0 && (
+            <Card className="border-0 shadow-md backdrop-blur-md">
+              <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <Users className="size-5 text-primary" /> Your Assigned Experts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {assignedMentors.map((mentor) => (
+                    <div key={mentor.mentor_id} className="flex items-center justify-between p-4 rounded-2xl border bg-muted/30 shadow-sm hover:shadow-md transition group">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={mentor.profile_picture || "https://via.placeholder.com/40"}
+                          alt={mentor.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                        />
+                        <div>
+                          <div className="font-medium text-sm leading-tight">{mentor.name}</div>
+                          <div className="text-xs text-muted-foreground">{mentor.expertise}</div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-opacity"
+                        onClick={() => handleUnassignMentor(mentor.mentor_id)}
+                      >
+                        Unassign
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       ) : (
         <div className="flex justify-center w-full">

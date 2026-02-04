@@ -402,8 +402,8 @@ const RegistrationFlow: React.FC<any> = () => {
               key={intent.id}
               onClick={() => toggleSupport(intent.title)}
               className={`cursor-pointer border-2 rounded-xl p-4 transition ${selectedSupports.includes(intent.title)
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
                 }`}
             >
               <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
@@ -424,29 +424,24 @@ const RegistrationFlow: React.FC<any> = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       // setLoading(true);
-      const registerStatus = localStorage.getItem("registerStatus");
-      if (registerStatus) {
-        next();
-      } else {
-        try {
-          const { email, password } = formData;
-          const response = await axios.post(`${baseURL}/register`, {
-            username: email,
-            password,
-          });
-          console.log("Registration successful:", response.data);
+      try {
+        const { email, password } = formData;
+        const response = await axios.post(`${baseURL}/register`, {
+          username: email,
+          password,
+        });
+        console.log("Registration successful:", response.data);
 
-          notifySuccess();
-          if (response.status === 201) {
-            localStorage.setItem("registerStatus", response.data.register);
-            next();
-          }
-        } catch (error: any) {
-          console.error("Registration failed:", error);
-          notifyError(error?.response?.data?.message || error.message);
-        } finally {
-          // setLoading(false);
+        notifySuccess();
+        if (response.status === 201) {
+          localStorage.setItem("registerStatus", response.data.register);
+          next();
         }
+      } catch (error: any) {
+        console.error("Registration failed:", error);
+        notifyError(error?.response?.data?.message || error.message);
+      } finally {
+        // setLoading(false);
       }
     }
   };
@@ -724,16 +719,16 @@ const RegistrationFlow: React.FC<any> = () => {
           <div key={label} className="flex items-center space-x-2">
             <div
               className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${(showRecommendations ? 3 : step) === index + 1
-                  ? "border-blue-500 bg-blue-100 text-blue-600"
-                  : "border-gray-300 text-gray-400"
+                ? "border-blue-500 bg-blue-100 text-blue-600"
+                : "border-gray-300 text-gray-400"
                 }`}
             >
               {index + 1}
             </div>
             <span
               className={`text-sm ${(showRecommendations ? 3 : step) === index + 1
-                  ? "text-blue-600 font-medium"
-                  : "text-gray-500"
+                ? "text-blue-600 font-medium"
+                : "text-gray-500"
                 }`}
             >
               {label}
@@ -832,8 +827,8 @@ const RegistrationFlow: React.FC<any> = () => {
             <div
               onClick={() => setProfileType("student")}
               className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${profileType === "student"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200"
                 }`}
             >
               <GraduationCap />
@@ -843,8 +838,8 @@ const RegistrationFlow: React.FC<any> = () => {
             <div
               onClick={() => setProfileType("professional")}
               className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${profileType === "professional"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200"
                 }`}
             >
               <Briefcase />
@@ -854,8 +849,8 @@ const RegistrationFlow: React.FC<any> = () => {
             <div
               onClick={() => setProfileType("other")}
               className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center space-y-2 ${profileType === "other"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200"
                 }`}
             >
               <User />
@@ -930,8 +925,8 @@ const RegistrationFlow: React.FC<any> = () => {
             </button>
             <button
               className={`px-4 py-2 rounded text-white ${!profileType || !selectedSupports
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600"
                 }`}
               onClick={handleInfoDetail}
               disabled={!profileType || !selectedSupports}

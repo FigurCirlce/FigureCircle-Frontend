@@ -607,31 +607,25 @@ const ExpertOnboardingCompact = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       // setLoading(true);
-      const registerStatus = localStorage.getItem("registerStatus");
-      if (registerStatus) {
-        next();
-      }
-      else {
-        try {
-          const { email, password } = formData;
-          const response = await axios.post(`${baseURL}/register`, {
-            username: email,
-            password,
-          });
-          console.log("Registration successful:", response.data);
+      try {
+        const { email, password } = formData;
+        const response = await axios.post(`${baseURL}/register`, {
+          username: email,
+          password,
+        });
+        console.log("Registration successful:", response.data);
 
-          notifySuccess();
-          if (response.status === 201) {
-            localStorage.setItem("registerStatus", response.data.register);
-            // await handleLogin();
-            next();
-          }
-        } catch (error: any) {
-          console.error("Registration failed:", error);
-          notifyError(error?.response?.data?.message || error.message);
-        } finally {
-          // setLoading(false);
+        notifySuccess();
+        if (response.status === 201) {
+          localStorage.setItem("registerStatus", response.data.register);
+          // await handleLogin();
+          next();
         }
+      } catch (error: any) {
+        console.error("Registration failed:", error);
+        notifyError(error?.response?.data?.message || error.message);
+      } finally {
+        // setLoading(false);
       }
     }
   };

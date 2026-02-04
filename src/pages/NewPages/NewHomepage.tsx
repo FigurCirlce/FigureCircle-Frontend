@@ -427,17 +427,17 @@ const NewHomepage = () => {
         </div>
 
         <div>
-       {token && (
-  <div className="hidden md:block">
-    <button
-      className="px-2 py-2 border-2 border-black w-[150px] flex gap-1 rounded-lg bg-black text-white"
-      onClick={handleDashboard}
-    >
-      My Dashboard
-      <ArrowRight />
-    </button>
-  </div>
-)}
+          {token && (
+            <div className="hidden md:block">
+              <button
+                className="px-2 py-2 border-2 border-black w-[150px] flex gap-1 rounded-lg bg-black text-white"
+                onClick={handleDashboard}
+              >
+                My Dashboard
+                <ArrowRight />
+              </button>
+            </div>
+          )}
 
         </div>
         <div className="hidden md:flex gap-2  ">
@@ -522,14 +522,14 @@ const NewHomepage = () => {
           keepMounted
           onClose={handleRegisterDialogClose}
           aria-describedby="alert-dialog-slide-description"
-         fullScreen={window.innerWidth < 640} // sm breakpoint
-  PaperProps={{
-    sx: {
-      width: { xs: "100vw", sm: "90vw", md: "600px" },
-      maxHeight: { xs: "100vh", sm: "90vh" },
-      borderRadius: { xs: 0, sm: 2 },
-    },
-  }}
+          fullScreen={window.innerWidth < 640} // sm breakpoint
+          PaperProps={{
+            sx: {
+              width: { xs: "100vw", sm: "90vw", md: "600px" },
+              maxHeight: { xs: "100vh", sm: "90vh" },
+              borderRadius: { xs: 0, sm: 2 },
+            },
+          }}
         >
           <DialogContent className="sm:flex sm:flex-col sm:items-content sm:justify-center">
             .
@@ -708,24 +708,24 @@ const NewHomepage = () => {
         </button>
 
         {/* Mobile menu dropdown */}
-        {menuOpen ? token? (
+        {menuOpen ? token ? (
           <div className="absolute top-full right-4 mt-2 bg-white shadow-md rounded-lg p-4 flex flex-col gap-2 md:hidden z-20">
-           
+
             <button
               onClick={handleDashboard}
               className="bg-blue-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-blue-700"
             >
               Dashboard
             </button>
-             <button
+            <button
               onClick={handleLogout}
               className="text-blue-600 hover:text-slate-400 text-sm font-semibold"
             >
               Logout
             </button>
           </div>
-        ):
-      <div className="absolute top-full right-4 mt-2 bg-white shadow-md rounded-lg p-4 flex flex-col gap-2 md:hidden z-20">
+        ) :
+          <div className="absolute top-full right-4 mt-2 bg-white shadow-md rounded-lg p-4 flex flex-col gap-2 md:hidden z-20">
             <button
               onClick={handleLoginDialogClickOpen}
               className="text-blue-600 hover:text-slate-400 text-sm font-semibold"
@@ -738,13 +738,13 @@ const NewHomepage = () => {
             >
               Sign Up
             </button>
-             <button
+            <button
               onClick={handleExpertDialogClickOpen}
               className="bg-blue-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-blue-700"
             >
               Join As Expert
             </button>
-          </div>:""}
+          </div> : ""}
       </header>
       <section className="bg-white py-24 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div>
@@ -843,8 +843,8 @@ const NewHomepage = () => {
           <Button
             size="lg"
             className="bg-blue-600 text-white hover:bg-blue-700 px-10 py-6 text-lg rounded-xl shadow-lg"
-          onClick={handleRegisterDialogClickOpen}
-         >
+            onClick={handleRegisterDialogClickOpen}
+          >
             Talk to a Mentor
           </Button>
         </div>
