@@ -800,7 +800,7 @@ const paginatedMenteeData = assignedMentorData.slice(
         console.log("response-milestone---", response.data);
         const data = response.data.current_milestone;
 
-const uniqueMilestones = data.filter(
+const uniqueMilestones = data && data.filter(
   (v: { milestone: any; description: any; expectedCompletionDate: any; }, i: any, a: any[]) =>
     a.findIndex(
       t =>
@@ -1037,8 +1037,8 @@ setSelectedExpertData(uniqueMilestones);
             <div className="flex flex-col lg:flex-row gap-5 max-w-full mx-[4%] ">
               {/* Expert List */}
 
-              <div className="bg-white rounded-2xl shadow p-6 mx-5">
-                <h2 className="text-2xl font-bold mb-4">
+              <div className="bg-white rounded-2xl shadow p-6 mx-0 sm:mx-5">
+                <h2 className="text-2xl font-bold mb-4 flex justify-center">
                   {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
                 </h2>
                 <div className="space-y-4 flex-1 md:w-[400px]">
@@ -1159,7 +1159,7 @@ setSelectedExpertData(uniqueMilestones);
               </div>
 
               {/* Expert Progress */}
-              <div className="bg-white rounded-2xl shadow p-6 flex-1 mx-5">
+              <div className="bg-white rounded-2xl shadow p-6 flex-1 mx-0 sm:mx-5">
                 <h2 className="text-2xl mb-4 font-bold text-center">
                   {parseUser.is_mentor
                     ? "Progress with Mentees"

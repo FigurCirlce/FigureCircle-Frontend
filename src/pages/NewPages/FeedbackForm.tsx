@@ -437,11 +437,11 @@
 //             <div className="">
 //               <label className="block mb-1 text-gray-700 text-lg font-semibold ">
 //                 1. Will you mark
-//                 <InlineDropdown 
+//                 <InlineDropdown
 //         milestones={milestoneData?.current_milestone}
 //         selectedMilestone={selectedMilestoneIndex}
 //         onSelectMilestone={setSelectedMilestoneIndex}
-//       /> 
+//       />
 //                 Milestone as Complete?
 //               </label>
 //               <div className="flex gap-4 mt-1 px-5">
@@ -789,7 +789,9 @@ const FeedbackForm: React.FC = () => {
   const [growthValue, setGrowthValue] = useState("");
   const [sessionRating, setSessionRating] = useState(0);
   const [milestoneData, setMilestoneData] = useState<any>();
-  const [selectedMilestoneIndex, setSelectedMilestoneIndex] = useState<number | null>(null);
+  const [selectedMilestoneIndex, setSelectedMilestoneIndex] = useState<
+    number | null
+  >(null);
   const [message, setMessage] = useState<boolean>(false);
   const [itemPending, setItemPending] = useState<"yes" | "no" | null>(null);
   const { scheduleData } = useUserContext();
@@ -860,7 +862,8 @@ const FeedbackForm: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const milestones: TypeMilestone[] = milestoneData?.current_milestone || [];
+      const milestones: TypeMilestone[] =
+        milestoneData?.current_milestone || [];
       const selectedMilestone =
         selectedMilestoneIndex !== null
           ? milestones[selectedMilestoneIndex]
@@ -877,14 +880,14 @@ const FeedbackForm: React.FC = () => {
           selectedMilestoneIndex !== null
             ? true
             : itemPending === "no"
-            ? true
-            : false,
+              ? true
+              : false,
         next_steps_identified:
           selectedMilestoneIndex !== null
             ? true
             : nextMilestone === "yes"
-            ? true
-            : false,
+              ? true
+              : false,
         progress_rating: sessionRating,
         mentor_responsibility: selectedMilestoneIndex !== null ? true : false,
         user_responsibility: selectedMilestoneIndex !== null ? true : false,
@@ -979,13 +982,13 @@ const FeedbackForm: React.FC = () => {
           />
         </div>
       ) : (
-        <div className="p-6 max-w-3xl mx-auto font-sans text-sm border-2 border-slate-300 rounded-md shadow-md shadow-slate-400 my-10 bg-blue-50">
+        <div className="p-6 mx-6 max-w-3xl sm:mx-auto font-sans text-sm border-2 border-slate-300 rounded-md shadow-md shadow-slate-400 my-10 bg-blue-50">
           <h1 className="text-3xl font-bold mb-4 flex justify-center">
             Feedback Form
           </h1>
 
           {/* Session Details */}
-          <div className="border rounded-lg p-3 mb-6 flex justify-between items-center bg-white">
+          {/* <div className="border rounded-lg p-3 mb-6 flex justify-between items-center bg-white">
             <div className="flex items-center gap-6">
               <div className="bg-blue-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
                 DD
@@ -1008,6 +1011,37 @@ const FeedbackForm: React.FC = () => {
                     "en-GB"
                   )
                 : null}
+            </div>
+          </div> */}
+          <div className="border rounded-lg p-3 mb-6 bg-white">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              {/* LEFT SIDE */}
+              <div className="flex items-center gap-6">
+                <div className="bg-blue-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                  DD
+                </div>
+
+                <div>
+                  <div className="font-semibold text-lg">
+                    {parseUser.is_mentor
+                      ? scheduleData?.name
+                      : scheduleData?.mentor_name}
+                  </div>
+                  <div className="text-gray-500 text-md">
+                    {parseUser.is_mentor ? "Mentee" : "Mentor"}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT SIDE */}
+              <div className="text-gray-600 text-[15px] sm:text-lg sm:text-right">
+                <span className="font-medium text-[15px] sm:text-lg">Session Date:</span>{" "}
+                {scheduleData
+                  ? new Date(scheduleData.start_datetime).toLocaleDateString(
+                      "en-GB",
+                    )
+                  : null}
+              </div>
             </div>
           </div>
 

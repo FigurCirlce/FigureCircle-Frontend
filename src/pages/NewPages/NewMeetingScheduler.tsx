@@ -1120,7 +1120,7 @@ const MeetingSchedulerPreview = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Calendar */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm max-w-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm max-w-full sm:max-w-sm">
           <div className="mb-2 flex items-center justify-between">
             <button
               onClick={prevMonth}

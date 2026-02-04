@@ -414,9 +414,11 @@ const NewHomepage = () => {
   };
 
   return (
-    <div className="flex flex-col">
+    // <div className="flex flex-col">
+    <div className="flex flex-col overflow-x-hidden max-w-[100vw]">
       {/* Hero Section */}
       <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 md:px-[5%] py-3 bg-white shadow-md z-10">
+       
         <div className="flex items-center space-x-2">
           <img src={logo} alt="Logo" width={50} />
           <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">
