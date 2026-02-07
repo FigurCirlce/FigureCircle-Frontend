@@ -748,13 +748,13 @@ const inlineEditActive =
           )}
         </div>
 
-        {/* Footer refs */}
-        <div className="px-6 py-3 border-t text-xs text-gray-400">
+        
+        {/* <div className="px-6 py-3 border-t text-xs text-gray-400">
           Ref IDs – Check ID: {MilestoneData.check_id}, Meeting ID:{" "}
           {MilestoneData.check_meeting_id}, User: {MilestoneData.user_id},
           Mentor: {MilestoneData.mentor_id}, Serial:{" "}
           {MilestoneData.serial_number}
-        </div>
+        </div> */}
       </div>
     )}
     </div>

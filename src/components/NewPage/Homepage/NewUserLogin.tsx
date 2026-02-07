@@ -435,7 +435,10 @@ const RegistrationFlow: React.FC<any> = () => {
         notifySuccess();
         if (response.status === 201) {
           localStorage.setItem("registerStatus", response.data.register);
-          next();
+          // next();
+           setTimeout(() => {
+    next();
+  }, 2000);
         }
       } catch (error: any) {
         console.error("Registration failed:", error);
