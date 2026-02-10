@@ -139,12 +139,16 @@ function IntentCard({ active, title, subtitle, icon: Icon, onClick }: any) {
 const ProfileRecWidget = () => {
   // profile shape is flexible; we will map backend fields defensively
   const [profile, setProfile] = useState<any>([]);
+  const [typedRoles, setTypedRoles] = useState<string[]>([]);
+
   //@ts-ignore
   const [loading, setLoading] = useState(false);
   // const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reco, setReco] = useState<any | null>(null);
   const [role_options, setRole_Options] = useState<any>([]);
+  const [combinedRoles, setCombinedRoles] = useState<string[]>([]);
+
   //@ts-ignore
   const [ExperienceArray, setExperienceArray] = useState<EducationItem[]>([]);
   const [IndustryArray, setIndustryArray] = useState<EducationItem[]>([]);
@@ -188,6 +192,25 @@ const ProfileRecWidget = () => {
       __raw: d,
     };
   };
+
+  useEffect(() => {
+  setCombinedRoles((prev) => {
+    const merged = new Set([...prev, ...role_options]);
+    return Array.from(merged);
+  });
+}, [role_options]);
+
+
+useEffect(() => {
+  if (profile.dreamRole) {
+    setCombinedRoles((prev) => {
+      if (prev.includes(profile.dreamRole)) return prev;
+      return [profile.dreamRole, ...prev];
+    });
+  }
+}, [profile.dreamRole]);
+
+const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
 
   // fetch basic info (same as InfoCard)
   const fetchBasicInfo = async () => {
@@ -391,9 +414,13 @@ const ProfileRecWidget = () => {
     const degreeData = localStorage.getItem("degree");
     const degree = degreeData ? JSON.parse(degreeData) : null;
     try {
-      const res = await axios.get(
-        `${baseURL}/dream-list?degree=${degree?.high_education}`,
-        {
+     const res = await axios.get(`${baseURL}/dream-list`, {
+      params: {
+        degree: degree?.high_education,
+        industry: degree?.industry,
+            experience: degree?.work_experience,
+      },
+        
           headers: { Authorization: `Bearer ${token}` },
         }
       );
@@ -408,16 +435,38 @@ const ProfileRecWidget = () => {
     }
   };
 
-  const allRoles = useMemo(() => {
-    if (
-      profile.dreamRole &&
-      !role_options.includes(profile.dreamRole)
-    ) {
-      return [profile.dreamRole, ...role_options];
-    }
-    return role_options;
-  }, [profile.dreamRole, role_options]);
+  const handleDreamRoleChange = (v: string) => {
+  // store typed/custom roles
+  if (
+    v &&
+    !role_options.includes(v) &&
+    !typedRoles.includes(v)
+  ) {
+    setTypedRoles(prev => [...prev, v]);
+  }
 
+  setProfile({ ...profile, dreamRole: v });
+};
+
+  // const allRoles = useMemo(() => {
+  //   if (
+  //     profile.dreamRole &&
+  //     !role_options.includes(profile.dreamRole)
+  //   ) {
+  //     return [profile.dreamRole, ...role_options];
+  //   }
+  //   return role_options;
+  // }, [profile.dreamRole, role_options]);
+
+// const allRoles = useMemo(() => {
+//   return Array.from(
+//     new Set([
+//       ...typedRoles,       
+//       ...role_options,      
+//       profile.dreamRole,    
+//     ])
+//   ).filter(Boolean);
+// }, [typedRoles, role_options, profile.dreamRole]);
 
 
 
@@ -675,9 +724,11 @@ const ProfileRecWidget = () => {
                     </Label>
                     <Select
                       value={profile.dreamRole}
-                      onValueChange={(v) =>
-                        setProfile({ ...profile, dreamRole: v })
-                      }
+                      // onValueChange={(v) =>
+                      //   setProfile({ ...profile, dreamRole: v })
+                      // }
+        onValueChange={handleDreamRoleChange}
+
                     >
                       <SelectTrigger className="h-9 w-[90%] border-primary/20">
                         <SelectValue placeholder="Select dream role" />
