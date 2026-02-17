@@ -6,7 +6,7 @@ import axios from 'axios';
 import baseURL from '@/config/config';
 import { toast } from 'react-toastify';
 import { useUserContext } from './context/userContext';
-import { Maximize, Minimize } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 interface MeetingCallProps {
   roomId: string;
@@ -41,7 +41,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [screenSharingPeerId, setScreenSharingPeerId] = useState<string | null>(null);
   const screenVideoRef = useRef<HTMLVideoElement>(null);
-  const [isScreenSharePinned, setIsScreenSharePinned] = useState(false);
+
 
   // NEW: Track multiple screen sharers
   const [activeScreenSharers, setActiveScreenSharers] = useState<Set<string>>(new Set());
@@ -62,7 +62,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
   const [participantName, setParticipantName] = useState<string>('Participant');
 
   const { setSchedule } = useUserContext();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   // Load user name from localStorage on mount
   useEffect(() => {
@@ -411,7 +411,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
     // Navigate to dashboard
     // window.location.href = '/';
     // window.location.href = '/dashboard';
-   navigate('/dashboard?tab=schedule');
+    navigate('/dashboard?tab=schedule');
 
   };
 
@@ -432,8 +432,7 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
       setIsScreenSharing(true);
       setScreenSharingPeerId(peer?.id || null);
 
-      // NEW: Auto-pin on screen share start
-      setIsScreenSharePinned(true);
+      // Always show in full-screen mode (no minimize/maximize toggle)
 
       // NEW: Track this as an active screen sharer
       if (peer?.id) {
@@ -493,7 +492,6 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
         setScreenSharingStream(null);
         setIsScreenSharing(false);
         setScreenSharingPeerId(null);
-        setIsScreenSharePinned(false);
 
         // Remove from active sharers
         if (peer?.id) {
@@ -559,9 +557,8 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
           return newMap;
         });
 
-        // Always clear displayed screen share and unpin when stopping
+        // Clear displayed screen share when stopping
         setDisplayedScreenShareId(null);
-        setIsScreenSharePinned(false);
       }
 
       // Notify all peers that screen sharing has stopped
@@ -590,8 +587,6 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
         if (data.type === 'screenShare') {
           if (data.action === 'start') {
             setScreenSharingPeerId(data.peerId);
-            // NEW: Auto-pin when first screen share starts
-            setIsScreenSharePinned(true);
 
             // NEW: Add to active sharers
             setActiveScreenSharers(prev => new Set([...prev, data.peerId]));
@@ -618,7 +613,6 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
               setScreenSharingPeerId(remainingSharers[0]);
             } else {
               setScreenSharingPeerId(null);
-              setIsScreenSharePinned(false);
               setDisplayedScreenShareId(null);
             }
           }
@@ -658,8 +652,6 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
             // Set as displayed if it's the first one
             if (!displayedScreenShareId) {
               setDisplayedScreenShareId(call.peer);
-              // Auto-pin on first screen share
-              setIsScreenSharePinned(true);
             }
 
             // Not Setting remoteStream Immediately
@@ -779,231 +771,82 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
     return colors[Math.abs(hash) % colors.length];
   };
 
-  const renderParticipantVideos = () => {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Screen sharing video - Only show in grid when NOT pinned */}
-        {(isScreenSharing || screenSharingPeerId) && !isScreenSharePinned && (
-          <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-200">
-            <video
-              ref={screenVideoRef}
-              autoPlay
-              playsInline
-              className="w-full h-[240px] object-contain bg-gray-900"
-            />
-            <div className="absolute top-3 right-3 z-10 flex gap-2">
-              {activeScreenSharers.size > 1 && (
-                <>
-                  <button
-                    onClick={cycleToPrevScreenShare}
-                    className="p-2 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-md transition-all"
-                    title="Previous screen share"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    onClick={cycleToNextScreenShare}
-                    className="p-2 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-md transition-all"
-                    title="Next screen share"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => setIsScreenSharePinned(!isScreenSharePinned)}
-                className="p-2 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-md transition-all"
-              >
-                {isScreenSharePinned ? <Minimize size={18} /> : <Maximize size={18} />}
-              </button>
-            </div>
-            <div className="absolute bottom-3 left-3 flex items-center gap-2">
-              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(displayedScreenShareId === peer?.id ? myName : participantName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
-                {getInitials(displayedScreenShareId === peer?.id ? myName : participantName)}
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
-                <span className="text-gray-800 text-sm font-medium">
-                  📺 {displayedScreenShareId === peer?.id ? `${myName} (You)` : participantName}
-                </span>
-                {activeScreenSharers.size > 1 && (
-                  <span className="ml-2 text-xs bg-blue-500 px-2 py-0.5 rounded-full text-white">
-                    {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1}/{activeScreenSharers.size}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Local video */}
-        <div className={`relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 min-h-[240px] ${(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? 'absolute top-[23rem] right-10 w-[220px] h-[140px] z-20' : ''}`}>
-          {/* Always show avatar placeholder behind video */}
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
-              {getInitials(myName)}
-            </div>
-          </div>
-          <video
-            ref={localVideoRef}
-            autoPlay
-            playsInline
-            muted
-            className={`w-full h-[240px] object-cover relative z-10 ${!isVideoEnabled ? 'hidden' : ''}`}
-          />
-          {/* Status indicators */}
-          <div className="absolute top-3 right-3 flex gap-2 z-20">
-            {!isAudioEnabled && (
-              <div className="p-1.5 bg-red-500 rounded-full shadow-md">
-                <MicOff size={14} className="text-white" />
-              </div>
-            )}
-            {!isVideoEnabled && (
-              <div className="p-1.5 bg-red-500 rounded-full shadow-md">
-                <VideoOff size={14} className="text-white" />
-              </div>
-            )}
-          </div>
-          {/* Name badge */}
-          <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2">
-            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
-              {getInitials(myName)}
-            </div>
-            <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
-              <span className="text-gray-800 text-sm font-medium">{myName}</span>
-              {isHost && (
-                <span className="ml-2 text-xs bg-emerald-500 px-2 py-0.5 rounded-full text-white">Host</span>
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* Remote videos */}
-        {
-          Array.from(peers.entries()).map(([peerId, { stream }]) => {
-            // Check if video track is enabled - use data channel state, default to false (show avatar first)
-            const hasVideoEnabled = remoteVideoEnabled.get(peerId) ?? false;
-            // Check if audio is enabled - default to true if unknown
-            const hasAudioEnabled = remoteAudioEnabled.get(peerId) ?? true;
+  // Drag logic for local video
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number } | null>(null);
 
-            return (
-              <div key={peerId} className="relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 min-h-[240px]">
-                {/* Always show avatar placeholder */}
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                  <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
-                    {getInitials(participantName)}
-                  </div>
-                </div>
-                <video
-                  autoPlay
-                  playsInline
-                  className={`w-full h-[240px] object-cover relative z-10 ${!hasVideoEnabled ? 'hidden' : ''}`}
-                  ref={video => {
-                    if (video && stream) {
-                      video.srcObject = stream;
-
-                      // Check if video track is enabled
-                      const videoTrack = stream.getVideoTracks()[0];
-                      if (videoTrack) {
-                        // Update state with current track status
-                        const updateRemoteVideoState = () => {
-                          setRemoteVideoEnabled(prev => {
-                            const newMap = new Map(prev);
-                            // Check both enabled property and if track has ended
-                            const isEnabled = videoTrack.enabled && videoTrack.readyState === 'live';
-                            if (newMap.get(peerId) !== isEnabled) {
-                              newMap.set(peerId, isEnabled);
-                              return newMap;
-                            }
-                            return prev;
-                          });
-                        };
-
-                        // Initial check
-                        updateRemoteVideoState();
-
-                        // Listen for track mute/unmute events
-                        videoTrack.onmute = () => {
-                          setRemoteVideoEnabled(prev => {
-                            const newMap = new Map(prev);
-                            newMap.set(peerId, false);
-                            return newMap;
-                          });
-                        };
-
-                        videoTrack.onunmute = () => {
-                          setRemoteVideoEnabled(prev => {
-                            const newMap = new Map(prev);
-                            newMap.set(peerId, true);
-                            return newMap;
-                          });
-                        };
-
-                        // Poll for changes as fallback (since enabled property changes don't fire events)
-                        const interval = setInterval(updateRemoteVideoState, 500);
-
-                        // Cleanup
-                        return () => clearInterval(interval);
-                      }
-                    }
-                  }}
-                />
-                {/* Name badge */}
-                <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
-                    {getInitials(participantName)}
-                  </div>
-                  <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
-                    <span className="text-gray-800 text-sm font-medium">{participantName}</span>
-                  </div>
-                </div>
-                {/* Status indicators */}
-                <div className="absolute top-3 right-3 z-20 flex gap-2">
-                  {!hasAudioEnabled && (
-                    <div className="p-1.5 bg-red-500 rounded-full shadow-md">
-                      <MicOff size={14} className="text-white" />
-                    </div>
-                  )}
-                  {!hasVideoEnabled && (
-                    <div className="p-1.5 bg-red-500 rounded-full shadow-md">
-                      <VideoOff size={14} className="text-white" />
-                    </div>
-                  )}
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg ring-2 ring-white" title="Connected"></div>
-                </div>
-              </div>
-            );
-          })
-        }
-      </div>
-    );
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isScreenSharing || screenSharingPeerId) {
+      setIsDragging(true);
+      dragRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        initialX: position.x,
+        initialY: position.y
+      };
+    }
   };
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && dragRef.current) {
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      setPosition({
+        x: dragRef.current.initialX + dx,
+        y: dragRef.current.initialY + dy
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    dragRef.current = null;
+  };
+
+  // Reset position when screen sharing ends
+  useEffect(() => {
+    if (!isScreenSharing && !screenSharingPeerId) {
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [isScreenSharing, screenSharingPeerId]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 relative">
-      <div className="max-w-7xl mx-auto min-h-screen">
-        {(isScreenSharing || screenSharingPeerId) && isScreenSharePinned ? (
-          <>
-            <div className="flex items-center text-gray-700 absolute top-5 z-10 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
+    <div
+      className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 relative ${(isScreenSharing || screenSharingPeerId) ? 'overflow-hidden h-screen p-0' : ''
+        }`}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      <div className={`mx-auto ${(isScreenSharing || screenSharingPeerId) ? 'w-full h-full max-w-none' : 'max-w-7xl min-h-screen'
+        }`}>
+        {(isScreenSharing || screenSharingPeerId) ? (
+          <div className="fixed inset-0 z-50 bg-gray-900 flex flex-col">
+            <div className="absolute top-5 left-5 z-20 flex items-center text-gray-700 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
               <Users className="mr-2" size={20} />
               {/* <span className="font-medium">{participants.size + 1} / {MAX_PARTICIPANTS} participants</span> */}
             </div>
-            <div className='flex flex-col gap-3 absolute top-16 right-8 z-10'>
+
+            <div className='flex flex-col gap-3 absolute top-20 right-5 z-20'>
               {/* Milestone Card - Pinned Mode */}
               <a
                 href={milestoneUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg border border-blue-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+                className="group p-3 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/20 hover:scale-105 transition-all duration-300 cursor-pointer w-[160px]"
               >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-500 rounded-xl shadow-md">
-                    <Target size={18} className="text-white" />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="p-1.5 bg-blue-500 rounded-lg shadow-sm">
+                    <Target size={16} className="text-white" />
                   </div>
-                  <span className="text-sm font-semibold text-blue-800">Milestone</span>
+                  <span className="text-sm font-semibold text-gray-800">Milestone</span>
                 </div>
-                <div className="flex items-center gap-2 text-blue-600 group-hover:text-blue-800">
-                  <span className="text-sm font-medium">Open Link</span>
-                  <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                <div className="flex items-center gap-1 text-blue-600 text-xs font-medium">
+                  <span>Open Link</span>
+                  <ExternalLink size={12} />
                 </div>
               </a>
 
@@ -1012,31 +855,32 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
                 href={feedbackUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-lg border border-purple-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+                className="group p-3 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/20 hover:scale-105 transition-all duration-300 cursor-pointer w-[160px]"
               >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-purple-500 rounded-xl shadow-md">
-                    <MessageSquare size={18} className="text-white" />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="p-1.5 bg-purple-500 rounded-lg shadow-sm">
+                    <MessageSquare size={16} className="text-white" />
                   </div>
-                  <span className="text-sm font-semibold text-purple-800">Feedback</span>
+                  <span className="text-sm font-semibold text-gray-800">Feedback</span>
                 </div>
-                <div className="flex items-center gap-2 text-purple-600 group-hover:text-purple-800">
-                  <span className="text-sm font-medium">Give Feedback</span>
-                  <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                <div className="flex items-center gap-1 text-purple-600 text-xs font-medium">
+                  <span>Give Feedback</span>
+                  <ExternalLink size={12} />
                 </div>
               </a>
             </div>
 
             {/* Full-screen screen share video for pinned mode */}
-            <div className="relative w-full h-screen flex items-center justify-center bg-gray-900">
+            <div className="relative w-full h-full flex items-center justify-center bg-gray-900">
               <video
+                key="screen-share-pinned"
                 ref={screenVideoRef}
                 autoPlay
                 playsInline
                 className="w-full h-full object-contain"
               />
               {/* Controls overlay */}
-              <div className="absolute top-4 right-4 flex gap-2 z-20">
+              <div className="absolute top-5 right-5 flex gap-2 z-20">
                 {activeScreenSharers.size > 1 && (
                   <>
                     <button
@@ -1055,32 +899,28 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
                     </button>
                   </>
                 )}
-                <button
-                  onClick={() => setIsScreenSharePinned(false)}
-                  className="p-3 bg-white/90 backdrop-blur rounded-full text-gray-700 hover:bg-white shadow-lg transition-all"
-                  title="Minimize"
-                >
-                  <Minimize size={20} />
-                </button>
               </div>
-              {/* Name badge */}
-              <div className="absolute bottom-6 left-6 flex items-center gap-3 z-20">
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarColor(displayedScreenShareId === peer?.id ? myName : participantName)} flex items-center justify-center text-white text-lg font-bold shadow-xl ring-4 ring-white`}>
-                  {getInitials(displayedScreenShareId === peer?.id ? myName : participantName)}
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
-                  <span className="text-gray-800 text-base font-medium">
-                    📺 {displayedScreenShareId === peer?.id ? `${myName} (You)` : participantName}
-                  </span>
-                  {activeScreenSharers.size > 1 && (
-                    <span className="ml-2 text-sm bg-blue-500 px-2 py-1 rounded-full text-white">
-                      {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1}/{activeScreenSharers.size}
+
+              {/* Screen Share Info Badge */}
+              <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20 pointer-events-none">
+                <div className="bg-black/50 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/10 flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getAvatarColor(displayedScreenShareId === peer?.id ? myName : participantName)} flex items-center justify-center text-white text-sm font-bold shadow-sm ring-1 ring-white/20`}>
+                    {getInitials(displayedScreenShareId === peer?.id ? myName : participantName)}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-white/90 text-sm font-medium leading-tight">
+                      {displayedScreenShareId === peer?.id ? `${myName} (You)` : participantName}'s Screen
                     </span>
-                  )}
+                    {activeScreenSharers.size > 1 && (
+                      <span className="text-white/50 text-xs">
+                        Screen {Array.from(activeScreenSharers).indexOf(displayedScreenShareId || '') + 1} of {activeScreenSharers.size}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center text-gray-700 bg-white/90 backdrop-blur rounded-full px-4 py-2 shadow-md">
@@ -1127,20 +967,173 @@ const MeetingCall = ({ roomId, password, isHost, peer, actualHostId }: MeetingCa
                 </div>
               </a>
             </div>
-
-            {/* {(isScreenSharing || screenSharingPeerId) && (
-            <div className="text-gray-300">
-              <span className="text-sm">
-                {screenSharingPeerId === peer?.id ? "You are" : "Participant is"} sharing screen
-              </span>
-            </div>
-          )} */}
           </div>
         )}
-        {renderParticipantVideos()}
+
+
+        {/* Render Participant Videos - IMPORTANT: This contains local video which needs to be draggable in pinned mode */}
+        <div className={!(isScreenSharing || screenSharingPeerId) ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : ""}>
+
+
+
+          {/* Local video - Draggable when pinned */}
+          <div
+            onMouseDown={handleMouseDown}
+            style={
+              (isScreenSharing || screenSharingPeerId) ? {
+                position: 'fixed',
+                left: `calc(100% - 240px + ${position.x}px)`, // Default right position + drag delta
+                top: `calc(100% - 340px + ${position.y}px)`,  // Default bottom pos + drag delta
+                zIndex: 60,
+                cursor: isDragging ? 'grabbing' : 'grab',
+                transform: 'none', // Override any other transform
+                touchAction: 'none'
+              } : {}
+            }
+            className={`relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 min-h-[240px] transition-shadow duration-200
+            ${(isScreenSharing || screenSharingPeerId) ?
+                'w-[220px] h-[140px] !min-h-[140px] shadow-2xl ring-2 ring-white/50' : ''
+              }`}
+          >
+            {/* Always show avatar placeholder behind video */}
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 pointer-events-none">
+              <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
+                {getInitials(myName)}
+              </div>
+            </div>
+            <video
+              ref={localVideoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`w-full h-full object-cover relative z-10 pointer-events-none ${!isVideoEnabled ? 'hidden' : ''}`}
+            />
+            {/* Status indicators */}
+            <div className="absolute top-3 right-3 flex gap-2 z-20 pointer-events-none">
+              {!isAudioEnabled && (
+                <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                  <MicOff size={14} className="text-white" />
+                </div>
+              )}
+              {!isVideoEnabled && (
+                <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                  <VideoOff size={14} className="text-white" />
+                </div>
+              )}
+            </div>
+            {/* Name badge */}
+            <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2 pointer-events-none">
+              <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getAvatarColor(myName)} flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-white`}>
+                {getInitials(myName)}
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full shadow-md scale-90 origin-left">
+                <span className="text-gray-800 text-xs font-medium">{myName}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Remote videos - Hidden in pinned mode unless specified otherwise (usually we only want screen share + local video) */}
+          {!(isScreenSharing || screenSharingPeerId) &&
+            Array.from(peers.entries()).map(([peerId, { stream }]) => {
+              // Check if video track is enabled - use data channel state, default to false (show avatar first)
+              const hasVideoEnabled = remoteVideoEnabled.get(peerId) ?? false;
+              // Check if audio is enabled - default to true if unknown
+              const hasAudioEnabled = remoteAudioEnabled.get(peerId) ?? true;
+
+              return (
+                <div key={peerId} className="relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 min-h-[240px]">
+                  {/* Always show avatar placeholder */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-4xl font-bold shadow-2xl ring-4 ring-white`}>
+                      {getInitials(participantName)}
+                    </div>
+                  </div>
+                  <video
+                    autoPlay
+                    playsInline
+                    className={`w-full h-[240px] object-cover relative z-10 ${!hasVideoEnabled ? 'hidden' : ''}`}
+                    ref={video => {
+                      if (video && stream) {
+                        video.srcObject = stream;
+
+                        // Check if video track is enabled
+                        const videoTrack = stream.getVideoTracks()[0];
+                        if (videoTrack) {
+                          // Update state with current track status
+                          const updateRemoteVideoState = () => {
+                            setRemoteVideoEnabled(prev => {
+                              const newMap = new Map(prev);
+                              // Check both enabled property and if track has ended
+                              const isEnabled = videoTrack.enabled && videoTrack.readyState === 'live';
+                              if (newMap.get(peerId) !== isEnabled) {
+                                newMap.set(peerId, isEnabled);
+                                return newMap;
+                              }
+                              return prev;
+                            });
+                          };
+
+                          // Initial check
+                          updateRemoteVideoState();
+
+                          // Listen for track mute/unmute events
+                          videoTrack.onmute = () => {
+                            setRemoteVideoEnabled(prev => {
+                              const newMap = new Map(prev);
+                              newMap.set(peerId, false);
+                              return newMap;
+                            });
+                          };
+
+                          videoTrack.onunmute = () => {
+                            setRemoteVideoEnabled(prev => {
+                              const newMap = new Map(prev);
+                              newMap.set(peerId, true);
+                              return newMap;
+                            });
+                          };
+
+                          // Poll for changes as fallback (since enabled property changes don't fire events)
+                          const interval = setInterval(updateRemoteVideoState, 500);
+
+                          // Cleanup
+                          return () => clearInterval(interval);
+                        }
+                      }
+                    }}
+                  />
+                  {/* Name badge */}
+                  <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2">
+                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(participantName)} flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white`}>
+                      {getInitials(participantName)}
+                    </div>
+                    <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                      <span className="text-gray-800 text-sm font-medium">{participantName}</span>
+                    </div>
+                  </div>
+                  {/* Status indicators */}
+                  <div className="absolute top-3 right-3 z-20 flex gap-2">
+                    {!hasAudioEnabled && (
+                      <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                        <MicOff size={14} className="text-white" />
+                      </div>
+                    )}
+                    {!hasVideoEnabled && (
+                      <div className="p-1.5 bg-red-500 rounded-full shadow-md">
+                        <VideoOff size={14} className="text-white" />
+                      </div>
+                    )}
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg ring-2 ring-white" title="Connected"></div>
+                  </div>
+                </div>
+              );
+            })
+          }
+        </div>
+
 
         {/* Controls */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-10">
+        <div className={`fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-50 ${(isScreenSharing || screenSharingPeerId) ? 'bg-gray-900/90 border-t border-gray-800' : ''}`}>
           <div className="max-w-7xl mx-auto flex justify-center space-x-4">
             <button
               onClick={toggleAudio}

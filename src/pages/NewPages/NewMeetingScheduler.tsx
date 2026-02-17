@@ -31,10 +31,10 @@ interface Mentor {
   name: string;
 }
 
-interface user_info{
-email:string;
-user_id:number;
-first_name:string;
+interface user_info {
+  email: string;
+  user_id: number;
+  first_name: string;
 }
 interface Schedule {
   id: number;
@@ -48,19 +48,19 @@ interface Schedule {
   mentor_phone?: string;
   mentor_linkedin?: string;
   timezone?: string;
-  user_info:user_info;
+  user_info: user_info;
 
 }
 
-interface user_work{
-  industry:string;
-role:string;
-role_based:string;
-work_experience:string;
+interface user_work {
+  industry: string;
+  role: string;
+  role_based: string;
+  work_experience: string;
 }
 
-interface user_education{
-  high_education:string;
+interface user_education {
+  high_education: string;
 }
 interface Intent {
   id: number;
@@ -72,9 +72,9 @@ interface Intent {
   support_types: string;
   area_exploring: string | null;
   created_at: string;
-  user_work:user_work;
-   user_info:user_info;
-   user_education:user_education;
+  user_work: user_work;
+  user_info: user_info;
+  user_education: user_education;
 }
 
 
@@ -92,7 +92,7 @@ interface Meeting {
   mentorName: string;
   // milestoneLink: string;
   // feedbackLink: string;
- 
+
   mentor_email: string;
   email: string;
   name: string;
@@ -337,22 +337,22 @@ const SupportDetailsCard = ({
       {data ?
         <div className="text-sm space-y-2">
           <p>
-          <span className="font-medium">Name:</span> {data?.user_info.first_name}
-        </p>
-        <p>
-          <span className="font-medium">Education:</span> {data?.user_education.high_education}
-        </p>
-         <p>
-          <span className="font-medium">Dream Role:</span> {data?.user_work?.role_based}
-        </p>
-         <p>
-          <span className="font-medium">Work Experience:</span> {data?.user_work?.work_experience}
-        </p>
-        
- <p>
-          <span className="font-medium">Industry:</span> {data?.user_work?.industry}
-        </p>
-       
+            <span className="font-medium">Name:</span> {data?.user_info.first_name}
+          </p>
+          <p>
+            <span className="font-medium">Education:</span> {data?.user_education.high_education}
+          </p>
+          <p>
+            <span className="font-medium">Dream Role:</span> {data?.user_work?.role_based}
+          </p>
+          <p>
+            <span className="font-medium">Work Experience:</span> {data?.user_work?.work_experience}
+          </p>
+
+          <p>
+            <span className="font-medium">Industry:</span> {data?.user_work?.industry}
+          </p>
+
           <p>
             <span className="font-medium">Goal / Challenge:</span>{" "}
             {data?.goal_challenge}
@@ -363,15 +363,15 @@ const SupportDetailsCard = ({
             {data?.support_types}
           </p>
 
- {data?.area_exploring &&
- 
-          <p>
-            <span className="font-medium">Area Exploring:</span>{" "}
-            {data?.area_exploring ?? "Not specified"}
-          </p>
-}
+          {data?.area_exploring &&
 
-          
+            <p>
+              <span className="font-medium">Area Exploring:</span>{" "}
+              {data?.area_exploring ?? "Not specified"}
+            </p>
+          }
+
+
 
           {/* <p>
           <span className="font-medium">Mentor ID:</span> {data.mentor_id}
@@ -965,7 +965,7 @@ const MeetingSchedulerPreview = () => {
             user_id: parsedUserData?.is_mentor
               ? mentorId
               : parsedUserData.user_id,
-              include_history:true
+            include_history: true
           },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1028,8 +1028,8 @@ const MeetingSchedulerPreview = () => {
                   // onClick={() => setSelectedMentor(m)}
                   onClick={() => handleMentorSelection(m?.mentor_id)}
                   className={`flex items-center gap-3 rounded-2xl border px-3 py-2 transition shadow-sm hover:shadow ${selectedMentor?.mentor_id === m?.mentor_id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 bg-white"
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 bg-white"
                     }`}
                   aria-pressed={selectedMentor?.mentor_id === m?.mentor_id}
                 >
@@ -1378,8 +1378,8 @@ const MeetingSchedulerPreview = () => {
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
                 className={`px-3 py-1 rounded-lg border text-sm ${currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "hover:bg-gray-100"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "hover:bg-gray-100"
                   }`}
               >
                 Previous
@@ -1395,8 +1395,8 @@ const MeetingSchedulerPreview = () => {
                 }
                 disabled={currentPage === totalPages}
                 className={`px-3 py-1 rounded-lg border text-sm ${currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "hover:bg-gray-100"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "hover:bg-gray-100"
                   }`}
               >
                 Next
@@ -1408,25 +1408,25 @@ const MeetingSchedulerPreview = () => {
 
       {/* Sticky confirmation bar */}
       {selectedMentor && selectedDate && selectedSlot && (
-        <div className="fixed bottom-4 left-[50%] z-50 w-[min(900px,92vw)] -translate-x-1/2 rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-xl backdrop-blur">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm">
-              <span className="font-semibold">Mentor:</span>{" "}
-              {selectedMentor.name} •{" "}
-              <span className="font-semibold">Date:</span>{" "}
-              {selectedDate.toLocaleDateString()} •{" "}
-              <span className="font-semibold">Time:</span> {selectedSlot}
+        <div className="fixed bottom-0 left-0 right-0 z-50 w-full border-t border-gray-200 bg-white/95 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] backdrop-blur">
+          <div className="mx-auto max-w-4xl flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="text-sm text-gray-700">
+              <span className="font-semibold text-gray-900">Mentor:</span>{" "}
+              {selectedMentor.name} <span className="mx-2">•</span>
+              <span className="font-semibold text-gray-900">Date:</span>{" "}
+              {selectedDate.toLocaleDateString()} <span className="mx-2">•</span>
+              <span className="font-semibold text-gray-900">Time:</span> {selectedSlot}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => setSelectedSlot(null)}
-                className="rounded-xl border px-4 py-2 text-sm font-medium hover:bg-gray-50"
+                className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
               >
                 Change
               </button>
               <button
                 onClick={confirmMeeting}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 shadow-md transition-all hover:shadow-lg"
               >
                 Confirm Meeting
               </button>
