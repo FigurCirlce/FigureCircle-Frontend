@@ -16,10 +16,10 @@ import CryptoJS from "crypto-js";
 import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
 import {
   Dialog,
-  DialogActions,
+  // DialogActions,
   DialogContent,
   Slide,
-  Button,
+  // Button,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import CustomCalendar from "@/components/NewPage/customCalendar";
@@ -240,7 +240,7 @@ function MentorInspector({
 
   return (
     // <aside className="sticky top-20 self-start w-full md:w-[360px] lg:w-[400px] xl:w-[440px]">
-    <aside className="fixed top-50 right-5 w-full md:w-[360px] lg:w-[400px] xl:w-[440px]">
+    <aside className="fixed top-50 right-5 w-full md:w-[360px] lg:w-[400px] xl:w-[440px] flex justify-center">
 
       <div className="rounded-2xl border bg-white shadow-sm">
         <div className="flex items-start justify-between p-4 border-b">
@@ -316,7 +316,7 @@ function MentorInspector({
                     <div className="text-gray-500">1st session</div>
                   </div>
                   <div className="flex items-center gap-1 font-semibold">
-                    <IndianRupee className="h-4 w-4" />₹{item.price}
+                    <IndianRupee className="h-4 w-4" />{item.price}
                   </div>
                 </div>
               ))}
@@ -572,20 +572,1092 @@ function IntentDialog({ open, onClose, onSubmit }: any) {
 //   );
 // }
 
-const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
+// const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
+//   const [query, setQuery] = useState("");
+//   const [activeCat, setActiveCat] = useState("recommended");
+//   const [selectedId, setSelectedId] = useState<any>(null);
+//   const [openDialog, setOpenDialog] = useState(false);
+
+//   // const [scheduledMap, setScheduledMap] = useState({});
+//   //@ts-ignore
+//   const [meetings, setMeetings] = useState<Meeting[]>([]);
+//   const [open, setOpen] = useState<boolean>(false);
+//   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
+//   // const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
+//   // const[alreadyAssignedMentorData, setAlreadyAssignedMentorData]=useState<Mentor[]>([]);
+//   //@ts-ignore
+//   const [scheduledMap, setScheduledMap] = useState<Record<number, boolean>>({});
+//   const [AssignedMap, setAssignedMap] = useState<Record<number, boolean>>({});
+//   const [dialogMentorId, setDialogMentorId] = useState<any>(null);
+//   const [visible, setVisible] = useState(9);
+//   //@ts-ignore
+//   const [mentors, setMentors] = useState<Mentor[]>([]);
+//   const [allMentors, setAllMentors] = useState<Mentor[]>([]);
+
+//   const [intentDialogOpen, setIntentDialogOpen] = useState(false);
+//   // const [timeDialogOpen, setTimeDialogOpen] = useState(false);
+//   const [selectedSlot, setSelectedSlot] = useState("");
+//   //@ts-ignore
+//   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
+//   const [allMentorsData, setAllMentorsData] = useState<Mentor[]>([]);
+//   //@ts-ignore
+//   const [mentorsList, setMentorsList] = useState<Mentor[]>([]);
+//   const [loading, setLoading] = useState(false);
+//   //@ts-ignore
+
+//   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
+//     null
+//   );
+//   const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(
+//     null
+//   );
+//   const [mentorUserId, setmentorUserId] = useState<number | null>(null);
+//   const [userId, setUserId] = useState<string | number>("");
+//   //@ts-ignore
+//   //  const[openTime,setOpenTime]=useState(false);
+//   //@ts-ignore
+//   const [schedules, setSchedules] = useState<Schedule[]>([]);
+//   const [formData, setFormData] = useState<Schedule>({
+//     id: 0,
+//     name: "",
+//     email: "",
+//     start_date: "",
+//     duration: "30",
+//     mentor_id: "",
+//     user_id: "",
+//     mentor_email: "",
+//     mentor_phone: "",
+//     mentor_linkedin: "",
+//     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+//   });
+
+//   const user = localStorage.getItem("user")??localStorage.getItem("userData") ??localStorage.getItem("userlocaldata");
+//   const userData = user ? JSON.parse(user) : null;
+// // const navigate=useNavigate();
+//   // Mock user data (replace with actual localStorage in production)
+//   // const [userData] = useState({
+//   //   user_id: 1,
+//   //   firstname: "John",
+//   //   emailid: "john@example.com",
+//   //   is_mentor: false
+//   // });
+
+//   // Mock data for demo
+//   const token = localStorage.getItem("token");
+
+//   //    useEffect(()=>{
+//   //       const selectedMentor = allMentorsData.find(
+//   //   (m) => m.mentor_id === selectedId
+//   // ) ||null;
+//   // setSelectedExpertData(selectedMentor);
+//   //     },[selectedId]);
+//   const fetchMeetingData = async () => {
+//     const user = localStorage.getItem("user") ?? localStorage.getItem("userData")??localStorage.getItem("userlocaldata");
+//     const parsedUserData = user ? JSON.parse(user) : null;
+
+//     // console.log("user_id FetchMeetingData----", user_id);
+//     try {
+//       const response = await axios.get(`${baseURL}/api/schedules`, {
+//         // params: { user_id: 3},
+//         params: parsedUserData.is_mentor
+//           ? { mentor_id: parsedUserData?.user_id }
+//           : { user_id: parsedUserData?.user_id },
+//       });
+
+//       if (response.data) {
+//         const sortedData = [...response.data].sort(
+//           (a, b) =>
+//             new Date(b.start_datetime).getTime() -
+//             new Date(a.start_datetime).getTime()
+//         );
+//         console.log("sortedData-----", sortedData);
+//         setMeetingData(sortedData);
+//       } else {
+//         console.log("No meetings found.");
+//       }
+//     } catch (error) {
+//       console.error("Error fetching meeting data:", error);
+//     }
+//   };
+
+//   const handleExpert = async (id: number) => {
+//     // navigate(`/expert/${id}`);
+//     // await fetchMentorData(id);
+//     console.log("Pay clicked for mentor:", id);
+//     console.log("User:", userData?.user_id);
+//     setmentorUserId(id);
+//     setUserId(userData.user_id);
+//   };
+
+//   //    useEffect(() => {
+//   //    console.log("meeting--setHasMeetingScheduled",hasMeetingScheduled);
+//   //   const result = meetingData.some(
+//   //     (schedule: Meeting) =>
+//   //       schedule.mentor_id === selectedExpertData?.mentor_id &&
+//   //       schedule.user_id === userData?.user_id
+//   //   );
+//   //    console.log("meeting--setHasMeetingScheduled---result",result);
+//   //   setHasMeetingScheduled(result);
+//   // }, [meetingData, selectedExpertData, userData]);
+
+//   useEffect(() => {
+//     const map: Record<number, boolean> = {};
+//     meetingData.forEach((schedule) => {
+//       map[schedule.mentor_id] = true;
+//     });
+//     setScheduledMap(map);
+//   }, [meetingData]);
+
+//   useEffect(() => {
+//     const map: Record<number, boolean> = {};
+//     mentorsList.forEach((mentor) => {
+//       map[mentor.mentor_id] = true;
+//     });
+//     setAssignedMap(map);
+//   }, [mentorsList]);
+
+//   useEffect(() => {
+//     if (!selectedId || !allMentorsData.length) return;
+
+//     const selectedMentor = allMentorsData.find(
+//       (m) => m.mentor_id === selectedId
+//     );
+
+//     setSelectedExpertData(selectedMentor || null);
+//   }, [selectedId, allMentorsData]);
+
+//   const fetchAssignedMentor = async () => {
+//     try {
+//       const response = await axios.get(`${baseURL}/get_assigned_mentors`, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (response.data) {
+//         console.log("response--data", response.data.mentors);
+//         // setAlreadyAssignedMentorData(response.data.mentors);
+//         setMentorsList(response.data.mentors);
+//       } else {
+//         console.log("No Mentors found.");
+//       }
+//     } catch (error) {
+//       console.error("Error fetching Assigned Mentors:", error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     const fetchMentors = async () => {
+//       try {
+//         //Fetch recommended mentors
+//         const recommendedRes = await axios.get(
+//           `${baseURL}/api/recommend-mentors?allmentor=false`,
+//           {
+//             headers: { Authorization: `Bearer ${token}` },
+//           }
+//         );
+//         console.log("recommendedRes--recommendedRes", recommendedRes.data);
+//         if (recommendedRes.data?.recommended_mentors?.length) {
+//           setAssignedMentorData(recommendedRes.data.recommended_mentors);
+//           setSelectedExpertKey(
+//             recommendedRes.data.recommended_mentors[0].mentor_id
+//           );
+//         }
+
+//         // Fetch all mentors
+//         const allRes = await axios.get(
+//           `${baseURL}/api/recommend-mentors?allmentor=true`,
+//           {
+//             headers: { Authorization: `Bearer ${token}` },
+//           }
+//         );
+//         console.log("allRes--allRes", allRes.data);
+//         if (allRes.data?.recommended_mentors?.length) {
+//           setAllMentorsData(allRes.data.recommended_mentors);
+//           if (!recommendedRes.data?.recommended_mentors?.length) {
+//             setSelectedExpertKey(allRes.data.mentors[0].mentor_id);
+//           }
+//         }
+//       } catch (error) {
+//         console.error("Error fetching mentors", error);
+//       }
+//     };
+
+//     fetchMentors();
+//     fetchMeetingData();
+//     fetchAssignedMentor();
+//   }, [token]);
+
+//   // const fetchMeetingData = async () => {
+//   //     const user=localStorage.getItem("user");
+//   //     const parsedUser=user?JSON.parse(user):null;
+
+//   //     console.log("user_id FetchMeetingData----", parsedUser.user_id);
+//   //     try {
+//   //       const response = await axios.get(`${baseURL}/api/schedules`, {
+//   //         // params: { user_id: 3},
+//   //         params: parsedUser.is_mentor
+//   //           ? { mentor_id: m.mentor_id}
+//   //           : { user_id: parsedUser.user_id },
+//   //       });
+
+//   //       if (response.data) {
+//   //         const sortedData = [...response.data].sort(
+//   //           (a, b) =>
+//   //             new Date(b.start_datetime).getTime() -
+//   //             new Date(a.start_datetime).getTime()
+//   //         );
+//   //         console.log("sortedData-----", sortedData);
+//   //         setMeetings(sortedData);
+//   //       } else {
+//   //         console.log("No meetings found.");
+//   //       }
+//   //     } catch (error) {
+//   //       console.error("Error fetching meeting data:", error);
+//   //     }
+//   //   };
+
+//   //   useEffect(()=>{
+//   //     fetchMeetingData();
+//   //   },[]);
+
+//   useEffect(() => {
+//     // Simulate API call
+//     setLoading(true);
+//     setTimeout(() => {
+//       setMentors(allMentorsData);
+//       setAllMentors(allMentorsData);
+//       if (allMentorsData.length > 0) {
+//         setSelectedId(allMentorsData[0].mentor_id);
+//       }
+//       setLoading(false);
+//     }, 500);
+//   }, []);
+
+//   useEffect(() => {
+//     // Simulate API call
+//     setLoading(true);
+//     setTimeout(() => {
+//       setMentors(allMentorsData);
+//       setAllMentors(allMentorsData);
+//       if (allMentorsData.length > 0) {
+//         setSelectedId(allMentorsData[0].mentor_id);
+//       }
+//       setLoading(false);
+//     }, 500);
+//   }, [allMentorsData]);
+
+//   const fetchIntent = async (mentorId: Number | null | undefined) => {
+//     try{
+//     const res = await axios.get(
+//       `${baseURL}/api/intentwithids?user_id=${userData?.user_id}&mentor_id=${mentorId}`
+//     );
+//     console.log("res--data",res.data);
+//     setOpenDialog(true);
+//   }catch(error){
+//     console.log(error);
+//      setIntentDialogOpen(true);
+//   }
+//   };
+
+//   const handleSchedule = async (mentorId: Number | null | undefined) => {
+//     setSelectedId(mentorId);
+//     setDialogMentorId(mentorId);
+//     await fetchIntent(mentorId);
+//     // setIntentDialogOpen(true);
+//   };
+
+//   // const handleIntentSubmit = async (support: any, goalChallenge: any) => {
+//   //   // Simulate API call
+//   //   console.log("Intent submitted:", { support, goalChallenge, mentorId: selectedId, userId: userData.user_id });
+
+//   //   setIntentDialogOpen(false);
+//   //   setTimeDialogOpen(true);
+
+//   //   // Show success message
+//   //   alert("Intent submitted successfully!");
+//   // };
+//   // const notifyError = (error: any) => toast.error(`Error: ${error}`);
+//   const notifyError = (error: any) => {
+//     const message =
+//       error?.response?.data?.error || // ← your API error field
+//       error?.message || // fallback
+//       "Something went wrong";
+
+//     toast.error(message);
+//   };
+
+//   const handleSubmit = async (selectedSlot: any) => {
+//     // console.log("formdata----", formData);
+//     setOpenDialog(true);
+//     // console.log("SelectedTiemSlot",selectedSlot);
+
+//     try {
+//       const updatedFormData = {
+//         ...formData,
+//         // start_date: startDateISO,
+//         start_date: convertDateAndTimeToISO(
+//           selectedSlot.date,
+//           selectedSlot.start
+//         ),
+//       };
+
+//       // console.log("userData---", userData);
+//       console.log("userData2", userData);
+
+//       if (user && userData) {
+//         // const parsedUserData = JSON.parse(userData);
+//         // const parsedUserData2 = JSON.parse(userData2);
+        
+//         const parsedUser = JSON.parse(user);
+//         // console.log("parsedUserData---", parsedUserData);
+//         console.log("parsedUserData2----", parsedUser);
+
+//         const randomId = Math.floor(Math.random() * 1000);
+//         const roomid = Math.floor(Math.random() * 1000);
+//         const password = Math.random().toString(36).substring(2, 8);
+//         // console.log("randomId---", randomId);
+//         // console.log("roomid----", roomid);
+//         // console.log("password----", password);
+
+//         const secretKey = "meetingkeys";
+//         // console.log("secretKey----", secretKey);
+
+//         const startDate = updatedFormData.start_date;
+//         // console.log("startDate----", startDate);
+
+//         const endDate = convertDateAndTimeToISO(
+//           selectedSlot.date,
+//           selectedSlot.end
+//         );
+//         console.log("endDate----", endDate);
+
+//         // Encrypt values
+//         const encryptedStartDate = CryptoJS.AES.encrypt(
+//           startDate,
+//           secretKey
+//         ).toString();
+//         console.log("encryptedStartDate----", encryptedStartDate);
+
+//         const encryptedEndDate = CryptoJS.AES.encrypt(
+//           endDate,
+//           secretKey
+//         ).toString();
+//         console.log("encryptedEndDate----", encryptedEndDate);
+
+//         const encryptedRoomId = CryptoJS.AES.encrypt(
+//           roomid.toString(),
+//           secretKey
+//         ).toString();
+//         console.log("encryptedRoomId----", encryptedRoomId);
+
+//         const encryptedPassword = CryptoJS.AES.encrypt(
+//           password,
+//           secretKey
+//         ).toString();
+//         console.log("encryptedPassword----", encryptedPassword);
+
+//         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+//         console.log("timeZone----", timeZone);
+//         console.log("/${randomId}/${parsedUser?.user_id}", parsedUser?.user_id);
+//         const meetingLink = `/v2/meetingcall/${randomId}/${
+//           parsedUser?.user_id
+//         }?start=${encodeURIComponent(
+//           encryptedStartDate
+//         )}&end=${encodeURIComponent(
+//           encryptedEndDate
+//         )}&roomid=${encodeURIComponent(
+//           encryptedRoomId
+//         )}&password=${encodeURIComponent(
+//           encryptedPassword
+//         )}&timezone=${encodeURIComponent(timeZone)}`;
+
+//         console.log("meetingLink----", meetingLink);
+
+//         const degree=localStorage.getItem("degree");
+//         const parsedDegree=degree?JSON.parse(degree):null;
+
+//         // Prepare schedule data
+//         const scheduleData = {
+//           name: parsedDegree.firstname || "",
+//           email: parsedDegree.emailid || "",
+//           start_datetime: startDate,
+//           end_datetime: endDate,
+//           duration: 60, // always 60
+//           link: meetingLink,
+//           user_id: parsedUser.user_id,
+//           mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
+//           mentor_name: selectedExpertData?.name,
+
+//           mentor_email: selectedExpertData?.email,
+//           roomid: roomid,
+//           password: password,
+//           timezone: timeZone,
+//         };
+
+//         console.log("scheduleData-----", scheduleData);
+
+//         const response = await axios.post<{ message: string; id: number }>(
+//           `${baseURL}/api/trial_ schedule`,
+//           scheduleData
+//         );
+
+//         notifyMeetingScheduledSuccess();
+//         setTimeout(() => {
+//         // notifyNextStep();
+//         // navigate('/dashboard?tab=schedule');
+// setActivePage("Schedule Meeting");
+
+//         }, 2000);
+//         // setDurationOpen(false);
+//         // setSelectedMentorId(null);
+//         await fetchMeetingData();
+
+//         // setRefreshKey(Date.now());
+//         setSchedules((prev) => [
+//           ...prev,
+//           {
+//             ...formData,
+//             id: response.data.id,
+//             user_id: parsedUser.user_id,
+//           },
+//         ]);
+
+//         setFormData({
+//           id: 0,
+//           name: "",
+//           email: "",
+//           start_date: "",
+//           duration: "60",
+//           mentor_id: 0,
+//           user_id: "",
+//           mentor_email: "",
+//           mentor_phone: "",
+//           mentor_linkedin: "",
+//           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+//         });
+//         setOpenDialog(false);
+//       } else {
+//         //@ts-ignore
+//         // setError("User data not found in localStorage.");
+//         console.log("User data not found in localStorage.");
+//       }
+//     } catch (err: any) {
+//       //@ts-ignore
+//       // setError(err.response?.data?.error || "An error occurred");
+//       console.log("errorrrrr-----", err || "An error occurred");
+//       notifyError(err);
+//       // alert("An error occurred");
+//     }
+//   };
+
+//   const handleSubmitIntent = async (
+//     mentor_id: number | undefined,
+//     user_id: number | string,
+//     support: string,
+//     goalChallenge: string
+//   ) => {
+//     const token = localStorage.getItem("token");
+//     console.log("mentor_id", mentor_id);
+//     console.log("user_id", user_id);
+//     const dataToSubmit = {
+//       goal_challenge: goalChallenge,
+//       support_types: support,
+//       user_id: user_id,
+//       mentor_id: mentor_id,
+//     };
+//     try {
+//       const response = await axios.post(`${baseURL}/api/intent`, dataToSubmit, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       });
+//       if (response.status === 201) {
+//         //   notifySuccess();
+//         // setSupport("");
+//         // setGoalChallenge("");
+//         //   setTimeDialogOpen(true);
+
+//         //  handleSubmit();
+//         setIntentDialogOpen(false);
+//         setOpenDialog(true);
+//         //  setTimeDialogOpen(true);
+//         //setOpenTime(true);
+//         //  fetchMeetingData();
+//       }
+//     } catch (error) {
+//       console.log("error");
+//       notifyError(error);
+//     }
+//   };
+
+//   // const handleTimeSlotSubmit = async (slot: { date: any; start: any; end: any; }) => {
+//   //   if (!slot) return;
+
+//   //   const selected = currentMentors.find(m => m.mentor_id === selectedId);
+
+//   //   // Simulate API call
+//   //   console.log("Meeting scheduled:", {
+//   //     mentor: selected?.name,
+//   //     date: slot.date,
+//   //     time: `${slot.start} - ${slot.end}`,
+//   //     userId: userData.user_id
+//   //   });
+
+//   //   setScheduledMap(prev => ({ ...prev, [selectedId]: true }));
+//   //   setTimeDialogOpen(false);
+//   //   alert(`Meeting scheduled with ${selected?.name} on ${slot.date} at ${slot.start}`);
+//   // };
+
+//   const currentMentors =
+//     activeCat === "recommended" ? assignedMentorData : allMentors;
+
+//   // const categories = useMemo(() => {
+//   //   const tagSet = new Set();
+//   //   currentMentors.forEach((m) => m.intent_price?.forEach((t) => tagSet.add(t.intent)));
+//   //   return [
+//   //     { key: "recommended", label: "Recommended" },
+//   //     { key: "all", label: "All" },
+//   //     ...Array.from(tagSet).sort().map((t) => ({ key: t, label: t })),
+//   //   ];
+//   // }, [currentMentors]);
+
+//   const categories = useMemo<Category[]>(() => {
+//     const tagSet = new Set<string>();
+
+//     currentMentors.forEach((m) => {
+//       m.intent_price?.forEach((t) => tagSet.add(t.intent));
+//     });
+
+//     return [
+//       { key: "recommended", label: "Recommended" },
+//       { key: "all", label: "All" },
+//       // ...Array.from(tagSet)
+//       //   .sort()
+//       //   .map((t) => ({
+//       //     key: t,       // <- now t is string, not unknown
+//       //     label: t
+//       //   }))
+//     ];
+//   }, [currentMentors]);
+
+//   // const filtered = useMemo(() => {
+//   //   let list = [...currentMentors];
+//   //   if (activeCat !== "recommended" && activeCat !== "all") {
+//   //     list = list.filter((m) => m.intent_price?.some(ip => ip.intent === activeCat));
+//   //   }
+//   //   if (query.trim()) {
+//   //     const q = query.toLowerCase();
+//   //     list = list.filter(
+//   //       (m) =>
+//   //         m.name.toLowerCase().includes(q) ||
+//   //         m.expertise.toLowerCase().includes(q) ||
+//   //         m.degree.toLowerCase().includes(q) ||
+//   //         m.background?.toLowerCase().includes(q)
+//   //     );
+//   //   }
+//   //   return list;
+//   // }, [query, activeCat, currentMentors]);
+
+//   const filtered = useMemo(() => {
+//     let list = [...currentMentors];
+
+//     if (query.trim()) {
+//       const q = query.toLowerCase();
+//       list = list.filter(
+//         (m) =>
+//           m.name.toLowerCase().includes(q) ||
+//           m.expertise.toLowerCase().includes(q) ||
+//           m.degree.toLowerCase().includes(q) ||
+//           m.background?.toLowerCase().includes(q)
+//       );
+//     }
+
+//     return list;
+//   }, [query, activeCat, currentMentors]);
+
+//   const display = filtered.slice(0, visible);
+//   const canLoadMore = visible < filtered.length;
+//   // const selected = display.find((m) => m.mentor_id === selectedId) || null;
+//   const selected = filtered.find((m) => m.mentor_id === selectedId) || null;
+
+//   useEffect(() => {
+//     setOpen(true);
+//   }, [selected]);
+
+//   useEffect(() => {
+//     setVisible(9);
+//   }, [activeCat, query]);
+
+//   // useEffect(() => {
+//   //   if (!selectedId && display.length > 0) setSelectedId(display[0].mentor_id);
+//   //   if (selectedId && !filtered.some((m) => m.mentor_id === selectedId)) {
+//   //     if (display.length > 0) setSelectedId(display[0].mentor_id);
+//   //     else setSelectedId(null);
+//   //   }
+//   // }, [display, filtered, selectedId]);
+//   useEffect(() => {
+//     if (display.length === 0) {
+//       if (selectedId !== null) setSelectedId(null);
+//       return;
+//     }
+
+//     const isValid = filtered.some((m) => m.mentor_id === selectedId);
+
+//     if (!isValid) {
+//       const newId = display[0].mentor_id;
+//       if (selectedId !== newId) setSelectedId(newId);
+//     }
+//   }, [display, filtered]);
+
+//   if (loading) {
+//     return (
+//       <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+//         <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+//       </div>
+//     );
+//   }
+//   // else{
+//   //   return (
+//   //   <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+//   //                <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
+//   //              </div>);
+//   // }
+
+//   const handleSuccess = () => {
+//     console.log("Payment Completed");
+//     if (!mentorUserId) return;
+//     setAssignedMap((prev) => ({
+//       ...prev,
+//       [mentorUserId]: true,
+//     }));
+// // notifyPaymentNextStep();
+// setActivePage("Schedule Meeting");
+
+//     fetchAssignedMentor();
+//   };
+
+//   const handleFailure = () => {
+//     console.log("Payment Failed");
+//   };
+
+//   const convertDateAndTimeToISO = (
+//     dateStr: string,
+//     timeStr: string
+//   ): string => {
+//     console.log("dateStr", dateStr);
+//     if (!dateStr || !timeStr) return "";
+
+//     const [year, month, day] = dateStr.split("-").map(Number);
+//     const [hour, minute] = timeStr.split(":").map(Number);
+
+//     const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
+
+//     return utcDate.toISOString();
+//   };
+
+//   const notifyMeetingScheduledSuccess = (
+//     msg = "Meeting Scheduled Successfully!"
+//   ) => {
+//     toast.success(msg, {
+//       position: "top-right",
+//       autoClose: 3000,
+//       hideProgressBar: false,
+//       pauseOnHover: true,
+//       draggable: true,
+//       theme: "colored",
+//     });
+//   };
+
+// // const notifyPaymentNextStep = (
+// //   message = "Expert successfully added to dashboard. You may schedule meetings in the Scheduled Meetings section."
+// // ) => {
+// //   toast.success(message, {
+// //     position: "top-right",
+// //     autoClose: 3000,
+// //     hideProgressBar: false,
+// //     pauseOnHover: true,
+// //     draggable: true,
+// //     theme: "colored",
+// //   });
+// // };
+
+//   //   const notifyNextStep = (
+//   //   msg = "Your meeting has been scheduled successfully. Please visit the Schedule Meeting section to access meeting details."
+//   // ) => {
+//   //   toast.success(msg, {
+//   //     position: "top-right",
+//   //     autoClose: 4000,
+//   //     hideProgressBar: false,
+//   //     pauseOnHover: true,
+//   //     draggable: true,
+//   //     theme: "colored",
+//   //   });
+//   // };
+
+//   //     const handleSubmit = async (selectedSlot: any) => {
+//   //     // console.log("formdata----", formData);
+//   // setTimeDialogOpen(true);
+//   // // console.log("SelectedTiemSlot",selectedSlot);
+//   //   const userData2 = localStorage.getItem("degree");
+
+//   // const parsedUserData2 = userData2 ? JSON.parse(userData2) : null;
+
+//   //     try {
+
+//   //       const updatedFormData = {
+//   //         ...formData,
+//   //         // start_date: startDateISO,
+//   //         start_date: convertDateAndTimeToISO(selectedSlot.date, selectedSlot.start),
+//   //       };
+
+//   //       // console.log("userData---", userData);
+//   //       console.log("userData2", userData2);
+
+//   //       if (user && userData2) {
+//   //         // const parsedUserData = JSON.parse(userData);
+//   //         // const parsedUserData2 = JSON.parse(userData2);
+//   //         const parsedUser = JSON.parse(user);
+//   //         // console.log("parsedUserData---", parsedUserData);
+//   //         console.log("parsedUserData2----", parsedUserData2);
+
+//   //         const randomId = Math.floor(Math.random() * 1000);
+//   //         const roomid = Math.floor(Math.random() * 1000);
+//   //         const password = Math.random().toString(36).substring(2, 8);
+//   //         // console.log("randomId---", randomId);
+//   //         // console.log("roomid----", roomid);
+//   //         // console.log("password----", password);
+
+//   //         const secretKey = "meetingkeys";
+//   //         // console.log("secretKey----", secretKey);
+
+//   //         const startDate = updatedFormData.start_date;
+//   //         // console.log("startDate----", startDate);
+
+//   //         const endDate = convertDateAndTimeToISO(selectedSlot.date, selectedSlot.end);
+//   //         console.log("endDate----", endDate);
+
+//   //         // Encrypt values
+//   //         const encryptedStartDate = CryptoJS.AES.encrypt(
+//   //           startDate,
+//   //           secretKey
+//   //         ).toString();
+//   //         console.log("encryptedStartDate----", encryptedStartDate);
+
+//   //         const encryptedEndDate = CryptoJS.AES.encrypt(
+//   //           endDate,
+//   //           secretKey
+//   //         ).toString();
+//   //         console.log("encryptedEndDate----", encryptedEndDate);
+
+//   //         const encryptedRoomId = CryptoJS.AES.encrypt(
+//   //           roomid.toString(),
+//   //           secretKey
+//   //         ).toString();
+//   //         console.log("encryptedRoomId----", encryptedRoomId);
+
+//   //         const encryptedPassword = CryptoJS.AES.encrypt(
+//   //           password,
+//   //           secretKey
+//   //         ).toString();
+//   //         console.log("encryptedPassword----", encryptedPassword);
+
+//   //         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+//   //         console.log("timeZone----", timeZone);
+
+//   //         const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
+//   //           encryptedStartDate
+//   //         )}&end=${encodeURIComponent(
+//   //           encryptedEndDate
+//   //         )}&roomid=${encodeURIComponent(
+//   //           encryptedRoomId
+//   //         )}&password=${encodeURIComponent(
+//   //           encryptedPassword
+//   //         )}&timezone=${encodeURIComponent(timeZone)}`;
+
+//   //         console.log("meetingLink----", meetingLink);
+
+//   //         // Prepare schedule data
+//   //         const scheduleData = {
+//   //           name: parsedUser.firstname || "",
+//   //           email: parsedUser.emailid || "",
+//   //           start_datetime: startDate,
+//   //           end_datetime: endDate,
+//   //           duration: 60, // always 60
+//   //           link: meetingLink,
+//   //           user_id: parsedUser.user_id,
+//   //           mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
+//   //           mentor_name: selectedExpertData?.name,
+
+//   //           mentor_email: selectedExpertData?.email,
+//   //           roomid: roomid,
+//   //           password: password,
+//   //           timezone: timeZone,
+//   //         };
+
+//   //         console.log("scheduleData-----", scheduleData);
+
+//   //         const response = await axios.post<{ message: string; id: number }>(
+//   //           `${baseURL}/api/trial_ schedule`,
+//   //           scheduleData
+//   //         );
+
+//   //         notifyMeetingScheduledSuccess();
+//   //         // setDurationOpen(false);
+//   //         // setSelectedMentorId(null);
+
+//   //         // setRefreshKey(Date.now());
+//   //         setSchedules((prev) => [
+//   //           ...prev,
+//   //           {
+//   //             ...formData,
+//   //             id: response.data.id,
+//   //             user_id: parsedUser.user_id,
+//   //           },
+//   //         ]);
+
+//   //         setFormData({
+//   //           id: 0,
+//   //           name: "",
+//   //           email: "",
+//   //           start_date: "",
+//   //           duration: "60",
+//   //           mentor_id: 0,
+//   //           user_id: "",
+//   //           mentor_email: "",
+//   //           mentor_phone: "",
+//   //           mentor_linkedin: "",
+//   //           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+//   //         });
+//   //         // setOpenTime(false);
+//   //         setTimeDialogOpen(false);
+//   //         fetchMeetingData();
+//   //       } else {
+//   //         //@ts-ignore
+//   //         // setError("User data not found in localStorage.");
+//   //         console.log("User data not found in localStorage.");
+//   //       }
+//   //     } catch (err: any) {
+//   //       //@ts-ignore
+//   //       // setError(err.response?.data?.error || "An error occurred");
+//   //       console.log(err|| "An error occurred");
+//   //       notifyError(err);
+//   //       setTimeDialogOpen(false);
+//   //       // alert(err);
+//   //     }
+//   //   };
+
+//   // Update mentor list whenever API data arrives
+
+//   return (
+//     <div className="min-h-screen w-full ">
+//       <main className="">
+//         <h1 className="text-3xl font-bold mx-5 ">Mentors For You</h1>
+
+//         <div className="mt-4 flex flex-col md:flex-row gap-3 md:items-center">
+//           <div className="flex items-center gap-2">
+//             <div className="relative mx-[5%] ">
+//               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+//               <input
+//                 value={query}
+//                 onChange={(e) => setQuery(e.target.value)}
+//                 placeholder="Search by name, expertise, or background…"
+//                 className="w-[280px] md:w-[420px] rounded-xl border border-gray-300 pl-9 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-black"
+//               />
+//             </div>
+//             {/* <button className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 hover:bg-gray-50">
+//               <Filter className="h-4 w-4" /> Filters
+//             </button> */}
+//           </div>
+
+//           <div className="flex flex-wrap items-center gap-2 mx-5 ">
+//             {categories.map((c) => (
+//               <Pill
+//                 key={c.key}
+//                 active={activeCat === c.key}
+//                 onClick={() => setActiveCat(c.key)}
+//               >
+//                 {c.label}
+//               </Pill>
+//             ))}
+//           </div>
+//         </div>
+
+//         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-6">
+//           <div className="grid gap-3 mx-5  sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+//             {display.map((m) => {
+//               // const isAssigned = alreadyAssignedMentorData.some(a => a.mentor_id === m.mentor_id);
+//               return (
+//                 <MentorCard
+//                   key={m.mentor_id}
+//                   m={m}
+//                   isSelected={selectedId === m.mentor_id}
+//                   // scheduled={!!scheduledMap[m.mentor_id]}
+//                   onSchedule={() => handleSchedule(m.mentor_id)}
+//                   hasMeetingScheduled={scheduledMap[m.mentor_id]}
+//                   hasAssigned={AssignedMap[m.mentor_id]}
+//                   onSelect={() => setSelectedId(m.mentor_id)}
+//                   onPay={handleExpert}
+//                   //  isAssigned={isAssigned}
+//                 />
+//               );
+//             })}
+//           </div>
+
+//           <div className="hidden lg:block">
+//             <MentorInspector
+//               m={selected}
+//               // scheduled={!!(selected && scheduledMap[selected.mentor_id])}
+//               onSchedule={() => handleSchedule(selected?.mentor_id)}
+//               // hasMeetingScheduled={hasMeetingScheduled}
+//               hasMeetingScheduled={
+//                 selected?.mentor_id ? scheduledMap[selected?.mentor_id] : null
+//               }
+//               hasAssigned={
+//                 selected?.mentor_id ? AssignedMap[selected?.mentor_id] : null
+//               }
+//               onClose={() => setSelectedId(null)}
+//               onPay={handleExpert}
+//               // isAssigned={isAssigned}
+//             />
+//           </div>
+//         </div>
+
+//         {selected && open && (
+//           <div className="lg:hidden fixed inset-x-0 bottom-0 z-40">
+//             <div className="flex justify-center">
+//               {/* <div className="flex items-center justify-between p-4 border-b">
+//                 <h3 className="text-base font-semibold truncate">{selected.name}</h3>
+//                 <button onClick={() => setOpen(false)} className="p-1 rounded-md hover:bg-gray-100">
+//                   <X className="h-4 w-4" />
+//                 </button>
+//               </div> */}
+//               <div className="p-4 max-h-[60vh] overflow-y-auto">
+//                 <MentorInspector
+//                   m={selected}
+//                   // scheduled={!!scheduledMap[selected.mentor_id]}
+//                   onSchedule={() => handleSchedule(selected?.mentor_id)}
+//                   // hasMeetingScheduled={hasMeetingScheduled}
+//                   hasMeetingScheduled={
+//                     selected?.mentor_id
+//                       ? scheduledMap[selected?.mentor_id]
+//                       : null
+//                   }
+//                   hasAssigned={
+//                     selected?.mentor_id
+//                       ? AssignedMap[selected?.mentor_id]
+//                       : null
+//                   }
+//                   onClose={() => setOpen(false)}
+//                   onPay={handleExpert}
+//                   // isAssigned={isAssigned}
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         <div className="mt-8 flex justify-center">
+//           {filtered.length === 0 ? (
+//             <div className="text-gray-600">No mentors match your search.</div>
+//           ) : canLoadMore ? (
+//             <button
+//               onClick={() => setVisible((v) => v + 9)}
+//               className="px-4 py-2 rounded-xl border bg-white hover:bg-gray-50 transition"
+//             >
+//               View more mentors
+//             </button>
+//           ) : (
+//             <div className="text-gray-500 text-sm">You're all caught up.</div>
+//           )}
+//         </div>
+//       </main>
+
+//       <IntentDialog
+//         open={intentDialogOpen}
+//         onClose={() => setIntentDialogOpen(false)}
+//         // onSubmit={()=>handleSubmitIntent(selectedExpertData?.mentor_id,userData?.user_id)}
+//         onSubmit={(support: string, goalChallenge: string) =>
+//           // handleSubmitIntent(selectedExpertData?.mentor_id, userData?.user_id, support, goalChallenge)
+//           handleSubmitIntent(
+//             dialogMentorId,
+//             userData?.user_id,
+//             support,
+//             goalChallenge
+//           )
+//         }
+//       />
+
+//       {/* <TimeSlotDialog
+//         open={timeDialogOpen}
+//         onClose={() => setTimeDialogOpen(false)}
+//         availability={selectedExpertData?.availability}
+//         onSubmit={handleSubmit}
+//         // selected={selectedExpertData}
+//       /> */}
+//       <Dialog
+//         open={openDialog}
+//         TransitionComponent={Transition}
+//         keepMounted
+//         onClose={() => setOpenDialog(false)}
+//         aria-describedby="schedule-call-dialog"
+//         PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
+//       >
+//         <DialogContent>
+//           <div className="w-full bg-white rounded-xl p-4">
+//             {/* <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
+//               Select the time
+//             </div> */}
+
+//             <CustomCalendar
+//               onSelect={(slot) => setSelectedSlot(slot)}
+//               availability={selectedExpertData?.availability ?? []}
+//             />
+
+//             <div className="flex justify-center mt-4">
+//               <button
+//                 className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+//                 onClick={() => handleSubmit(selectedSlot)}
+//               >
+//                 Submit
+//               </button>
+//             </div>
+//           </div>
+//         </DialogContent>
+
+//         <DialogActions className="absolute top-0 right-2">
+//           <Button onClick={() => setOpenDialog(false)}>
+//             <X size={30} color="black" />
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+
+//       {userId && mentorUserId ? (
+//         <RazorpayPayment
+//           mentorId={mentorUserId}
+//           userId={userId}
+//           // mentorUserId={mentorUserId}
+//           autoOpen={true}
+//           onSuccess={handleSuccess}
+//           onFailure={handleFailure}
+//         />
+//       ) : (
+//         ""
+//       )}
+//     </div>
+//   );
+// };
+const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("recommended");
   const [selectedId, setSelectedId] = useState<any>(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  // const [scheduledMap, setScheduledMap] = useState({});
+  // const [meetings, setMeetings] = useState<Meeting[]>([]);
   //@ts-ignore
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [meetingData, setMeetingData] = useState<Meeting[]>([]);
-  // const [hasMeetingScheduled, setHasMeetingScheduled] = useState(false);
-  // const[alreadyAssignedMentorData, setAlreadyAssignedMentorData]=useState<Mentor[]>([]);
-  //@ts-ignore
   const [scheduledMap, setScheduledMap] = useState<Record<number, boolean>>({});
   const [AssignedMap, setAssignedMap] = useState<Record<number, boolean>>({});
   const [dialogMentorId, setDialogMentorId] = useState<any>(null);
@@ -595,26 +1667,17 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
   const [allMentors, setAllMentors] = useState<Mentor[]>([]);
 
   const [intentDialogOpen, setIntentDialogOpen] = useState(false);
-  // const [timeDialogOpen, setTimeDialogOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState("");
-  //@ts-ignore
   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
   const [allMentorsData, setAllMentorsData] = useState<Mentor[]>([]);
-  //@ts-ignore
   const [mentorsList, setMentorsList] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(false);
-  //@ts-ignore
 
-  const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
-    null
-  );
-  const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(
-    null
-  );
+  //@ts-ignore
+  const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(null);
+  const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
   const [mentorUserId, setmentorUserId] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | number>("");
-  //@ts-ignore
-  //  const[openTime,setOpenTime]=useState(false);
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [formData, setFormData] = useState<Schedule>({
@@ -631,34 +1694,24 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
-  const user = localStorage.getItem("user")??localStorage.getItem("userData") ??localStorage.getItem("userlocaldata");
+  const user =
+    localStorage.getItem("user") ??
+    localStorage.getItem("userData") ??
+    localStorage.getItem("userlocaldata");
   const userData = user ? JSON.parse(user) : null;
-// const navigate=useNavigate();
-  // Mock user data (replace with actual localStorage in production)
-  // const [userData] = useState({
-  //   user_id: 1,
-  //   firstname: "John",
-  //   emailid: "john@example.com",
-  //   is_mentor: false
-  // });
 
-  // Mock data for demo
   const token = localStorage.getItem("token");
 
-  //    useEffect(()=>{
-  //       const selectedMentor = allMentorsData.find(
-  //   (m) => m.mentor_id === selectedId
-  // ) ||null;
-  // setSelectedExpertData(selectedMentor);
-  //     },[selectedId]);
+  // ─── Fetch meeting data ───────────────────────────────────────────────────
   const fetchMeetingData = async () => {
-    const user = localStorage.getItem("user") ?? localStorage.getItem("userData")??localStorage.getItem("userlocaldata");
+    const user =
+      localStorage.getItem("user") ??
+      localStorage.getItem("userData") ??
+      localStorage.getItem("userlocaldata");
     const parsedUserData = user ? JSON.parse(user) : null;
 
-    // console.log("user_id FetchMeetingData----", user_id);
     try {
       const response = await axios.get(`${baseURL}/api/schedules`, {
-        // params: { user_id: 3},
         params: parsedUserData.is_mentor
           ? { mentor_id: parsedUserData?.user_id }
           : { user_id: parsedUserData?.user_id },
@@ -680,26 +1733,15 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
     }
   };
 
+  // ─── Handle pay click ─────────────────────────────────────────────────────
   const handleExpert = async (id: number) => {
-    // navigate(`/expert/${id}`);
-    // await fetchMentorData(id);
     console.log("Pay clicked for mentor:", id);
     console.log("User:", userData?.user_id);
     setmentorUserId(id);
     setUserId(userData.user_id);
   };
 
-  //    useEffect(() => {
-  //    console.log("meeting--setHasMeetingScheduled",hasMeetingScheduled);
-  //   const result = meetingData.some(
-  //     (schedule: Meeting) =>
-  //       schedule.mentor_id === selectedExpertData?.mentor_id &&
-  //       schedule.user_id === userData?.user_id
-  //   );
-  //    console.log("meeting--setHasMeetingScheduled---result",result);
-  //   setHasMeetingScheduled(result);
-  // }, [meetingData, selectedExpertData, userData]);
-
+  // ─── Sync scheduledMap with meetingData ──────────────────────────────────
   useEffect(() => {
     const map: Record<number, boolean> = {};
     meetingData.forEach((schedule) => {
@@ -708,6 +1750,7 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
     setScheduledMap(map);
   }, [meetingData]);
 
+  // ─── Sync AssignedMap with mentorsList ───────────────────────────────────
   useEffect(() => {
     const map: Record<number, boolean> = {};
     mentorsList.forEach((mentor) => {
@@ -716,16 +1759,16 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
     setAssignedMap(map);
   }, [mentorsList]);
 
+  // ─── Sync selectedExpertData with selectedId ─────────────────────────────
   useEffect(() => {
     if (!selectedId || !allMentorsData.length) return;
-
     const selectedMentor = allMentorsData.find(
       (m) => m.mentor_id === selectedId
     );
-
     setSelectedExpertData(selectedMentor || null);
   }, [selectedId, allMentorsData]);
 
+  // ─── Fetch assigned mentors ───────────────────────────────────────────────
   const fetchAssignedMentor = async () => {
     try {
       const response = await axios.get(`${baseURL}/get_assigned_mentors`, {
@@ -736,7 +1779,6 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
 
       if (response.data) {
         console.log("response--data", response.data.mentors);
-        // setAlreadyAssignedMentorData(response.data.mentors);
         setMentorsList(response.data.mentors);
       } else {
         console.log("No Mentors found.");
@@ -746,10 +1788,10 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
     }
   };
 
+  // ─── Fetch recommended + all mentors on mount ────────────────────────────
   useEffect(() => {
     const fetchMentors = async () => {
       try {
-        //Fetch recommended mentors
         const recommendedRes = await axios.get(
           `${baseURL}/api/recommend-mentors?allmentor=false`,
           {
@@ -764,7 +1806,6 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
           );
         }
 
-        // Fetch all mentors
         const allRes = await axios.get(
           `${baseURL}/api/recommend-mentors?allmentor=true`,
           {
@@ -788,143 +1829,80 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
     fetchAssignedMentor();
   }, [token]);
 
-  // const fetchMeetingData = async () => {
-  //     const user=localStorage.getItem("user");
-  //     const parsedUser=user?JSON.parse(user):null;
-
-  //     console.log("user_id FetchMeetingData----", parsedUser.user_id);
-  //     try {
-  //       const response = await axios.get(`${baseURL}/api/schedules`, {
-  //         // params: { user_id: 3},
-  //         params: parsedUser.is_mentor
-  //           ? { mentor_id: m.mentor_id}
-  //           : { user_id: parsedUser.user_id },
-  //       });
-
-  //       if (response.data) {
-  //         const sortedData = [...response.data].sort(
-  //           (a, b) =>
-  //             new Date(b.start_datetime).getTime() -
-  //             new Date(a.start_datetime).getTime()
-  //         );
-  //         console.log("sortedData-----", sortedData);
-  //         setMeetings(sortedData);
-  //       } else {
-  //         console.log("No meetings found.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching meeting data:", error);
-  //     }
-  //   };
-
-  //   useEffect(()=>{
-  //     fetchMeetingData();
-  //   },[]);
-
+  // ─── Sync mentor list state (initial) ────────────────────────────────────
   useEffect(() => {
-    // Simulate API call
     setLoading(true);
     setTimeout(() => {
       setMentors(allMentorsData);
       setAllMentors(allMentorsData);
-      if (allMentorsData.length > 0) {
-        setSelectedId(allMentorsData[0].mentor_id);
-      }
+      // ✅ No auto-select: panel is hidden until user clicks a card
       setLoading(false);
     }, 500);
   }, []);
 
+  // ─── Sync mentor list state (when allMentorsData updates) ────────────────
   useEffect(() => {
-    // Simulate API call
     setLoading(true);
     setTimeout(() => {
       setMentors(allMentorsData);
       setAllMentors(allMentorsData);
-      if (allMentorsData.length > 0) {
-        setSelectedId(allMentorsData[0].mentor_id);
-      }
+      // ✅ No auto-select: panel is hidden until user clicks a card
       setLoading(false);
     }, 500);
   }, [allMentorsData]);
 
+  // ─── Fetch intent (opens dialog or intentDialog) ─────────────────────────
   const fetchIntent = async (mentorId: Number | null | undefined) => {
-    try{
-    const res = await axios.get(
-      `${baseURL}/api/intentwithids?user_id=${userData?.user_id}&mentor_id=${mentorId}`
-    );
-    console.log("res--data",res.data);
-    setOpenDialog(true);
-  }catch(error){
-    console.log(error);
-     setIntentDialogOpen(true);
-  }
+    try {
+      const res = await axios.get(
+        `${baseURL}/api/intentwithids?user_id=${userData?.user_id}&mentor_id=${mentorId}`
+      );
+      console.log("res--data", res.data);
+      setOpenDialog(true);
+    } catch (error) {
+      console.log(error);
+      setIntentDialogOpen(true);
+    }
   };
 
   const handleSchedule = async (mentorId: Number | null | undefined) => {
     setSelectedId(mentorId);
     setDialogMentorId(mentorId);
     await fetchIntent(mentorId);
-    // setIntentDialogOpen(true);
   };
 
-  // const handleIntentSubmit = async (support: any, goalChallenge: any) => {
-  //   // Simulate API call
-  //   console.log("Intent submitted:", { support, goalChallenge, mentorId: selectedId, userId: userData.user_id });
-
-  //   setIntentDialogOpen(false);
-  //   setTimeDialogOpen(true);
-
-  //   // Show success message
-  //   alert("Intent submitted successfully!");
-  // };
-  // const notifyError = (error: any) => toast.error(`Error: ${error}`);
+  // ─── Error toast ─────────────────────────────────────────────────────────
   const notifyError = (error: any) => {
     const message =
-      error?.response?.data?.error || // ← your API error field
-      error?.message || // fallback
-      "Something went wrong";
-
+      error?.response?.data?.error || error?.message || "Something went wrong";
     toast.error(message);
   };
 
+  // ─── Submit schedule ──────────────────────────────────────────────────────
   const handleSubmit = async (selectedSlot: any) => {
-    // console.log("formdata----", formData);
     setOpenDialog(true);
-    // console.log("SelectedTiemSlot",selectedSlot);
 
     try {
       const updatedFormData = {
         ...formData,
-        // start_date: startDateISO,
         start_date: convertDateAndTimeToISO(
           selectedSlot.date,
           selectedSlot.start
         ),
       };
 
-      // console.log("userData---", userData);
       console.log("userData2", userData);
 
       if (user && userData) {
-        // const parsedUserData = JSON.parse(userData);
-        // const parsedUserData2 = JSON.parse(userData2);
-        
         const parsedUser = JSON.parse(user);
-        // console.log("parsedUserData---", parsedUserData);
         console.log("parsedUserData2----", parsedUser);
 
         const randomId = Math.floor(Math.random() * 1000);
         const roomid = Math.floor(Math.random() * 1000);
         const password = Math.random().toString(36).substring(2, 8);
-        // console.log("randomId---", randomId);
-        // console.log("roomid----", roomid);
-        // console.log("password----", password);
 
         const secretKey = "meetingkeys";
-        // console.log("secretKey----", secretKey);
-
         const startDate = updatedFormData.start_date;
-        // console.log("startDate----", startDate);
 
         const endDate = convertDateAndTimeToISO(
           selectedSlot.date,
@@ -932,34 +1910,26 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
         );
         console.log("endDate----", endDate);
 
-        // Encrypt values
         const encryptedStartDate = CryptoJS.AES.encrypt(
           startDate,
           secretKey
         ).toString();
-        console.log("encryptedStartDate----", encryptedStartDate);
-
         const encryptedEndDate = CryptoJS.AES.encrypt(
           endDate,
           secretKey
         ).toString();
-        console.log("encryptedEndDate----", encryptedEndDate);
-
         const encryptedRoomId = CryptoJS.AES.encrypt(
           roomid.toString(),
           secretKey
         ).toString();
-        console.log("encryptedRoomId----", encryptedRoomId);
-
         const encryptedPassword = CryptoJS.AES.encrypt(
           password,
           secretKey
         ).toString();
-        console.log("encryptedPassword----", encryptedPassword);
 
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         console.log("timeZone----", timeZone);
-        console.log("/${randomId}/${parsedUser?.user_id}", parsedUser?.user_id);
+
         const meetingLink = `/v2/meetingcall/${randomId}/${
           parsedUser?.user_id
         }?start=${encodeURIComponent(
@@ -974,21 +1944,19 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
 
         console.log("meetingLink----", meetingLink);
 
-        const degree=localStorage.getItem("degree");
-        const parsedDegree=degree?JSON.parse(degree):null;
+        const degree = localStorage.getItem("degree");
+        const parsedDegree = degree ? JSON.parse(degree) : null;
 
-        // Prepare schedule data
         const scheduleData = {
           name: parsedDegree.firstname || "",
           email: parsedDegree.emailid || "",
           start_datetime: startDate,
           end_datetime: endDate,
-          duration: 60, // always 60
+          duration: 60,
           link: meetingLink,
           user_id: parsedUser.user_id,
-          mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
+          mentor_id: selectedExpertData?.mentor_id,
           mentor_name: selectedExpertData?.name,
-
           mentor_email: selectedExpertData?.email,
           roomid: roomid,
           password: password,
@@ -1004,16 +1972,11 @@ const MentorsWireframe2:React.FC<MentorProps> = ({setActivePage}) => {
 
         notifyMeetingScheduledSuccess();
         setTimeout(() => {
-        // notifyNextStep();
-        // navigate('/dashboard?tab=schedule');
-setActivePage("Schedule Meeting");
-
+          setActivePage("Schedule Meeting");
         }, 2000);
-        // setDurationOpen(false);
-        // setSelectedMentorId(null);
+
         await fetchMeetingData();
 
-        // setRefreshKey(Date.now());
         setSchedules((prev) => [
           ...prev,
           {
@@ -1038,19 +2001,15 @@ setActivePage("Schedule Meeting");
         });
         setOpenDialog(false);
       } else {
-        //@ts-ignore
-        // setError("User data not found in localStorage.");
         console.log("User data not found in localStorage.");
       }
     } catch (err: any) {
-      //@ts-ignore
-      // setError(err.response?.data?.error || "An error occurred");
       console.log("errorrrrr-----", err || "An error occurred");
       notifyError(err);
-      // alert("An error occurred");
     }
   };
 
+  // ─── Submit intent ────────────────────────────────────────────────────────
   const handleSubmitIntent = async (
     mentor_id: number | undefined,
     user_id: number | string,
@@ -1074,17 +2033,8 @@ setActivePage("Schedule Meeting");
         },
       });
       if (response.status === 201) {
-        //   notifySuccess();
-        // setSupport("");
-        // setGoalChallenge("");
-        //   setTimeDialogOpen(true);
-
-        //  handleSubmit();
         setIntentDialogOpen(false);
         setOpenDialog(true);
-        //  setTimeDialogOpen(true);
-        //setOpenTime(true);
-        //  fetchMeetingData();
       }
     } catch (error) {
       console.log("error");
@@ -1092,74 +2042,18 @@ setActivePage("Schedule Meeting");
     }
   };
 
-  // const handleTimeSlotSubmit = async (slot: { date: any; start: any; end: any; }) => {
-  //   if (!slot) return;
-
-  //   const selected = currentMentors.find(m => m.mentor_id === selectedId);
-
-  //   // Simulate API call
-  //   console.log("Meeting scheduled:", {
-  //     mentor: selected?.name,
-  //     date: slot.date,
-  //     time: `${slot.start} - ${slot.end}`,
-  //     userId: userData.user_id
-  //   });
-
-  //   setScheduledMap(prev => ({ ...prev, [selectedId]: true }));
-  //   setTimeDialogOpen(false);
-  //   alert(`Meeting scheduled with ${selected?.name} on ${slot.date} at ${slot.start}`);
-  // };
-
+  // ─── Categories ───────────────────────────────────────────────────────────
   const currentMentors =
     activeCat === "recommended" ? assignedMentorData : allMentors;
 
-  // const categories = useMemo(() => {
-  //   const tagSet = new Set();
-  //   currentMentors.forEach((m) => m.intent_price?.forEach((t) => tagSet.add(t.intent)));
-  //   return [
-  //     { key: "recommended", label: "Recommended" },
-  //     { key: "all", label: "All" },
-  //     ...Array.from(tagSet).sort().map((t) => ({ key: t, label: t })),
-  //   ];
-  // }, [currentMentors]);
-
   const categories = useMemo<Category[]>(() => {
-    const tagSet = new Set<string>();
-
-    currentMentors.forEach((m) => {
-      m.intent_price?.forEach((t) => tagSet.add(t.intent));
-    });
-
     return [
       { key: "recommended", label: "Recommended" },
       { key: "all", label: "All" },
-      // ...Array.from(tagSet)
-      //   .sort()
-      //   .map((t) => ({
-      //     key: t,       // <- now t is string, not unknown
-      //     label: t
-      //   }))
     ];
   }, [currentMentors]);
 
-  // const filtered = useMemo(() => {
-  //   let list = [...currentMentors];
-  //   if (activeCat !== "recommended" && activeCat !== "all") {
-  //     list = list.filter((m) => m.intent_price?.some(ip => ip.intent === activeCat));
-  //   }
-  //   if (query.trim()) {
-  //     const q = query.toLowerCase();
-  //     list = list.filter(
-  //       (m) =>
-  //         m.name.toLowerCase().includes(q) ||
-  //         m.expertise.toLowerCase().includes(q) ||
-  //         m.degree.toLowerCase().includes(q) ||
-  //         m.background?.toLowerCase().includes(q)
-  //     );
-  //   }
-  //   return list;
-  // }, [query, activeCat, currentMentors]);
-
+  // ─── Filtered list ────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = [...currentMentors];
 
@@ -1179,9 +2073,9 @@ setActivePage("Schedule Meeting");
 
   const display = filtered.slice(0, visible);
   const canLoadMore = visible < filtered.length;
-  // const selected = display.find((m) => m.mentor_id === selectedId) || null;
   const selected = filtered.find((m) => m.mentor_id === selectedId) || null;
 
+  // ─── Misc effects ─────────────────────────────────────────────────────────
   useEffect(() => {
     setOpen(true);
   }, [selected]);
@@ -1190,27 +2084,19 @@ setActivePage("Schedule Meeting");
     setVisible(9);
   }, [activeCat, query]);
 
-  // useEffect(() => {
-  //   if (!selectedId && display.length > 0) setSelectedId(display[0].mentor_id);
-  //   if (selectedId && !filtered.some((m) => m.mentor_id === selectedId)) {
-  //     if (display.length > 0) setSelectedId(display[0].mentor_id);
-  //     else setSelectedId(null);
-  //   }
-  // }, [display, filtered, selectedId]);
   useEffect(() => {
     if (display.length === 0) {
       if (selectedId !== null) setSelectedId(null);
       return;
     }
-
     const isValid = filtered.some((m) => m.mentor_id === selectedId);
-
     if (!isValid) {
-      const newId = display[0].mentor_id;
-      if (selectedId !== newId) setSelectedId(newId);
+      // ✅ Don't auto-select — just clear the selection
+      setSelectedId(null);
     }
   }, [display, filtered]);
 
+  // ─── Loading state ────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
@@ -1218,13 +2104,8 @@ setActivePage("Schedule Meeting");
       </div>
     );
   }
-  // else{
-  //   return (
-  //   <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
-  //                <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
-  //              </div>);
-  // }
 
+  // ─── Payment handlers ─────────────────────────────────────────────────────
   const handleSuccess = () => {
     console.log("Payment Completed");
     if (!mentorUserId) return;
@@ -1232,9 +2113,8 @@ setActivePage("Schedule Meeting");
       ...prev,
       [mentorUserId]: true,
     }));
-// notifyPaymentNextStep();
-setActivePage("Schedule Meeting");
-
+    // setActivePage("Schedule Meeting");
+    setActivePage("Dashboard");
     fetchAssignedMentor();
   };
 
@@ -1242,18 +2122,16 @@ setActivePage("Schedule Meeting");
     console.log("Payment Failed");
   };
 
+  // ─── Helpers ──────────────────────────────────────────────────────────────
   const convertDateAndTimeToISO = (
     dateStr: string,
     timeStr: string
   ): string => {
     console.log("dateStr", dateStr);
     if (!dateStr || !timeStr) return "";
-
     const [year, month, day] = dateStr.split("-").map(Number);
     const [hour, minute] = timeStr.split(":").map(Number);
-
     const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute));
-
     return utcDate.toISOString();
   };
 
@@ -1270,194 +2148,16 @@ setActivePage("Schedule Meeting");
     });
   };
 
-// const notifyPaymentNextStep = (
-//   message = "Expert successfully added to dashboard. You may schedule meetings in the Scheduled Meetings section."
-// ) => {
-//   toast.success(message, {
-//     position: "top-right",
-//     autoClose: 3000,
-//     hideProgressBar: false,
-//     pauseOnHover: true,
-//     draggable: true,
-//     theme: "colored",
-//   });
-// };
-
-  //   const notifyNextStep = (
-  //   msg = "Your meeting has been scheduled successfully. Please visit the Schedule Meeting section to access meeting details."
-  // ) => {
-  //   toast.success(msg, {
-  //     position: "top-right",
-  //     autoClose: 4000,
-  //     hideProgressBar: false,
-  //     pauseOnHover: true,
-  //     draggable: true,
-  //     theme: "colored",
-  //   });
-  // };
-
-  //     const handleSubmit = async (selectedSlot: any) => {
-  //     // console.log("formdata----", formData);
-  // setTimeDialogOpen(true);
-  // // console.log("SelectedTiemSlot",selectedSlot);
-  //   const userData2 = localStorage.getItem("degree");
-
-  // const parsedUserData2 = userData2 ? JSON.parse(userData2) : null;
-
-  //     try {
-
-  //       const updatedFormData = {
-  //         ...formData,
-  //         // start_date: startDateISO,
-  //         start_date: convertDateAndTimeToISO(selectedSlot.date, selectedSlot.start),
-  //       };
-
-  //       // console.log("userData---", userData);
-  //       console.log("userData2", userData2);
-
-  //       if (user && userData2) {
-  //         // const parsedUserData = JSON.parse(userData);
-  //         // const parsedUserData2 = JSON.parse(userData2);
-  //         const parsedUser = JSON.parse(user);
-  //         // console.log("parsedUserData---", parsedUserData);
-  //         console.log("parsedUserData2----", parsedUserData2);
-
-  //         const randomId = Math.floor(Math.random() * 1000);
-  //         const roomid = Math.floor(Math.random() * 1000);
-  //         const password = Math.random().toString(36).substring(2, 8);
-  //         // console.log("randomId---", randomId);
-  //         // console.log("roomid----", roomid);
-  //         // console.log("password----", password);
-
-  //         const secretKey = "meetingkeys";
-  //         // console.log("secretKey----", secretKey);
-
-  //         const startDate = updatedFormData.start_date;
-  //         // console.log("startDate----", startDate);
-
-  //         const endDate = convertDateAndTimeToISO(selectedSlot.date, selectedSlot.end);
-  //         console.log("endDate----", endDate);
-
-  //         // Encrypt values
-  //         const encryptedStartDate = CryptoJS.AES.encrypt(
-  //           startDate,
-  //           secretKey
-  //         ).toString();
-  //         console.log("encryptedStartDate----", encryptedStartDate);
-
-  //         const encryptedEndDate = CryptoJS.AES.encrypt(
-  //           endDate,
-  //           secretKey
-  //         ).toString();
-  //         console.log("encryptedEndDate----", encryptedEndDate);
-
-  //         const encryptedRoomId = CryptoJS.AES.encrypt(
-  //           roomid.toString(),
-  //           secretKey
-  //         ).toString();
-  //         console.log("encryptedRoomId----", encryptedRoomId);
-
-  //         const encryptedPassword = CryptoJS.AES.encrypt(
-  //           password,
-  //           secretKey
-  //         ).toString();
-  //         console.log("encryptedPassword----", encryptedPassword);
-
-  //         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  //         console.log("timeZone----", timeZone);
-
-  //         const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id}?start=${encodeURIComponent(
-  //           encryptedStartDate
-  //         )}&end=${encodeURIComponent(
-  //           encryptedEndDate
-  //         )}&roomid=${encodeURIComponent(
-  //           encryptedRoomId
-  //         )}&password=${encodeURIComponent(
-  //           encryptedPassword
-  //         )}&timezone=${encodeURIComponent(timeZone)}`;
-
-  //         console.log("meetingLink----", meetingLink);
-
-  //         // Prepare schedule data
-  //         const scheduleData = {
-  //           name: parsedUser.firstname || "",
-  //           email: parsedUser.emailid || "",
-  //           start_datetime: startDate,
-  //           end_datetime: endDate,
-  //           duration: 60, // always 60
-  //           link: meetingLink,
-  //           user_id: parsedUser.user_id,
-  //           mentor_id: selectedExpertData?.mentor_id, //Take from handleClick
-  //           mentor_name: selectedExpertData?.name,
-
-  //           mentor_email: selectedExpertData?.email,
-  //           roomid: roomid,
-  //           password: password,
-  //           timezone: timeZone,
-  //         };
-
-  //         console.log("scheduleData-----", scheduleData);
-
-  //         const response = await axios.post<{ message: string; id: number }>(
-  //           `${baseURL}/api/trial_ schedule`,
-  //           scheduleData
-  //         );
-
-  //         notifyMeetingScheduledSuccess();
-  //         // setDurationOpen(false);
-  //         // setSelectedMentorId(null);
-
-  //         // setRefreshKey(Date.now());
-  //         setSchedules((prev) => [
-  //           ...prev,
-  //           {
-  //             ...formData,
-  //             id: response.data.id,
-  //             user_id: parsedUser.user_id,
-  //           },
-  //         ]);
-
-  //         setFormData({
-  //           id: 0,
-  //           name: "",
-  //           email: "",
-  //           start_date: "",
-  //           duration: "60",
-  //           mentor_id: 0,
-  //           user_id: "",
-  //           mentor_email: "",
-  //           mentor_phone: "",
-  //           mentor_linkedin: "",
-  //           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  //         });
-  //         // setOpenTime(false);
-  //         setTimeDialogOpen(false);
-  //         fetchMeetingData();
-  //       } else {
-  //         //@ts-ignore
-  //         // setError("User data not found in localStorage.");
-  //         console.log("User data not found in localStorage.");
-  //       }
-  //     } catch (err: any) {
-  //       //@ts-ignore
-  //       // setError(err.response?.data?.error || "An error occurred");
-  //       console.log(err|| "An error occurred");
-  //       notifyError(err);
-  //       setTimeDialogOpen(false);
-  //       // alert(err);
-  //     }
-  //   };
-
-  // Update mentor list whenever API data arrives
-
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen w-full ">
+    <div className="min-h-screen w-full">
       <main className="">
-        <h1 className="text-3xl font-bold mx-5 ">Mentors For You</h1>
+        <h1 className="text-3xl font-bold mx-5">Mentors For You</h1>
 
+        {/* Search + Category filters */}
         <div className="mt-4 flex flex-col md:flex-row gap-3 md:items-center">
           <div className="flex items-center gap-2">
-            <div className="relative mx-[5%] ">
+            <div className="relative mx-[5%]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <input
                 value={query}
@@ -1466,12 +2166,9 @@ setActivePage("Schedule Meeting");
                 className="w-[280px] md:w-[420px] rounded-xl border border-gray-300 pl-9 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
-            {/* <button className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 hover:bg-gray-50">
-              <Filter className="h-4 w-4" /> Filters
-            </button> */}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 mx-5 ">
+          <div className="flex flex-wrap items-center gap-2 mx-5">
             {categories.map((c) => (
               <Pill
                 key={c.key}
@@ -1484,80 +2181,97 @@ setActivePage("Schedule Meeting");
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-6">
-          <div className="grid gap-3 mx-5  sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
-            {display.map((m) => {
-              // const isAssigned = alreadyAssignedMentorData.some(a => a.mentor_id === m.mentor_id);
-              return (
-                <MentorCard
-                  key={m.mentor_id}
-                  m={m}
-                  isSelected={selectedId === m.mentor_id}
-                  // scheduled={!!scheduledMap[m.mentor_id]}
-                  onSchedule={() => handleSchedule(m.mentor_id)}
-                  hasMeetingScheduled={scheduledMap[m.mentor_id]}
-                  hasAssigned={AssignedMap[m.mentor_id]}
-                  onSelect={() => setSelectedId(m.mentor_id)}
-                  onPay={handleExpert}
-                  //  isAssigned={isAssigned}
-                />
-              );
-            })}
+        {/* ── Main content area ── */}
+        <div className="mt-6 relative">
+
+          {/* Mentor cards grid — shrinks right when panel is open */}
+          <div
+            className={`grid gap-3 mx-5 sm:gap-4 transition-all duration-300 ease-in-out
+              [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]
+              ${selectedId ? "lg:mr-[460px]" : ""}`}
+          >
+            {display.map((m) => (
+              <MentorCard
+                key={m.mentor_id}
+                m={m}
+                isSelected={selectedId === m.mentor_id}
+                onSchedule={() => handleSchedule(m.mentor_id)}
+                hasMeetingScheduled={scheduledMap[m.mentor_id]}
+                hasAssigned={AssignedMap[m.mentor_id]}
+                onSelect={() => setSelectedId(m.mentor_id)}
+                onPay={handleExpert}
+              />
+            ))}
           </div>
 
-          <div className="hidden lg:block">
+          {/* ── Desktop: slide-in right panel ── */}
+          <div
+            className={`hidden lg:block fixed top-0 right-0 h-full w-[470px] pt-5 bg-white
+              shadow-2xl border-l border-gray-200 z-50 overflow-y-auto
+              transition-transform duration-300 ease-in-out
+              ${selectedId ? "translate-x-5" : "translate-x-full"}`}
+          >
+            <div className="mx-20">
             <MentorInspector
               m={selected}
-              // scheduled={!!(selected && scheduledMap[selected.mentor_id])}
               onSchedule={() => handleSchedule(selected?.mentor_id)}
-              // hasMeetingScheduled={hasMeetingScheduled}
               hasMeetingScheduled={
-                selected?.mentor_id ? scheduledMap[selected?.mentor_id] : null
+                selected?.mentor_id ? scheduledMap[selected.mentor_id] : null
               }
               hasAssigned={
-                selected?.mentor_id ? AssignedMap[selected?.mentor_id] : null
+                selected?.mentor_id ? AssignedMap[selected.mentor_id] : null
               }
               onClose={() => setSelectedId(null)}
               onPay={handleExpert}
-              // isAssigned={isAssigned}
             />
-          </div>
-        </div>
-
-        {selected && open && (
-          <div className="lg:hidden fixed inset-x-0 bottom-0 z-40">
-            <div className="flex justify-center">
-              {/* <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="text-base font-semibold truncate">{selected.name}</h3>
-                <button onClick={() => setOpen(false)} className="p-1 rounded-md hover:bg-gray-100">
-                  <X className="h-4 w-4" />
-                </button>
-              </div> */}
-              <div className="p-4 max-h-[60vh] overflow-y-auto">
-                <MentorInspector
-                  m={selected}
-                  // scheduled={!!scheduledMap[selected.mentor_id]}
-                  onSchedule={() => handleSchedule(selected?.mentor_id)}
-                  // hasMeetingScheduled={hasMeetingScheduled}
-                  hasMeetingScheduled={
-                    selected?.mentor_id
-                      ? scheduledMap[selected?.mentor_id]
-                      : null
-                  }
-                  hasAssigned={
-                    selected?.mentor_id
-                      ? AssignedMap[selected?.mentor_id]
-                      : null
-                  }
-                  onClose={() => setOpen(false)}
-                  onPay={handleExpert}
-                  // isAssigned={isAssigned}
-                />
-              </div>
             </div>
           </div>
-        )}
 
+          {/* ── Mobile: backdrop + bottom sheet ── */}
+          {selected && (
+            <>
+              {/* Dimmed backdrop */}
+              <div
+                className="lg:hidden fixed inset-0 bg-black/40 z-40"
+                onClick={() => setSelectedId(null)}
+              />
+
+              {/* Bottom sheet */}
+             
+                {/* Sheet header with X */}
+                {/* <div className="flex justify-end p-3 border-b sticky top-0 bg-white z-10">
+                  <button
+                    onClick={() => setSelectedId(null)}
+                    className="p-1 rounded-md hover:bg-gray-100"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div> */}
+
+               <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 h-[85vh] overflow-y-auto bg-white rounded-t-2xl shadow-2xl">
+                  <MentorInspector
+                    m={selected}
+                    onSchedule={() => handleSchedule(selected?.mentor_id)}
+                    hasMeetingScheduled={
+                      selected?.mentor_id
+                        ? scheduledMap[selected.mentor_id]
+                        : null
+                    }
+                    hasAssigned={
+                      selected?.mentor_id
+                        ? AssignedMap[selected.mentor_id]
+                        : null
+                    }
+                    onClose={() => setSelectedId(null)}
+                    onPay={handleExpert}
+                  />
+                </div>
+              
+            </>
+          )}
+        </div>
+
+        {/* Load more / empty state */}
         <div className="mt-8 flex justify-center">
           {filtered.length === 0 ? (
             <div className="text-gray-600">No mentors match your search.</div>
@@ -1574,12 +2288,11 @@ setActivePage("Schedule Meeting");
         </div>
       </main>
 
+      {/* ── Intent Dialog ── */}
       <IntentDialog
         open={intentDialogOpen}
         onClose={() => setIntentDialogOpen(false)}
-        // onSubmit={()=>handleSubmitIntent(selectedExpertData?.mentor_id,userData?.user_id)}
         onSubmit={(support: string, goalChallenge: string) =>
-          // handleSubmitIntent(selectedExpertData?.mentor_id, userData?.user_id, support, goalChallenge)
           handleSubmitIntent(
             dialogMentorId,
             userData?.user_id,
@@ -1589,13 +2302,7 @@ setActivePage("Schedule Meeting");
         }
       />
 
-      {/* <TimeSlotDialog
-        open={timeDialogOpen}
-        onClose={() => setTimeDialogOpen(false)}
-        availability={selectedExpertData?.availability}
-        onSubmit={handleSubmit}
-        // selected={selectedExpertData}
-      /> */}
+      {/* ── Schedule / Calendar Dialog ── */}
       <Dialog
         open={openDialog}
         TransitionComponent={Transition}
@@ -1605,11 +2312,17 @@ setActivePage("Schedule Meeting");
         PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
       >
         <DialogContent>
-          <div className="w-full bg-white rounded-xl p-4">
-            {/* <div className="text-lg font-semibold text-gray-800 mb-4 text-center">
-              Select the time
-            </div> */}
+          {/* ✅ X button inside DialogContent — works reliably */}
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => setOpenDialog(false)}
+              className="p-1 rounded-md hover:bg-gray-100"
+            >
+              <X size={24} color="black" />
+            </button>
+          </div>
 
+          <div className="w-full bg-white rounded-xl p-4">
             <CustomCalendar
               onSelect={(slot) => setSelectedSlot(slot)}
               availability={selectedExpertData?.availability ?? []}
@@ -1625,19 +2338,14 @@ setActivePage("Schedule Meeting");
             </div>
           </div>
         </DialogContent>
-
-        <DialogActions className="absolute top-0 right-2">
-          <Button onClick={() => setOpenDialog(false)}>
-            <X size={30} color="black" />
-          </Button>
-        </DialogActions>
+        {/* ✅ DialogActions removed — X is now inside DialogContent */}
       </Dialog>
 
+      {/* ── Razorpay Payment ── */}
       {userId && mentorUserId ? (
         <RazorpayPayment
           mentorId={mentorUserId}
           userId={userId}
-          // mentorUserId={mentorUserId}
           autoOpen={true}
           onSuccess={handleSuccess}
           onFailure={handleFailure}

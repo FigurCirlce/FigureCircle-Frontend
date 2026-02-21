@@ -424,6 +424,7 @@ const MilestonePopup: React.FC<MilestonePopupProps> = ({
 
  useEffect(() => {
   if (MilestoneData?.current_milestone) {
+    console.log("milestoneData--current--milestone--",MilestoneData?.current_milestone);
     // Remove duplicates (by milestone + description + expectedCompletionDate)
     const uniqueMilestones = MilestoneData.current_milestone.filter(
       (v,i,a) => a.findIndex(
@@ -540,14 +541,19 @@ const inlineEditActive =
       >
         ✕
       </button>
-      <CreateMilestone data={dataToSend} /></div>
+      <CreateMilestone data={dataToSend} onClose={onClose}/></div>
       
     ):(
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">
-            Milestone Details - Meeting ID: {MilestoneData.check_meeting_id}
+          {/* <h2 className="text-lg font-semibold">
+            Milestone Details 
+            - Meeting ID: {MilestoneData.check_meeting_id}
+          </h2> */}
+           <h2 className="text-lg font-semibold">
+            Milestone Details 
+           
           </h2>
           <button onClick={onClose} className="text-gray-500">
             <X size={22} />

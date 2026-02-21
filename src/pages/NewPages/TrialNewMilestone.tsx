@@ -1647,8 +1647,8 @@ function ExistingMilestonesView({
     milestones,
     created_at,
     history_count,
-    check_id,
-    check_meeting_id,
+    // check_id,
+    // check_meeting_id,
     user_id,
     mentor_id,
     serial_number,
@@ -1787,10 +1787,10 @@ function ExistingMilestonesView({
             </div>
           </div>
 
-          <div className="mt-2 text-xs text-slate-400">
+          {/* <div className="mt-2 text-xs text-slate-400">
             Ref IDs — Check: {check_id}, Meeting: {check_meeting_id}, User:{" "}
             {user_id}, Mentor: {mentor_id}, Serial: {serial_number}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

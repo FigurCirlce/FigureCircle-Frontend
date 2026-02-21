@@ -4,6 +4,7 @@ import { Calendar, Plus, User } from "lucide-react";
 import cx from "classnames";
 import axios from "axios";
 import baseURL from "@/config/config";
+import { toast } from "react-toastify";
 
 /* -------------------- TYPES -------------------- */
 
@@ -35,7 +36,7 @@ export interface MilestoneData {
 
 /* -------------------- COMPONENT -------------------- */
 
-const CreateMilestone = (data:any) => {
+const CreateMilestone = ({data,onClose}:any) => {
   const [title, setTitle] = useState<string>("");
   const [outcome, setOutcome] = useState<string>("");
   const [due, setDue] = useState<string>("");
@@ -76,23 +77,23 @@ const CreateMilestone = (data:any) => {
     setShowDetails(false);
   };
 
-  const cycleStatus = (id: number): void => {
-    setMilestones((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? {
-              ...m,
-              status:
-                m.status === "pending"
-                  ? "active"
-                  : m.status === "active"
-                  ? "completed"
-                  : "pending",
-            }
-          : m
-      )
-    );
-  };
+  // const cycleStatus = (id: number): void => {
+  //   setMilestones((prev) =>
+  //     prev.map((m) =>
+  //       m.id === id
+  //         ? {
+  //             ...m,
+  //             status:
+  //               m.status === "pending"
+  //                 ? "active"
+  //                 : m.status === "active"
+  //                 ? "completed"
+  //                 : "pending",
+  //           }
+  //         : m
+  //     )
+  //   );
+  // };
 
   const removeMilestone = (id: number): void => {
     setMilestones((prev) => prev.filter((m) => m.id !== id));
@@ -102,21 +103,33 @@ const CreateMilestone = (data:any) => {
 //     console.log("Submitting milestones:", milestones);
 //     alert("Milestones submitted. Check console.");
 //   };
+
+ const notifySuccess = () =>
+    toast.success("User mentorship created successfully!");
+ 
 const handleSubmit = async () => {
     console.log("Final Milestones:", milestones);
     const degree = localStorage.getItem("degree");
     const user_id = degree ? JSON.parse(degree)?.id : null;
+
+ const milestoneData = milestones.map((item) => ({
+  description: item.description || "",
+  expectedCompletionDate: item.due,
+  milestone: item.title,
+  status: item.status,
+}));
+
 
     try {
       // setLoading(true);
       const token = localStorage.getItem("token");
       console.log("user_id", user_id);
       const dataToSend = {
-        user_id: data?.data?.user_id,
-        mentor_id: data?.data?.mentor_id,
-        milestone: milestones,
-        check_meeting_id: data?.data?.mentor_id,
-        check_id: data?.data?.mentor_id,
+        user_id: data?.data?.user_id || data?.user_id,
+        mentor_id: data?.data?.mentor_id || data?.mentor_id,
+        milestone: milestoneData,
+        check_meeting_id: data?.data?.mentor_id || data?.mentor_id,
+        check_id: data?.data?.mentor_id || data?.mentor_id,
       };
       console.log("dataToSend-----",dataToSend);
 
@@ -131,7 +144,8 @@ const handleSubmit = async () => {
         }
       );
       console.log("responseMilestone-------", response);
-    //   notifySuccess();
+      notifySuccess();
+     onClose();
     } catch (error) {
       console.error("Milestone submission failed:", error);
     }
@@ -285,12 +299,12 @@ const handleSubmit = async () => {
                       )}
 
                       <div className="mt-3 flex gap-2">
-                        <button
+                        {/* <button
                           onClick={() => cycleStatus(m.id)}
                           className="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded"
                         >
                           Change status
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => removeMilestone(m.id)}
                           className="text-xs px-2 py-1 bg-red-50 text-red-600 rounded"
