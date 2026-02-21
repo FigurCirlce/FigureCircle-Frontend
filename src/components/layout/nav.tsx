@@ -36,10 +36,17 @@ const Nav: React.FC<NavProps> = () => {
           setHasNewNotification(false);
         }
       });
+
+      // Listen for a real-time single notification
+      socket.on('notification', (newNotification) => {
+        setNotifications((prev) => [newNotification, ...prev]);
+        setHasNewNotification(true);
+      });
     }
 
     return () => {
       socket.off('notifications');
+      socket.off('notification');
     };
   }, []);
 
