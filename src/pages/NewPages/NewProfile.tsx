@@ -119,18 +119,18 @@ function IntentCard({ active, title, subtitle, icon: Icon, onClick }: any) {
       whileTap={{ scale: 0.98 }}
       type="button"
       onClick={onClick}
-      className={`flex w-full items-start gap-3 rounded-2xl border bg-gradient-to-r from-white to-muted/30 p-4 shadow-sm transition ${active ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+      className={`flex w-full items-start gap-3 rounded-2xl border p-4 shadow-sm transition ${active ? "border-black ring-1 ring-black bg-gray-50" : "border-gray-200 bg-white hover:bg-gray-50"
         }`}
     >
       <div
-        className={`rounded-lg p-2 ${active ? "bg-primary/10 text-primary" : "bg-muted text-foreground"
+        className={`rounded-lg p-2 ${active ? "bg-gray-200 text-black" : "bg-gray-100 text-gray-500"
           }`}
       >
         <Icon className="size-5" />
       </div>
-      <div>
-        <div className="font-medium leading-tight">{title}</div>
-        <div className="text-xs text-muted-foreground">{subtitle}</div>
+      <div className="text-left">
+        <div className="font-medium leading-tight text-gray-900">{title}</div>
+        <div className="text-xs text-gray-500 mt-0.5">{subtitle}</div>
       </div>
     </motion.button>
   );
@@ -194,23 +194,23 @@ const ProfileRecWidget = () => {
   };
 
   useEffect(() => {
-  setCombinedRoles((prev) => {
-    const merged = new Set([...prev, ...role_options]);
-    return Array.from(merged);
-  });
-}, [role_options]);
-
-
-useEffect(() => {
-  if (profile.dreamRole) {
     setCombinedRoles((prev) => {
-      if (prev.includes(profile.dreamRole)) return prev;
-      return [profile.dreamRole, ...prev];
+      const merged = new Set([...prev, ...role_options]);
+      return Array.from(merged);
     });
-  }
-}, [profile.dreamRole]);
+  }, [role_options]);
 
-const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
+
+  useEffect(() => {
+    if (profile.dreamRole) {
+      setCombinedRoles((prev) => {
+        if (prev.includes(profile.dreamRole)) return prev;
+        return [profile.dreamRole, ...prev];
+      });
+    }
+  }, [profile.dreamRole]);
+
+  const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
 
   // fetch basic info (same as InfoCard)
   const fetchBasicInfo = async () => {
@@ -414,15 +414,15 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
     const degreeData = localStorage.getItem("degree");
     const degree = degreeData ? JSON.parse(degreeData) : null;
     try {
-     const res = await axios.get(`${baseURL}/dream-list`, {
-      params: {
-        degree: degree?.high_education,
-        industry: degree?.industry,
-            experience: degree?.work_experience,
-      },
-        
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const res = await axios.get(`${baseURL}/dream-list`, {
+        params: {
+          degree: degree?.high_education,
+          industry: degree?.industry,
+          experience: degree?.work_experience,
+        },
+
+        headers: { Authorization: `Bearer ${token}` },
+      }
       );
 
       console.log("dream Profiles", res.data);
@@ -436,17 +436,17 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
   };
 
   const handleDreamRoleChange = (v: string) => {
-  // store typed/custom roles
-  if (
-    v &&
-    !role_options.includes(v) &&
-    !typedRoles.includes(v)
-  ) {
-    setTypedRoles(prev => [...prev, v]);
-  }
+    // store typed/custom roles
+    if (
+      v &&
+      !role_options.includes(v) &&
+      !typedRoles.includes(v)
+    ) {
+      setTypedRoles(prev => [...prev, v]);
+    }
 
-  setProfile({ ...profile, dreamRole: v });
-};
+    setProfile({ ...profile, dreamRole: v });
+  };
 
   // const allRoles = useMemo(() => {
   //   if (
@@ -458,15 +458,15 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
   //   return role_options;
   // }, [profile.dreamRole, role_options]);
 
-// const allRoles = useMemo(() => {
-//   return Array.from(
-//     new Set([
-//       ...typedRoles,       
-//       ...role_options,      
-//       profile.dreamRole,    
-//     ])
-//   ).filter(Boolean);
-// }, [typedRoles, role_options, profile.dreamRole]);
+  // const allRoles = useMemo(() => {
+  //   return Array.from(
+  //     new Set([
+  //       ...typedRoles,       
+  //       ...role_options,      
+  //       profile.dreamRole,    
+  //     ])
+  //   ).filter(Boolean);
+  // }, [typedRoles, role_options, profile.dreamRole]);
 
 
 
@@ -484,21 +484,21 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
     <div className="w-full">
       {loading ? (
         <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
-          <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+          <Loader2 className="h-10 w-10 animate-spin text-black" />
         </div>
       ) : !parsedUser?.is_mentor ? (
         <div className="mx-auto w-full max-w-6xl p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Profile Section */}
             <Card className="border-0 shadow-md backdrop-blur-md">
-              <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                  <Users className="size-5 text-primary " /> Your Profile
+              <CardHeader className="border-b bg-gray-50 rounded-t-2xl">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <Users className="size-5 text-black" /> Your Profile
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
                 <div className="flex items-center gap-3">
-                  <User className="size-12 border-2 border-primary/20">
+                  <User className="size-12 border-2 border-gray-200 text-gray-700 bg-white rounded-md p-1">
                     <Search />
                     <MessageCircle />
                     HB
@@ -510,13 +510,13 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                 </div>
 
                 {/* Editable Fields */}
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 items-center gap-3">
-                    <Label className="text-sm text-muted-foreground">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-[120px_1fr] md:grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-slate-700">
                       Name
                     </Label>
                     <Input
-                      className="col-span-2"
+                      className="w-full bg-white transition-all shadow-sm focus-visible:ring-1"
                       value={profile.name}
                       onChange={(e) =>
                         setProfile({ ...profile, name: e.target.value })
@@ -524,12 +524,12 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 items-center gap-3">
-                    <Label className="text-sm text-muted-foreground">
+                  <div className="grid grid-cols-[120px_1fr] md:grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-slate-700">
                       Email
                     </Label>
                     <Input
-                      className="col-span-2"
+                      className="w-full bg-white transition-all shadow-sm focus-visible:ring-1"
                       value={profile.email}
                       onChange={(e) =>
                         setProfile({ ...profile, email: e.target.value })
@@ -537,11 +537,11 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 items-center gap-3">
-                    <Label className="text-sm text-muted-foreground">
+                  <div className="grid grid-cols-[120px_1fr] md:grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-slate-700">
                       Education
                     </Label>
-                    <div className="col-span-2">
+                    <div className="w-full">
                       {/* <Select value={profile.education} onValueChange={(v) => setProfile({ ...profile, education: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Education" />
@@ -567,11 +567,11 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 items-center gap-3">
-                    <Label className="text-sm text-muted-foreground">
+                  <div className="grid grid-cols-[120px_1fr] md:grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-slate-700">
                       Industry
                     </Label>
-                    <div className="col-span-2">
+                    <div className="w-full">
                       {/* <Select value={profile.industry} onValueChange={(v) => setProfile({ ...profile, industry: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Education" />
@@ -598,11 +598,11 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 items-center gap-3">
-                    <Label className="text-sm text-muted-foreground">
+                  <div className="grid grid-cols-[120px_1fr] md:grid-cols-[140px_1fr] items-center gap-4">
+                    <Label className="text-sm font-medium text-slate-700">
                       Experience
                     </Label>
-                    <div className="col-span-2">
+                    <div className="w-full">
                       {/* <Select value={profile.work_experience} onValueChange={(v) => setProfile({ ...profile, work_experience: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Experience" />
@@ -727,10 +727,10 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                       // onValueChange={(v) =>
                       //   setProfile({ ...profile, dreamRole: v })
                       // }
-        onValueChange={handleDreamRoleChange}
+                      onValueChange={handleDreamRoleChange}
 
                     >
-                      <SelectTrigger className="h-9 w-[90%] border-primary/20">
+                      <SelectTrigger className="h-9 w-[90%] border-gray-200">
                         <SelectValue placeholder="Select dream role" />
                       </SelectTrigger>
                       <SelectContent
@@ -756,7 +756,7 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                     <Button
                       onClick={updateBasicInfo}
                       disabled={saving}
-                      className="bg-green-500 h-9"
+                      className="bg-black text-white hover:bg-gray-800 transition-colors h-9"
                     >
                       <Save className="w-4 h-4 sm:mr-2" />
                       <span className="hidden sm:inline">
@@ -764,13 +764,13 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                       </span>
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => {
                         fetchBasicInfo();
                       }}
-                      className="h-9 bg-red-200"
+                      className="h-9 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <X className="w-4 h-4 text-red-600 font-bold sm:mr-2 " />
+                      <X className="w-4 h-4 text-gray-500 font-bold sm:mr-2 " />
                       <span className="hidden sm:inline">Reset</span>
                     </Button>
                   </div>
@@ -781,11 +781,11 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
 
             {/* Recommendations Section */}
             <Card className="border-0 shadow-md backdrop-blur-md">
-              <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                  <Sparkles className="size-5 text-primary" /> Personalized
+              <CardHeader className="border-b bg-gray-50 rounded-t-2xl">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <Sparkles className="size-5 text-black" /> Personalized
                   Recommendations —{" "}
-                  <span className="text-foreground/70">
+                  <span className="text-gray-600">
                     {profile.dreamRole}
                   </span>
                 </CardTitle>
@@ -806,7 +806,7 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                       transition={{ duration: 0.2 }}
                       className="rounded-2xl border bg-muted/30 p-4 shadow-sm hover:shadow-md"
                     >
-                      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
+                      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900">
                         <Icon className="size-4" /> {block.title}
                       </h4>
                       <div className="grid gap-3 sm:grid-cols-2">
@@ -817,7 +817,7 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                               <motion.div
                                 key={i}
                                 whileHover={{ scale: 1.02 }}
-                                className="rounded-xl bg-background p-3 shadow-sm hover:bg-primary/5 border border-transparent hover:border-primary/30 transition"
+                                className="rounded-xl bg-background p-3 shadow-sm hover:bg-gray-50 border border-transparent hover:border-gray-300 transition"
                               >
                                 <div className="font-medium text-sm leading-tight">
                                   {item.title}
@@ -848,9 +848,9 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
 
           {!parsedUser?.is_mentor && assignedMentors.length > 0 && (
             <Card className="border-0 shadow-md backdrop-blur-md">
-              <CardHeader className="border-b bg-blue-100 from-primary/10 to-transparent rounded-t-2xl">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                  <Users className="size-5 text-primary" /> Your Assigned Experts
+              <CardHeader className="border-b bg-gray-50 rounded-t-2xl">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <Users className="size-5 text-black" /> Your Assigned Experts
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
@@ -861,7 +861,7 @@ const allRoles = useMemo(() => combinedRoles, [combinedRoles]);
                         <img
                           src={mentor.profile_picture || "https://via.placeholder.com/40"}
                           alt={mentor.name}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                          className="w-10 h-10 rounded-full object-cover border border-gray-200"
                         />
                         <div>
                           <div className="font-medium text-sm leading-tight">{mentor.name}</div>

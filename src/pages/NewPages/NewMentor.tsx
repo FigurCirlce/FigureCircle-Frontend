@@ -8,7 +8,7 @@ import {
   IndianRupee,
 } from "lucide-react";
 
-import baseURL from "@/config/config"; 
+import baseURL from "@/config/config";
 // import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -167,58 +167,83 @@ function MentorCard({
   onPay,
   hasAssigned,
 }: MentorCardProps) {
+  const profilePic = m.profile_picture as any;
+  const imageSrc =
+    typeof profilePic === "string"
+      ? profilePic
+      : profilePic instanceof File
+        ? URL.createObjectURL(profilePic)
+        : "";
+
   return (
     <div
       className={classNames(
-        "relative rounded-xl border p-3 shadow-sm bg-white transition hover:shadow-md cursor-pointer h-[155px] flex flex-col justify-between",
+        "relative rounded-2xl border p-4 shadow-sm bg-white transition hover:shadow-md cursor-pointer flex flex-col justify-between gap-3 h-full",
         isSelected ? "ring-2 ring-black" : "border-gray-200"
       )}
       onClick={onSelect}
     >
+      <div className="flex gap-3 items-start">
+        {imageSrc ? (
+          <img
+            src={imageSrc}
+            alt={m.name}
+            className="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-100"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shrink-0">
+            {m.name ? m.name.charAt(0).toUpperCase() : "?"}
+          </div>
+        )}
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-gray-900 truncate">{m.name}</h3>
+          <p className="text-sm text-gray-600 truncate">{m.expertise}</p>
+          <p className="text-xs text-gray-500 truncate">{m.degree}</p>
+        </div>
+      </div>
+
       <div>
-        <h3 className="text-base font-semibold truncate">{m.name}</h3>
-        <p className="text-sm text-gray-600 truncate">{m.expertise}</p>
-        <p className="text-xs text-gray-500 truncate">{m.degree}</p>
-        <div className="mt-2 flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 mb-2">
           {m.intent_price?.slice(0, 2).map((t, idx) => (
             <span
               key={idx}
-              className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 truncate"
+              className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 truncate max-w-full"
             >
               {t.intent}
             </span>
           ))}
         </div>
-      </div>
-      <div className="mt-2 flex justify-end">
-        {!hasMeetingScheduled ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onSchedule?.();
-            }}
-            className="px-3 py-1 text-xs rounded-lg bg-black text-white hover:opacity-90"
-          >
-            Schedule
-          </button>
-        ) : hasAssigned ? (
-          <button
-            disabled={true}
-            className="px-3 py-1 text-xs rounded-lg border border-gray-300 hover:border-gray-500 bg-slate-200"
-          >
-            Assigned
-          </button>
-        ) : (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onPay(m.mentor_id);
-            }}
-            className="px-3 py-1 text-xs rounded-lg border border-gray-300 hover:border-gray-500"
-          >
-            Pay Now
-          </button>
-        )}
+
+        <div className="flex justify-end mt-auto pt-2">
+          {!hasMeetingScheduled ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSchedule?.();
+              }}
+              className="px-4 py-1.5 text-xs font-medium rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
+            >
+              Schedule
+            </button>
+          ) : hasAssigned ? (
+            <button
+              disabled={true}
+              className="px-4 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-gray-100 text-gray-500"
+            >
+              Assigned
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onPay(m.mentor_id);
+              }}
+              className="px-4 py-1.5 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 transition-colors"
+            >
+              Pay Now
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -419,15 +444,13 @@ function IntentDialog({ open, onClose, onSubmit }: any) {
             <div
               key={intent.id}
               onClick={() => handleIntentClick(intent.title)}
-              className={`cursor-pointer border-2 rounded-xl p-4 transition ${
-                selectedIntents.includes(intent.title)
+              className={`cursor-pointer border-2 rounded-xl p-4 transition ${selectedIntents.includes(intent.title)
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
-              } ${
-                error.intents && selectedIntents.length === 0
+                } ${error.intents && selectedIntents.length === 0
                   ? "border-red-500"
                   : ""
-              }`}
+                }`}
             >
               <h3 className="font-semibold text-lg mb-2">{intent.title}</h3>
               <p className="text-sm text-gray-600">{intent.desc}</p>
@@ -908,7 +931,7 @@ function IntentDialog({ open, onClose, onSubmit }: any) {
 //       if (user && userData) {
 //         // const parsedUserData = JSON.parse(userData);
 //         // const parsedUserData2 = JSON.parse(userData2);
-        
+
 //         const parsedUser = JSON.parse(user);
 //         // console.log("parsedUserData---", parsedUserData);
 //         console.log("parsedUserData2----", parsedUser);
@@ -1930,17 +1953,16 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         console.log("timeZone----", timeZone);
 
-        const meetingLink = `/v2/meetingcall/${randomId}/${
-          parsedUser?.user_id
-        }?start=${encodeURIComponent(
-          encryptedStartDate
-        )}&end=${encodeURIComponent(
-          encryptedEndDate
-        )}&roomid=${encodeURIComponent(
-          encryptedRoomId
-        )}&password=${encodeURIComponent(
-          encryptedPassword
-        )}&timezone=${encodeURIComponent(timeZone)}`;
+        const meetingLink = `/v2/meetingcall/${randomId}/${parsedUser?.user_id
+          }?start=${encodeURIComponent(
+            encryptedStartDate
+          )}&end=${encodeURIComponent(
+            encryptedEndDate
+          )}&roomid=${encodeURIComponent(
+            encryptedRoomId
+          )}&password=${encodeURIComponent(
+            encryptedPassword
+          )}&timezone=${encodeURIComponent(timeZone)}`;
 
         console.log("meetingLink----", meetingLink);
 
@@ -2212,18 +2234,18 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
               ${selectedId ? "translate-x-5" : "translate-x-full"}`}
           >
             <div className="mx-20">
-            <MentorInspector
-              m={selected}
-              onSchedule={() => handleSchedule(selected?.mentor_id)}
-              hasMeetingScheduled={
-                selected?.mentor_id ? scheduledMap[selected.mentor_id] : null
-              }
-              hasAssigned={
-                selected?.mentor_id ? AssignedMap[selected.mentor_id] : null
-              }
-              onClose={() => setSelectedId(null)}
-              onPay={handleExpert}
-            />
+              <MentorInspector
+                m={selected}
+                onSchedule={() => handleSchedule(selected?.mentor_id)}
+                hasMeetingScheduled={
+                  selected?.mentor_id ? scheduledMap[selected.mentor_id] : null
+                }
+                hasAssigned={
+                  selected?.mentor_id ? AssignedMap[selected.mentor_id] : null
+                }
+                onClose={() => setSelectedId(null)}
+                onPay={handleExpert}
+              />
             </div>
           </div>
 
@@ -2237,9 +2259,9 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
               />
 
               {/* Bottom sheet */}
-             
-                {/* Sheet header with X */}
-                {/* <div className="flex justify-end p-3 border-b sticky top-0 bg-white z-10">
+
+              {/* Sheet header with X */}
+              {/* <div className="flex justify-end p-3 border-b sticky top-0 bg-white z-10">
                   <button
                     onClick={() => setSelectedId(null)}
                     className="p-1 rounded-md hover:bg-gray-100"
@@ -2248,25 +2270,25 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
                   </button>
                 </div> */}
 
-               <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 h-[85vh] overflow-y-auto bg-white rounded-t-2xl shadow-2xl">
-                  <MentorInspector
-                    m={selected}
-                    onSchedule={() => handleSchedule(selected?.mentor_id)}
-                    hasMeetingScheduled={
-                      selected?.mentor_id
-                        ? scheduledMap[selected.mentor_id]
-                        : null
-                    }
-                    hasAssigned={
-                      selected?.mentor_id
-                        ? AssignedMap[selected.mentor_id]
-                        : null
-                    }
-                    onClose={() => setSelectedId(null)}
-                    onPay={handleExpert}
-                  />
-                </div>
-              
+              <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 h-[85vh] overflow-y-auto bg-white rounded-t-2xl shadow-2xl">
+                <MentorInspector
+                  m={selected}
+                  onSchedule={() => handleSchedule(selected?.mentor_id)}
+                  hasMeetingScheduled={
+                    selected?.mentor_id
+                      ? scheduledMap[selected.mentor_id]
+                      : null
+                  }
+                  hasAssigned={
+                    selected?.mentor_id
+                      ? AssignedMap[selected.mentor_id]
+                      : null
+                  }
+                  onClose={() => setSelectedId(null)}
+                  onPay={handleExpert}
+                />
+              </div>
+
             </>
           )}
         </div>
