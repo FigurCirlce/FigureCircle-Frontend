@@ -153,6 +153,7 @@ const ProfileRecWidget = () => {
   const [ExperienceArray, setExperienceArray] = useState<EducationItem[]>([]);
   const [IndustryArray, setIndustryArray] = useState<EducationItem[]>([]);
   const [educationArray, setEducationArray] = useState<EducationItem[]>([]);
+  //@ts-ignore
   const [assignedMentors, setAssignedMentors] = useState<any[]>([]);
   // const [experience, setExperience] = useState("");
   //   const rec = useMemo(() => reco ?? RECO_LIB[profile.dreamRole] ?? RECO_LIB["Software Engineer"], [profile.dreamRole, reco])
@@ -251,20 +252,20 @@ const ProfileRecWidget = () => {
     }
   };
 
-  const handleUnassignMentor = async (mentorId: number) => {
-    if (!window.confirm("Are you sure you want to unassign this expert?")) return;
-    try {
-      await axios.delete(`${baseURL}/unassign_mentor`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: { mentor_id: mentorId }
-      });
-      fetchAssignedMentors();
-    } catch (error) {
-      console.error("Error unassigning mentor:", error);
-    }
-  };
+  // const handleUnassignMentor = async (mentorId: number) => {
+  //   if (!window.confirm("Are you sure you want to unassign this expert?")) return;
+  //   try {
+  //     await axios.delete(`${baseURL}/unassign_mentor`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       data: { mentor_id: mentorId }
+  //     });
+  //     fetchAssignedMentors();
+  //   } catch (error) {
+  //     console.error("Error unassigning mentor:", error);
+  //   }
+  // };
 
   // fetch recommendations from backend (search-degree). We'll use dreamRole as degree param;
   // backend earlier used /search-degree?degree=...
@@ -846,7 +847,7 @@ const ProfileRecWidget = () => {
             </Card>
           </div>
 
-          {!parsedUser?.is_mentor && assignedMentors.length > 0 && (
+          {/* {!parsedUser?.is_mentor && assignedMentors.length > 0 && (
             <Card className="border-0 shadow-md backdrop-blur-md">
               <CardHeader className="border-b bg-gray-50 rounded-t-2xl">
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
@@ -881,7 +882,7 @@ const ProfileRecWidget = () => {
                 </div>
               </CardContent>
             </Card>
-          )}
+          )} */}
         </div>
       ) : (
         <div className="flex justify-center w-full">
