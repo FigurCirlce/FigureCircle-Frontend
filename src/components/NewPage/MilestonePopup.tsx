@@ -386,7 +386,7 @@ interface MilestonePopupProps {
   onClose: () => void;
   MilestoneData: MilestoneData | null;
   is_mentor: boolean;
-  userId?:number;
+  userId?:number | null;
 }
 
 /* ================= HELPERS ================= */
