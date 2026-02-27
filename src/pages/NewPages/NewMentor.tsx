@@ -2176,7 +2176,7 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen w-full">
-      <main className="">
+      <main className="mx-[2%]">
         <h1 className="text-3xl font-bold mx-5">Mentors For You</h1>
 
         {/* Search + Category filters */}

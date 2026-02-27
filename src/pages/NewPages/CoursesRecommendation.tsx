@@ -273,7 +273,7 @@ const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
           <div
             key={item}
             className="
-              w-[200px]
+              
               rounded-lg
               border border-gray-200
               bg-white
@@ -295,7 +295,7 @@ const RecommendationsPanel: FC<RecommendationsPanelProps> = ({
       <div className="w-full  bg-white rounded-2xl shadow p-6">
 
         {/* Title */}
-        <h2 className="text-xl font-semibold text-center text-gray-900">
+        <h2 className="text-2xl font-bold text-center text-gray-900">
           Recommended for You {profile ? `· ${profile}` : ""}
         </h2>
 

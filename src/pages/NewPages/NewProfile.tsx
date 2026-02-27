@@ -488,12 +488,12 @@ const ProfileRecWidget = () => {
           <Loader2 className="h-10 w-10 animate-spin text-black" />
         </div>
       ) : !parsedUser?.is_mentor ? (
-        <div className="mx-auto w-full max-w-6xl p-6 space-y-6">
+        <div className="px-[4%] w-full p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Profile Section */}
             <Card className="border-0 shadow-md backdrop-blur-md">
               <CardHeader className="border-b bg-gray-50 rounded-t-2xl">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
                   <Users className="size-5 text-black" /> Your Profile
                 </CardTitle>
               </CardHeader>
@@ -783,7 +783,7 @@ const ProfileRecWidget = () => {
             {/* Recommendations Section */}
             <Card className="border-0 shadow-md backdrop-blur-md">
               <CardHeader className="border-b bg-gray-50 rounded-t-2xl">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold text-black">
                   <Sparkles className="size-5 text-black" /> Personalized
                   Recommendations —{" "}
                   <span className="text-gray-600">
