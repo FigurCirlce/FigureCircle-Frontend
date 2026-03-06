@@ -14,6 +14,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
 import RazorpayPayment from "@/components/NewPage/Mentor/RazorPayComponent";
+import StripePaymentModal from "@/components/strip/StripePaymentModal";
 import {
   Dialog,
   // DialogActions,
@@ -445,8 +446,8 @@ function IntentDialog({ open, onClose, onSubmit }: any) {
               key={intent.id}
               onClick={() => handleIntentClick(intent.title)}
               className={`cursor-pointer border-2 rounded-xl p-4 transition ${selectedIntents.includes(intent.title)
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
                 } ${error.intents && selectedIntents.length === 0
                   ? "border-red-500"
                   : ""
@@ -631,11 +632,10 @@ function IntentDialog({ open, onClose, onSubmit }: any) {
 //   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
 //     null
 //   );
-//   const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(
-//     null
-//   );
 //   const [mentorUserId, setmentorUserId] = useState<number | null>(null);
 //   const [userId, setUserId] = useState<string | number>("");
+//   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "stripe" | null>(null);
+//   const [showPaymentSelection, setShowPaymentSelection] = useState(false);
 //   //@ts-ignore
 //   //  const[openTime,setOpenTime]=useState(false);
 //   //@ts-ignore
@@ -1701,6 +1701,8 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
   const [selectedExpertData, setSelectedExpertData] = useState<Mentor | null>(null);
   const [mentorUserId, setmentorUserId] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | number>("");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "stripe" | null>(null);
+  const [showPaymentSelection, setShowPaymentSelection] = useState(false);
   //@ts-ignore
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [formData, setFormData] = useState<Schedule>({
@@ -1762,6 +1764,7 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
     console.log("User:", userData?.user_id);
     setmentorUserId(id);
     setUserId(userData.user_id);
+    setShowPaymentSelection(true);
   };
 
   // ─── Sync scheduledMap with meetingData ──────────────────────────────────
@@ -2363,17 +2366,94 @@ const MentorsWireframe2: React.FC<MentorProps> = ({ setActivePage }) => {
         {/* ✅ DialogActions removed — X is now inside DialogContent */}
       </Dialog>
 
+      {/* ── Payment Selection Dialog ── */}
+      <Dialog
+        open={showPaymentSelection}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={() => setShowPaymentSelection(false)}
+        aria-describedby="payment-selection-dialog"
+        PaperProps={{ style: { minWidth: "35vw", maxHeight: "80vh" } }}
+      >
+        <DialogContent>
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => setShowPaymentSelection(false)}
+              className="p-1 rounded-md hover:bg-gray-100"
+            >
+              <X size={24} color="black" />
+            </button>
+          </div>
+
+          <div className="w-full bg-white rounded-xl p-4 flex flex-col items-center">
+            <h2 className="text-xl font-bold mb-6">Choose Payment Method</h2>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full justify-center">
+              <button
+                className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+                onClick={() => {
+                  setPaymentMethod("razorpay");
+                  setShowPaymentSelection(false);
+                }}
+              >
+                Pay with Razorpay
+              </button>
+              <button
+                className="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition"
+                onClick={() => {
+                  setPaymentMethod("stripe");
+                  setShowPaymentSelection(false);
+                }}
+              >
+                Pay with Stripe
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* ── Razorpay Payment ── */}
-      {userId && mentorUserId ? (
+      {userId && mentorUserId && paymentMethod === "razorpay" ? (
         <RazorpayPayment
           mentorId={mentorUserId}
           userId={userId}
           autoOpen={true}
-          onSuccess={handleSuccess}
-          onFailure={handleFailure}
+          onSuccess={() => {
+            handleSuccess();
+            setPaymentMethod(null);
+            setmentorUserId(null);
+            setUserId("");
+          }}
+          onFailure={(error) => {
+            console.error(error);
+            handleFailure();
+            setPaymentMethod(null);
+            setmentorUserId(null);
+            setUserId("");
+          }}
         />
-      ) : (
-        ""
+      ) : null}
+
+      {/* ── Stripe Payment ── */}
+      {userId && mentorUserId && paymentMethod === "stripe" && (
+        <StripePaymentModal
+          mentorId={mentorUserId}
+          userId={userId}
+          mentorUserId={mentorUserId}
+          onSuccess={() => {
+            handleSuccess();
+            setPaymentMethod(null);
+            setmentorUserId(null);
+            setUserId("");
+          }}
+          onFailure={(error) => {
+            console.error(error);
+          }}
+          onClose={() => {
+            setPaymentMethod(null);
+            setmentorUserId(null);
+            setUserId("");
+          }}
+        />
       )}
     </div>
   );

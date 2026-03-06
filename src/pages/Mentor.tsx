@@ -5,8 +5,7 @@ import baseURL from "@/config/config";
 import StaticFrom from "@/components/strip/StaticFrom";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
-
-// SchoolDetail component definition
+import StripePaymentModal from "@/components/strip/StripePaymentModal";
 interface SchoolDetailProps {
   label: string;
   value: string;
@@ -18,7 +17,7 @@ const SchoolDetail: React.FC<SchoolDetailProps> = ({ label, value }) => (
       <span className="mr-3 text-gray-500 dark:text-gray-400">
         {/* Add your SVG content */}
       </span>
-         {/*@ts-ignore*/}
+      {/*@ts-ignore*/}
       <div>
         <p className="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
           {label}
@@ -46,6 +45,7 @@ const Mentor = () => {
   const [selectedMentor, setSelectedMentor] = useState<any>(null); // State to hold the selected mentor details
   //@ts-ignore
   const [checkoutFlag, setCheckoutFlag] = useState<any>(false); // State to hold the selected mentor details
+  const [showStripe, setShowStripe] = useState(false);
   const [mentorid, setMentorId] = useState<any>(null);
   const [datafour, setDatafour] = useState<any>({});
 
@@ -350,10 +350,10 @@ const Mentor = () => {
                     <div className="w-full px-4">
                       <div className="mb-6">
                         <div className="">
-                          
+
                           <img
                             className="object-cover w-32 h-32 rounded-full ring-gray-300"
-                               /*@ts-ignore*/
+                            /*@ts-ignore*/
                             src={data?.profile_picture}
                             alt="ProfilePic"
                           />
@@ -387,22 +387,22 @@ const Mentor = () => {
                           <div className="p-3 lg:p-5">
                             <div className="p-2 rounded-xl lg:p-6 dark:bg-gray-800 bg-gray-50">
                               <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
-                               
+
                                 <SchoolDetail
                                   label="MileStones"
-                                   /*@ts-ignore*/
+                                  /*@ts-ignore*/
                                   value={data?.milestones}
                                 />
-                                
+
                                 <SchoolDetail
                                   label="Highest Degree"
-                      /*@ts-ignore*/
+                                  /*@ts-ignore*/
                                   value={data?.degree}
                                 />
-                                
+
                                 <SchoolDetail
                                   label="Expertise"
-                              /*@ts-ignore*/
+                                  /*@ts-ignore*/
                                   value={data?.expertise}
                                 />
                                 <SchoolDetail label="Rank" value="1" />
@@ -431,9 +431,9 @@ const Mentor = () => {
                                 <p className="text-sm font-medium leading-4 text-gray-500 dark:text-gray-400">
                                   Starting From
                                 </p>
-                             
+
                                 <p className="text-2xl mt-2 font-bold leading-4 text-blue-600 dark:text-gray-200">
-                                   {/*@ts-ignore*/}
+                                  {/*@ts-ignore*/}
                                   ₹{data?.fee}
                                 </p>
                               </div>
@@ -445,12 +445,18 @@ const Mentor = () => {
                               Choose your requirement.
                             </p>
                           </div>
-                          <div className="flex items-center justify-center">
+                          <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 items-center justify-center">
                             <button
-                              className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-blue-500 rounded shadow-md hover:bg-blue-700 focus:shadow-outline focus:outline-none"
+                              className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-blue-500 rounded shadow-md hover:bg-blue-700 focus:shadow-outline focus:outline-none"
                               onClick={checkoutFN}
                             >
-                              Checkout
+                              Pay w/ Razorpay
+                            </button>
+                            <button
+                              className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-indigo-500 rounded shadow-md hover:bg-indigo-700 focus:shadow-outline focus:outline-none"
+                              onClick={() => setShowStripe(true)}
+                            >
+                              Pay w/ Stripe
                             </button>
                           </div>
                         </div>
@@ -462,6 +468,21 @@ const Mentor = () => {
             </div>
           </div>
         </>
+      )}
+      {showStripe && mentorid && (
+        <StripePaymentModal
+          mentorId={mentorid}
+          userId={parsedUserData?.user_id || datafour?.user_id}
+          mentorUserId={id}
+          onSuccess={() => {
+            notifySuccess();
+            setShowStripe(false);
+          }}
+          onFailure={(err) => {
+            console.error(err);
+          }}
+          onClose={() => setShowStripe(false)}
+        />
       )}
     </div>
   );
