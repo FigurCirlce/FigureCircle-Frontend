@@ -627,7 +627,7 @@ const handleItemClick = (title: string) => {
       {/* Logout – desktop only */}
       <button
         onClick={handleLogout}
-        className="hidden md:flex bg-blue-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-blue-700"
+        className="hidden md:flex bg-red-600 text-white px-4 py-2 rounded-2xl text-sm hover:bg-red-700"
       >
         Log Out
       </button>

@@ -113,6 +113,7 @@ interface SelectOption {
 interface SearchableSelectProps {
   value: string | number | null;
   onChange: (value: string | number) => void;
+  // onChange: (value: string) => void;
   options: SelectOption[];
   placeholder?: string;
   labelKey?: string;

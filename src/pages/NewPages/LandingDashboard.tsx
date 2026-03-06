@@ -556,17 +556,17 @@
 // };
 
 // export default LandingDashboard;
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import pic from "../../assets/pic.jpg";
 // import { Search } from "lucide-react";
 import axios from "axios";
 import baseURL from "@/config/config";
 // import { useUserContext } from "@/components/context/userContext";
-import RecommendationsPanel from "./CoursesRecommendation";
+// import RecommendationsPanel from "./CoursesRecommendation";
 import MilestoneFlowExpertTimeline from "@/pages/NewPages/NewMilestoneExpert";
 import MilestoneFlowTimeline from "@/components/NewPage/Homepage/NewMilestoneUser";
 import ChatWidget from "@/components/NewPage/ChatBox";
-import { Calendar, Loader2 } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 // Define Interfaces
 // interface ProgressAPIResponse {
 //   latest_feedback: {
@@ -654,6 +654,589 @@ export interface BasicInfo {
   work_experience: string;
 }
 
+// const LandingDashboard: React.FC<LandingDashboardProps> = ({
+//   setActivePage,
+// }) => {
+//   const [assignedMentorData, setAssignedMentorData] = useState<Mentor[]>([]);
+//   const [assignedMenteesData, setAssignedMenteesData] = useState<
+//     AssignedUser[]
+//   >([]);
+//   const [selectedExpertKey, setSelectedExpertKey] = useState<number | null>(
+//     null
+//   );
+//   const [openChatMentor, setOpenChatMentor] = useState<number | null>(null);
+//   const [selectedExpertData, setSelectedExpertData] =
+//     useState<any>(null);
+//   const [loading, setLoading] = useState<boolean>(false);
+//   const [course, setCourse] = useState<string[]>([]);
+//   const [certificate, setCertificate] = useState<string[]>([]);
+//   const [competition, setCompetition] = useState<string[]>([]);
+//   // const [user_id, setUser_id] = useState<string | null>(null);
+//   const token = localStorage.getItem("token");
+//   const degree = localStorage.getItem("degree");
+//   const user = localStorage.getItem("user");
+//   const parseUser = user ? JSON.parse(user) : null;
+//   const parsedDegree = degree ? JSON.parse(degree) : null;
+
+//   const ITEMS_PER_PAGE = 4;
+// const [currentPage, setCurrentPage] = useState(1);
+// const listData = parseUser?.is_mentor
+//   ? assignedMenteesData
+//   : assignedMentorData;
+// const totalPages = Math.ceil(listData.length / ITEMS_PER_PAGE);
+
+// const paginatedMentorData = assignedMenteesData.slice(
+//   (currentPage - 1) * ITEMS_PER_PAGE,
+//   currentPage * ITEMS_PER_PAGE
+// );
+
+// const paginatedMenteeData = assignedMentorData.slice(
+//   (currentPage - 1) * ITEMS_PER_PAGE,
+//   currentPage * ITEMS_PER_PAGE
+// );
+
+
+//   // const { userData } = useUserContext();
+
+//   //  const fetchBasicInfo = async () => {
+//   //     try {
+//   //       const token = localStorage.getItem('token');
+//   //       const response = await axios.get(`${baseURL}/api/basic-info`, {
+//   //         headers: {
+//   //           Authorization: `Bearer ${token}`,
+//   //         },
+//   //       });
+
+//   //       setBasicInfo([response.data]);
+//   //       setDegree(response.data.interested_stream);
+//   //       setFormData(response.data);
+//   //       setUser_id(response.data.id);
+//   //     } catch (error) {
+//   //       console.log(error);
+//   //     }
+//   //   };
+
+//   useEffect(() => {
+//     const fetchAssignedMentors = async () => {
+//       try {
+//         const res = await axios.get(`${baseURL}/get_assigned_mentors`, {
+//           headers: { Authorization: `Bearer ${token}` },
+//         });
+//         if (res.data?.mentors?.length) {
+//           console.log("res.data?.mentors?", res.data?.mentors);
+          
+//           setAssignedMentorData(res.data.mentors);
+
+//           setSelectedExpertKey(res.data.mentors[0].mentor_id);
+//         }
+        
+//       } catch (error) {
+        
+//         console.error("Error fetching assigned mentors", error);
+//       }
+//        finally {
+//       setLoading(false);
+//     }
+//     };
+//     const fetchAssignedMentees = async () => {
+//       try {
+//         const res = await axios.get(
+//           `${baseURL}/mentor_assigned_users_count/${parsedDegree?.mentor_id}`,
+//           {
+//             headers: { Authorization: `Bearer ${token}` },
+//           }
+//         );
+//         if (res.data?.assigned_users?.length) {
+//           console.log("res.data?.assigned_users?", res.data?.assigned_users);
+//           // setLoading(false);
+//           setAssignedMenteesData(res.data.assigned_users);
+
+//           setSelectedExpertKey(res.data.mentors[0].assigned_users);
+//         }
+//       } catch (error) {
+
+//         console.error("Error fetching assigned mentors", error);
+//       }
+//       finally{
+//         setLoading(false);
+//       }
+//     };
+
+//     if (parsedDegree?.mentor_id) {
+//       setLoading(true);
+//       fetchAssignedMentees();
+//     } else {
+//       setLoading(true);
+//       fetchAssignedMentors();
+//     }
+
+//     // fetchBasicInfo();
+//   }, []);
+
+
+//    const handleMilestone = async (mentorId: Number | null) => {
+//     const userData=localStorage.getItem("user");
+//     const parsedUserData=userData?JSON.parse(userData):null;
+
+//       try {
+//         const response = await axios.get(
+//           `${baseURL}/api/milestone`,
+  
+//           {
+//             params: {
+//               mentor_id: parsedUserData?.is_mentor
+//                 ? parsedDegree?.mentor_id
+//                 : mentorId,
+//               user_id: parsedUserData?.is_mentor
+//                 ? mentorId
+//                 : parsedUserData.user_id
+//             },
+//             headers: {
+//               Authorization: `Bearer ${token}`,
+//             },
+//           }
+//         );
+  
+//         console.log("response-milestone---", response.data);
+//         const data = response.data.current_milestone;
+
+// const uniqueMilestones = data && data.filter(
+//   (v: { milestone: any; description: any; expectedCompletionDate: any; }, i: any, a: any[]) =>
+//     a.findIndex(
+//       t =>
+//         t.milestone === v.milestone &&
+//         t.description === v.description &&
+//         t.expectedCompletionDate === v.expectedCompletionDate
+//     ) === i
+// );
+
+// setSelectedExpertData(uniqueMilestones);
+
+//       } catch (e) {
+//         console.log(e);
+//       }
+//     };
+
+//   useEffect(()=>{
+//  if (selectedExpertKey == null) return;
+//  handleMilestone(selectedExpertKey);
+//   },[selectedExpertKey]);
+
+//   // useEffect(() => {
+//   //   if (selectedExpertKey == null) return;
+//   //   console.log("SelectedExpertKey", selectedExpertKey);
+//   //   // console.log("userDatttaDegree---", degree);
+//   //   const degree = localStorage.getItem("degree"); //degree has user_id
+//   //   const degreeData = degree ? JSON.parse(degree) : null;
+//   //   const user_id = degreeData?.id;
+//   //   //  const user = localStorage.getItem("user"); //degree has user_id
+//   //   // const parsedUser= user ? JSON.parse(user) : null;
+    
+//   //   console.log("user_id", user_id);
+//   //   const fetchProgressData = async () => {
+//   //     setLoading(true);
+//   //     try {
+//   //       const res = await axios.get(`${baseURL}/progress/enhanced`, {
+//   //         params: {
+//   //           user_id: parseUser.is_mentor
+//   //             ? selectedExpertKey
+//   //             : parseUser.user_id,
+//   //           mentor_id: parseUser.is_mentor
+//   //             ? parsedDegree?.mentor_id
+//   //             : selectedExpertKey,
+//   //           // mentor_id:2
+//   //         },
+//   //         headers: { Authorization: `Bearer ${token}` },
+//   //       });
+
+//   //       // if (Array.isArray(res.data) && res.data.length > 0) {
+//   //       if (res.data) {
+//   //         console.log("trueeeeeee");
+//   //         console.log("res.data-------", res.data);
+        
+//   //         setSelectedExpertData(res.data);
+//   //       }
+//   //     } catch (error) {
+        
+//   //       console.error("Error fetching progress data", error);
+//   //     }finally{
+//   //       setLoading(false);
+//   //     }
+//   //   };
+
+//   //   fetchProgressData();
+//   // }, [selectedExpertKey]);
+
+//   useEffect(() => {
+//     const fetchAllData = async () => {
+//       const token = localStorage.getItem("token");
+//       const degreeData = degree ? JSON.parse(degree) : null;
+//       console.log("degreeData", degreeData);
+//       const stream = degreeData.role_based;
+//       console.log("Stream==--", stream);
+
+//       if (!stream) return;
+
+//       const headers = {
+//         Authorization: `Bearer ${token}`,
+//       };
+
+//       try {
+//         // Try all three primary APIs in parallel
+//         const [courseRes, certificateRes, competitionRes] = await Promise.all([
+//           // const [courseRes, certificateRes] = await Promise.all([
+//           axios.post(
+//             `https://harsh1993-model.hf.space/get_course`,
+//             { stream },
+//             { headers }
+//           ),
+//           axios.post(
+//             `https://harsh1993-model.hf.space/get_certificate`,
+//             { stream },
+//             { headers }
+//           ),
+//           axios.post(
+//             `https://harsh1993-model.hf.space/get_competition`,
+//             { stream },
+//             { headers }
+//           ),
+//         ]);
+
+//         setCourse(JSON.parse(courseRes.data.ans));
+//         setCertificate(JSON.parse(certificateRes.data.ans));
+//         setCompetition(JSON.parse(competitionRes.data.ans));
+//       } catch (primaryError) {
+//         console.warn(
+//           "Primary API failed, trying fallback API...",
+//           primaryError
+//         );
+
+//         try {
+//           const fallbackRes = await axios.get(
+//             `${baseURL}/search-degree?degree=${stream}`,
+//             { headers }
+//           );
+//           console.log("Fallback response", fallbackRes.data);
+
+//           setCourse(fallbackRes.data.courses || []);
+//           setCertificate(fallbackRes.data.certifications || []);
+//           setCompetition(fallbackRes.data.competitions || []);
+//         } catch (fallbackError) {
+//           console.error("Fallback API also failed:", fallbackError);
+//         }
+//       }
+//     };
+
+//     fetchAllData();
+//   }, []);
+
+//   return (
+//     <div>
+//       <div>
+//         <div className="flex flex-col gap-6 ">
+//           <div>
+//             {/* <h2 className="text-2xl font-bold  ">Recommended for You</h2> */}
+
+//             {/* Courses */}
+//             {/* <h3 className="py-4 pt-3 text-xl font-bold flex justify-center">
+//             Recommended Courses
+//           </h3> */}
+//             {/* <div className="flex flex-wrap gap-x-3 gap-y-5">
+//             {course.length ? (
+//               course.map((item, i) => (
+//                 <div
+//                   key={i}
+//                   className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
+//                 >
+//                   <img src={coding} alt="Course" className="mb-2" />
+//                   <button className="bg-orange-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
+//                     Course
+//                   </button>
+//                   <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
+//                     {item}
+//                   </h3>
+//                 </div>
+//               ))
+//             ) : (
+//               <div className="flex justify-center">
+//                 <p>No recommendations available</p>
+//               </div>
+//             )}
+//           </div> */}
+
+//             {/* Certifications */}
+//             {/* <h3 className="py-4 text-xl font-bold flex justify-center">
+//             Recommended Certifications
+//           </h3>
+//           <div className="flex flex-wrap gap-x-3 gap-y-5">
+//             {certificate.length ? (
+//               certificate.map((item, i) => (
+//                 <div
+//                   key={i}
+//                   className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
+//                 >
+//                   <img src={coding} alt="Certification" className="mb-2" />
+//                   <button className="bg-blue-500 text-white px-2 rounded-2xl text-xs my-2 mx-4">
+//                     Certification
+//                   </button>
+//                   <h3 className="font-semibold text-gray-800 px-4 py-2 text-sm">
+//                     {item}
+//                   </h3>
+//                 </div>
+//               ))
+//             ) : (
+//               <p>No recommendations available</p>
+//             )}
+//           </div> */}
+
+//             {/* Competitions */}
+//             {/* <h3 className="py-4 text-xl font-bold flex justify-center">
+//             Recommended Competitions
+//           </h3>
+//           <div className="flex flex-wrap gap-x-3 gap-y-5">
+//             {competition.length ? (
+//               competition.map((item, i) => (
+//                 <div
+//                   key={i}
+//                   className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
+//                 >
+//                   <img src={coding} alt="Competition" className="mb-2" />
+//                   <button className="bg-green-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
+//                     Competition
+//                   </button>
+//                   <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
+//                     {item}
+//                   </h3>
+//                 </div>
+//               ))
+//             ) : (
+//               <p>No recommendations available</p>
+//             )}
+//           </div> */}
+
+//             {parseUser?.is_mentor ? (
+//               ""
+//             ) : (
+//               <div className="mx-[5%] ">
+//                 <RecommendationsPanel
+//                   course={course}
+//                   certificate={certificate}
+//                   competition={competition}
+//                 />
+//               </div>
+//             )}
+//           </div>
+
+//           {/* Expert Section */}
+//           {loading ? (
+//             <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+//               <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+//             </div>
+//           ) : assignedMenteesData.length > 0 ||
+//             assignedMentorData.length > 0 ? (
+//             <div className="flex flex-col lg:flex-row gap-5 max-w-full mx-[4%] ">
+//               {/* Expert List */}
+
+//               <div className="bg-white rounded-2xl shadow p-6 mx-0 sm:mx-5">
+//                 <h2 className="text-2xl font-bold mb-4 flex justify-center">
+//                   {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
+//                 </h2>
+//                 <div className="space-y-4 flex-1 md:w-[400px]">
+//                   {parseUser?.is_mentor
+//                     ? paginatedMentorData.length < 1
+//                       ? "No Assigned Mentor"
+//                       : paginatedMentorData.map((user) => (
+//                           <div
+//                             key={user.user_id}
+//                             onClick={() => setSelectedExpertKey(user?.user_id)}
+//                             className={`border rounded-xl px-4 py-2 flex justify-betwe0en items-center cursor-pointer ${
+//                               selectedExpertKey === user?.user_id
+//                                 ? "border-emerald-500"
+//                                 : ""
+//                             }`}
+//                           >
+//                             <div className="flex items-center justify-between w-full ">
+//                               <img src={pic} alt="mentor" width={70} />
+//                               <div className="flex flex-col justify-center">
+//                                 <p className="font-medium text-gray-800">
+//                                   {user?.basic_info.firstname}
+//                                 </p>
+//                                 <p className="text-sm text-gray-500">
+//                                   {user.username}
+//                                 </p>
+//                               </div>
+//                               <div className="">
+//                                 <ChatWidget
+//                                   mentorName={user?.basic_info.firstname}
+//                                   mentorId={user.user_id}
+//                                   isOpen={openChatMentor === user.user_id}
+//                                   onToggle={() =>
+//                                     setOpenChatMentor(
+//                                       openChatMentor === user.user_id
+//                                         ? null
+//                                         : user.user_id
+//                                     )
+//                                   }
+//                                 />
+//                               </div>
+//                             </div>
+//                           </div>
+//                         ))
+//                     : paginatedMenteeData.length < 1
+//                     ? "No Assigned Mentor"
+//                     : paginatedMenteeData.map((mentor) => (
+//                         <div
+//                           key={mentor.mentor_id}
+//                           onClick={() => setSelectedExpertKey(mentor.mentor_id)}
+//                           className={`border rounded-xl px-4 py-2 flex justify-between items-center cursor-pointer ${
+//                             selectedExpertKey === mentor.mentor_id
+//                               ? "border-emerald-500"
+//                               : ""
+//                           }`}
+//                         >
+//                           <div className="flex items-center justify-between w-full ">
+//                             <img src={pic} alt="mentor" width={70} />
+//                             <div className="flex flex-col justify-center">
+//                               <p className="font-medium text-gray-800">
+//                                 {mentor.name}
+//                               </p>
+//                               <p className="text-sm text-gray-500">
+//                                 {mentor.expertise}
+//                               </p>
+//                             </div>
+//                             <div className="">
+//                               <ChatWidget
+//                                 mentorName={mentor.name}
+//                                 mentorId={
+//                                   parseUser?.is_mentor
+//                                     ? parseUser?.user_id
+//                                     : mentor.mentor_id
+//                                 }
+//                                 isOpen={openChatMentor === mentor.mentor_id}
+//                                 onToggle={() =>
+//                                   setOpenChatMentor(
+//                                     openChatMentor === mentor.mentor_id
+//                                       ? null
+//                                       : mentor.mentor_id
+//                                   )
+//                                 }
+//                               />
+//                             </div>
+//                           </div>
+//                         </div>
+//                       ))}
+//                       {totalPages > 1 && (
+//   <div className="flex justify-center gap-2 mt-4">
+//     <button
+//       onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+//       disabled={currentPage === 1}
+//       className="px-3 py-1 border rounded disabled:opacity-50"
+//     >
+//       Prev
+//     </button>
+
+//     <span className="px-3 py-1 font-medium">
+//       {currentPage} / {totalPages}
+//     </span>
+
+//     <button
+//       onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+//       disabled={currentPage === totalPages}
+//       className="px-3 py-1 border rounded disabled:opacity-50"
+//     >
+//       Next
+//     </button>
+//   </div>
+// )}
+
+//                 </div>
+
+//                 {/* <div className="mt-6 flex justify-center">
+//               <button className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-600 flex gap-2">
+//                 Find More Experts <Search size={20} />
+//               </button>
+//             </div> */}
+//               </div>
+
+//               {/* Expert Progress */}
+//               <div className="bg-white rounded-2xl shadow p-6 flex-1 mx-0 sm:mx-5">
+//                 <h2 className="text-2xl mb-4 font-bold text-center">
+//                   {parseUser.is_mentor
+//                     ? "Progress with Mentees"
+//                     : "Progress with Experts"}
+//                 </h2>
+//                 {selectedExpertData ? (
+//                   <div className="space-y-3">
+                             
+//                              <div className="relative">
+//                    {/* spine */}
+//                    <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-gray-200" />
+                 
+//                    <div className="space-y-6">
+//                      {selectedExpertData.map((m: any,index:number)=> (
+//                        <div key={index} className="relative pl-12">
+//                          {/* dot */}
+//                          <div className="absolute left-[10px] top-4 h-3 w-3 rounded-full bg-blue-500" />
+                 
+//                          {/* milestone card */}
+//                          <div className="border rounded-xl p-4 bg-white shadow-sm">
+//                            {/* TITLE */}
+                           
+//                              <p className="text-sm font-semibold">{m.milestone}</p>
+                           
+                 
+//                            {/* DESCRIPTION */}
+                           
+//                              <p className="text-xs text-gray-500 mt-1">
+//                                {m.description}
+//                              </p>
+
+//                               <p className={`text-xs ${m.status==="completed"?"text-green-500":"text-yellow-500"} mt-1`}>
+//                                {m.status}
+//                              </p>
+                           
+                 
+//                            {/* DATE */}
+//                            <div className="flex items-center gap-2 mt-3 text-xs text-gray-600">
+//                              <Calendar className="h-3 w-3 text-green-600" />
+                            
+//                                <span>Due: {m.expectedCompletionDate}</span>
+                             
+//                            </div>
+//                          </div>
+//                        </div>
+//                      ))}
+//                    </div>
+//                  </div>
+                 
+                             
+//                            </div>
+//                 ) : (
+//                   <p className="flex justify-center font-semibold text-lg">
+//                     Not Available
+//                   </p>
+//                 )}
+//               </div>
+//             </div>
+//           ) : parseUser?.is_mentor && assignedMenteesData.length === 0 ? (
+//             <div className="mx-[5%]">
+//               <MilestoneFlowExpertTimeline />
+//             </div>
+//           ) : (
+//             <div className="mx-[5%]">
+//               <MilestoneFlowTimeline setActivePage={setActivePage} />
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// Required imports to add:
+// import { useRef, useState, useEffect } from "react";
+// import { ChevronLeft, ChevronRight, Clock, Star, Loader2, Calendar } from "lucide-react";
+
 const LandingDashboard: React.FC<LandingDashboardProps> = ({
   setActivePage,
 }) => {
@@ -671,7 +1254,25 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
   const [course, setCourse] = useState<string[]>([]);
   const [certificate, setCertificate] = useState<string[]>([]);
   const [competition, setCompetition] = useState<string[]>([]);
-  // const [user_id, setUser_id] = useState<string | null>(null);
+  const [activeRecommendationTab, setActiveRecommendationTab] = useState<"Courses" | "Certifications" | "Competitions">("Courses");
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollButtons = () => {
+    const el = sliderRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  const scrollSlider = (direction: "left" | "right") => {
+    const el = sliderRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction === "left" ? -300 : 300, behavior: "smooth" });
+    setTimeout(updateScrollButtons, 350);
+  };
+
   const token = localStorage.getItem("token");
   const degree = localStorage.getItem("degree");
   const user = localStorage.getItem("user");
@@ -679,42 +1280,72 @@ const LandingDashboard: React.FC<LandingDashboardProps> = ({
   const parsedDegree = degree ? JSON.parse(degree) : null;
 
   const ITEMS_PER_PAGE = 4;
-const [currentPage, setCurrentPage] = useState(1);
-const listData = parseUser?.is_mentor
-  ? assignedMenteesData
-  : assignedMentorData;
-const totalPages = Math.ceil(listData.length / ITEMS_PER_PAGE);
+  const [currentPage, setCurrentPage] = useState(1);
+  const listData = parseUser?.is_mentor
+    ? assignedMenteesData
+    : assignedMentorData;
+  const totalPages = Math.ceil(listData.length / ITEMS_PER_PAGE);
 
-const paginatedMentorData = assignedMenteesData.slice(
-  (currentPage - 1) * ITEMS_PER_PAGE,
-  currentPage * ITEMS_PER_PAGE
-);
+  const paginatedMentorData = assignedMenteesData.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
-const paginatedMenteeData = assignedMentorData.slice(
-  (currentPage - 1) * ITEMS_PER_PAGE,
-  currentPage * ITEMS_PER_PAGE
-);
+  const paginatedMenteeData = assignedMentorData.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
+  // ── Recommendation helpers ──────────────────────────────────────────────────
 
-  // const { userData } = useUserContext();
+  const RECOMMENDATION_TAG_COLORS: Record<string, { bg: string; text: string }> = {
+    "Course":        { bg: "#E8F0FE", text: "#3B5BDB" },
+    "Certification": { bg: "#E6FCF5", text: "#0CA678" },
+    "Competition":   { bg: "#FFF3BF", text: "#D9730D" },
+  };
 
-  //  const fetchBasicInfo = async () => {
-  //     try {
-  //       const token = localStorage.getItem('token');
-  //       const response = await axios.get(`${baseURL}/api/basic-info`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
+  const CATEGORY_TAGS = ["AI & ML", "Data Science", "Engineering", "Business", "Design"];
+  const CATEGORY_THUMBNAILS: Record<string, string> = {
+    "AI & ML":      "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&q=80",
+    "Data Science": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80",
+    Engineering:    "https://images.unsplash.com/photo-1629904853716-f0bc54eea481?w=400&q=80",
+    Business:       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&q=80",
+    Design:         "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&q=80",
+    Default:        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&q=80",
+  };
+  const INSTRUCTORS = [
+    "Dr. Sarah Chen", "Marcus Rodriguez", "Aisha Patel",
+    "James Liu", "Emily Torres", "Raj Mehta",
+  ];
 
-  //       setBasicInfo([response.data]);
-  //       setDegree(response.data.interested_stream);
-  //       setFormData(response.data);
-  //       setUser_id(response.data.id);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+  function seededRandom(seed: string, index: number): number {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
+    return Math.abs((h ^ (index * 2654435761)) % 1000) / 1000;
+  }
+
+  function buildRecommendationCards(items: string[], type: string) {
+    return items.map((title, i) => {
+      const r = seededRandom(title, i);
+      const tag = CATEGORY_TAGS[Math.floor(r * CATEGORY_TAGS.length)];
+      const thumbnail = CATEGORY_THUMBNAILS[tag] ?? CATEGORY_THUMBNAILS.Default;
+      const instructor = INSTRUCTORS[Math.floor(seededRandom(title, i + 7) * INSTRUCTORS.length)];
+      const hours = Math.floor(seededRandom(title, i + 13) * 20) + 3;
+      const mins = Math.floor(seededRandom(title, i + 17) * 60);
+      const rating = (4.0 + seededRandom(title, i + 23) * 0.9).toFixed(1);
+      const colors = RECOMMENDATION_TAG_COLORS[type] ?? RECOMMENDATION_TAG_COLORS["Course"];
+      return { title, instructor, duration: `${hours}h ${mins}m`, rating: parseFloat(rating), tag, colors, thumbnail };
+    });
+  }
+
+  const recommendationTabData = {
+    Courses:        buildRecommendationCards(course, "Course"),
+    Certifications: buildRecommendationCards(certificate, "Certification"),
+    Competitions:   buildRecommendationCards(competition, "Competition"),
+  };
+  const visibleRecommendations = recommendationTabData[activeRecommendationTab];
+
+  // ── End recommendation helpers ──────────────────────────────────────────────
 
   useEffect(() => {
     const fetchAssignedMentors = async () => {
@@ -723,20 +1354,14 @@ const paginatedMenteeData = assignedMentorData.slice(
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data?.mentors?.length) {
-          console.log("res.data?.mentors?", res.data?.mentors);
-          
           setAssignedMentorData(res.data.mentors);
-
           setSelectedExpertKey(res.data.mentors[0].mentor_id);
         }
-        
       } catch (error) {
-        
         console.error("Error fetching assigned mentors", error);
+      } finally {
+        setLoading(false);
       }
-       finally {
-      setLoading(false);
-    }
     };
     const fetchAssignedMentees = async () => {
       try {
@@ -747,17 +1372,12 @@ const paginatedMenteeData = assignedMentorData.slice(
           }
         );
         if (res.data?.assigned_users?.length) {
-          console.log("res.data?.assigned_users?", res.data?.assigned_users);
-          // setLoading(false);
           setAssignedMenteesData(res.data.assigned_users);
-
           setSelectedExpertKey(res.data.mentors[0].assigned_users);
         }
       } catch (error) {
-
         console.error("Error fetching assigned mentors", error);
-      }
-      finally{
+      } finally {
         setLoading(false);
       }
     };
@@ -769,155 +1389,68 @@ const paginatedMenteeData = assignedMentorData.slice(
       setLoading(true);
       fetchAssignedMentors();
     }
-
-    // fetchBasicInfo();
   }, []);
 
+  const handleMilestone = async (mentorId: Number | null) => {
+    const userData = localStorage.getItem("user");
+    const parsedUserData = userData ? JSON.parse(userData) : null;
 
-   const handleMilestone = async (mentorId: Number | null) => {
-    const userData=localStorage.getItem("user");
-    const parsedUserData=userData?JSON.parse(userData):null;
+    try {
+      const response = await axios.get(`${baseURL}/api/milestone`, {
+        params: {
+          mentor_id: parsedUserData?.is_mentor
+            ? parsedDegree?.mentor_id
+            : mentorId,
+          user_id: parsedUserData?.is_mentor
+            ? mentorId
+            : parsedUserData.user_id,
+        },
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      try {
-        const response = await axios.get(
-          `${baseURL}/api/milestone`,
-  
-          {
-            params: {
-              mentor_id: parsedUserData?.is_mentor
-                ? parsedDegree?.mentor_id
-                : mentorId,
-              user_id: parsedUserData?.is_mentor
-                ? mentorId
-                : parsedUserData.user_id
-            },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-  
-        console.log("response-milestone---", response.data);
-        const data = response.data.current_milestone;
+      const data = response.data.current_milestone;
+      const uniqueMilestones = data && data.filter(
+        (v: { milestone: any; description: any; expectedCompletionDate: any }, i: any, a: any[]) =>
+          a.findIndex(
+            (t) =>
+              t.milestone === v.milestone &&
+              t.description === v.description &&
+              t.expectedCompletionDate === v.expectedCompletionDate
+          ) === i
+      );
+      setSelectedExpertData(uniqueMilestones);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-const uniqueMilestones = data && data.filter(
-  (v: { milestone: any; description: any; expectedCompletionDate: any; }, i: any, a: any[]) =>
-    a.findIndex(
-      t =>
-        t.milestone === v.milestone &&
-        t.description === v.description &&
-        t.expectedCompletionDate === v.expectedCompletionDate
-    ) === i
-);
-
-setSelectedExpertData(uniqueMilestones);
-
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-  useEffect(()=>{
- if (selectedExpertKey == null) return;
- handleMilestone(selectedExpertKey);
-  },[selectedExpertKey]);
-
-  // useEffect(() => {
-  //   if (selectedExpertKey == null) return;
-  //   console.log("SelectedExpertKey", selectedExpertKey);
-  //   // console.log("userDatttaDegree---", degree);
-  //   const degree = localStorage.getItem("degree"); //degree has user_id
-  //   const degreeData = degree ? JSON.parse(degree) : null;
-  //   const user_id = degreeData?.id;
-  //   //  const user = localStorage.getItem("user"); //degree has user_id
-  //   // const parsedUser= user ? JSON.parse(user) : null;
-    
-  //   console.log("user_id", user_id);
-  //   const fetchProgressData = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const res = await axios.get(`${baseURL}/progress/enhanced`, {
-  //         params: {
-  //           user_id: parseUser.is_mentor
-  //             ? selectedExpertKey
-  //             : parseUser.user_id,
-  //           mentor_id: parseUser.is_mentor
-  //             ? parsedDegree?.mentor_id
-  //             : selectedExpertKey,
-  //           // mentor_id:2
-  //         },
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-
-  //       // if (Array.isArray(res.data) && res.data.length > 0) {
-  //       if (res.data) {
-  //         console.log("trueeeeeee");
-  //         console.log("res.data-------", res.data);
-        
-  //         setSelectedExpertData(res.data);
-  //       }
-  //     } catch (error) {
-        
-  //       console.error("Error fetching progress data", error);
-  //     }finally{
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchProgressData();
-  // }, [selectedExpertKey]);
+  useEffect(() => {
+    if (selectedExpertKey == null) return;
+    handleMilestone(selectedExpertKey);
+  }, [selectedExpertKey]);
 
   useEffect(() => {
     const fetchAllData = async () => {
       const token = localStorage.getItem("token");
       const degreeData = degree ? JSON.parse(degree) : null;
-      console.log("degreeData", degreeData);
       const stream = degreeData.role_based;
-      console.log("Stream==--", stream);
-
       if (!stream) return;
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      const headers = { Authorization: `Bearer ${token}` };
 
       try {
-        // Try all three primary APIs in parallel
         const [courseRes, certificateRes, competitionRes] = await Promise.all([
-          // const [courseRes, certificateRes] = await Promise.all([
-          axios.post(
-            `https://harsh1993-model.hf.space/get_course`,
-            { stream },
-            { headers }
-          ),
-          axios.post(
-            `https://harsh1993-model.hf.space/get_certificate`,
-            { stream },
-            { headers }
-          ),
-          axios.post(
-            `https://harsh1993-model.hf.space/get_competition`,
-            { stream },
-            { headers }
-          ),
+          axios.post(`https://harsh1993-model.hf.space/get_course`, { stream }, { headers }),
+          axios.post(`https://harsh1993-model.hf.space/get_certificate`, { stream }, { headers }),
+          axios.post(`https://harsh1993-model.hf.space/get_competition`, { stream }, { headers }),
         ]);
-
         setCourse(JSON.parse(courseRes.data.ans));
         setCertificate(JSON.parse(certificateRes.data.ans));
         setCompetition(JSON.parse(competitionRes.data.ans));
       } catch (primaryError) {
-        console.warn(
-          "Primary API failed, trying fallback API...",
-          primaryError
-        );
-
+        console.warn("Primary API failed, trying fallback API...", primaryError);
         try {
-          const fallbackRes = await axios.get(
-            `${baseURL}/search-degree?degree=${stream}`,
-            { headers }
-          );
-          console.log("Fallback response", fallbackRes.data);
-
+          const fallbackRes = await axios.get(`${baseURL}/search-degree?degree=${stream}`, { headers });
           setCourse(fallbackRes.data.courses || []);
           setCertificate(fallbackRes.data.certifications || []);
           setCompetition(fallbackRes.data.competitions || []);
@@ -931,306 +1464,286 @@ setSelectedExpertData(uniqueMilestones);
   }, []);
 
   return (
-    <div>
-      <div>
-        <div className="flex flex-col gap-6 ">
-          <div>
-            {/* <h2 className="text-2xl font-bold  ">Recommended for You</h2> */}
+    <div className="flex flex-col gap-6 py-6">
 
-            {/* Courses */}
-            {/* <h3 className="py-4 pt-3 text-xl font-bold flex justify-center">
-            Recommended Courses
-          </h3> */}
-            {/* <div className="flex flex-wrap gap-x-3 gap-y-5">
-            {course.length ? (
-              course.map((item, i) => (
-                <div
-                  key={i}
-                  className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
+      {/* ── Recommendations Panel (mentees only) ─────────────────────────── */}
+      {!parseUser?.is_mentor && (
+        <div className="mx-[5%] bg-white rounded-2xl shadow p-6">
+
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-gray-800">Recommended for You</h2>
+              <span className="text-xs font-bold bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
+                New
+              </span>
+            </div>
+
+            {/* Tab switcher — same pill style as the rest of the page */}
+            <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+              {(["Courses", "Certifications", "Competitions"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveRecommendationTab(tab);
+                    setTimeout(() => {
+                      if (sliderRef.current) {
+                        sliderRef.current.scrollLeft = 0;
+                        updateScrollButtons();
+                      }
+                    }, 50);
+                  }}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150 ${
+                    activeRecommendationTab === tab
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
                 >
-                  <img src={coding} alt="Course" className="mb-2" />
-                  <button className="bg-orange-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
-                    Course
-                  </button>
-                  <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
-                    {item}
-                  </h3>
-                </div>
-              ))
-            ) : (
-              <div className="flex justify-center">
-                <p>No recommendations available</p>
-              </div>
-            )}
-          </div> */}
-
-            {/* Certifications */}
-            {/* <h3 className="py-4 text-xl font-bold flex justify-center">
-            Recommended Certifications
-          </h3>
-          <div className="flex flex-wrap gap-x-3 gap-y-5">
-            {certificate.length ? (
-              certificate.map((item, i) => (
-                <div
-                  key={i}
-                  className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
-                >
-                  <img src={coding} alt="Certification" className="mb-2" />
-                  <button className="bg-blue-500 text-white px-2 rounded-2xl text-xs my-2 mx-4">
-                    Certification
-                  </button>
-                  <h3 className="font-semibold text-gray-800 px-4 py-2 text-sm">
-                    {item}
-                  </h3>
-                </div>
-              ))
-            ) : (
-              <p>No recommendations available</p>
-            )}
-          </div> */}
-
-            {/* Competitions */}
-            {/* <h3 className="py-4 text-xl font-bold flex justify-center">
-            Recommended Competitions
-          </h3>
-          <div className="flex flex-wrap gap-x-3 gap-y-5">
-            {competition.length ? (
-              competition.map((item, i) => (
-                <div
-                  key={i}
-                  className="border-2 border-slate-200 w-[200px] rounded-lg shadow-lg"
-                >
-                  <img src={coding} alt="Competition" className="mb-2" />
-                  <button className="bg-green-400 text-white px-2 rounded-2xl text-xs my-2 mx-4">
-                    Competition
-                  </button>
-                  <h3 className="font-semibold text-gray-800 px-4 pb-2 text-sm">
-                    {item}
-                  </h3>
-                </div>
-              ))
-            ) : (
-              <p>No recommendations available</p>
-            )}
-          </div> */}
-
-            {parseUser?.is_mentor ? (
-              ""
-            ) : (
-              <div className="mx-[5%] ">
-                <RecommendationsPanel
-                  course={course}
-                  certificate={certificate}
-                  competition={competition}
-                />
-              </div>
-            )}
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Expert Section */}
-          {loading ? (
-            <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
-              <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-            </div>
-          ) : assignedMenteesData.length > 0 ||
-            assignedMentorData.length > 0 ? (
-            <div className="flex flex-col lg:flex-row gap-5 max-w-full mx-[4%] ">
-              {/* Expert List */}
-
-              <div className="bg-white rounded-2xl shadow p-6 mx-0 sm:mx-5">
-                <h2 className="text-2xl font-bold mb-4 flex justify-center">
-                  {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
-                </h2>
-                <div className="space-y-4 flex-1 md:w-[400px]">
-                  {parseUser?.is_mentor
-                    ? paginatedMentorData.length < 1
-                      ? "No Assigned Mentor"
-                      : paginatedMentorData.map((user) => (
-                          <div
-                            key={user.user_id}
-                            onClick={() => setSelectedExpertKey(user?.user_id)}
-                            className={`border rounded-xl px-4 py-2 flex justify-betwe0en items-center cursor-pointer ${
-                              selectedExpertKey === user?.user_id
-                                ? "border-emerald-500"
-                                : ""
-                            }`}
-                          >
-                            <div className="flex items-center justify-between w-full ">
-                              <img src={pic} alt="mentor" width={70} />
-                              <div className="flex flex-col justify-center">
-                                <p className="font-medium text-gray-800">
-                                  {user?.basic_info.firstname}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {user.username}
-                                </p>
-                              </div>
-                              <div className="">
-                                <ChatWidget
-                                  mentorName={user?.basic_info.firstname}
-                                  mentorId={user.user_id}
-                                  isOpen={openChatMentor === user.user_id}
-                                  onToggle={() =>
-                                    setOpenChatMentor(
-                                      openChatMentor === user.user_id
-                                        ? null
-                                        : user.user_id
-                                    )
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                    : paginatedMenteeData.length < 1
-                    ? "No Assigned Mentor"
-                    : paginatedMenteeData.map((mentor) => (
-                        <div
-                          key={mentor.mentor_id}
-                          onClick={() => setSelectedExpertKey(mentor.mentor_id)}
-                          className={`border rounded-xl px-4 py-2 flex justify-between items-center cursor-pointer ${
-                            selectedExpertKey === mentor.mentor_id
-                              ? "border-emerald-500"
-                              : ""
-                          }`}
-                        >
-                          <div className="flex items-center justify-between w-full ">
-                            <img src={pic} alt="mentor" width={70} />
-                            <div className="flex flex-col justify-center">
-                              <p className="font-medium text-gray-800">
-                                {mentor.name}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {mentor.expertise}
-                              </p>
-                            </div>
-                            <div className="">
-                              <ChatWidget
-                                mentorName={mentor.name}
-                                mentorId={
-                                  parseUser?.is_mentor
-                                    ? parseUser?.user_id
-                                    : mentor.mentor_id
-                                }
-                                isOpen={openChatMentor === mentor.mentor_id}
-                                onToggle={() =>
-                                  setOpenChatMentor(
-                                    openChatMentor === mentor.mentor_id
-                                      ? null
-                                      : mentor.mentor_id
-                                  )
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {totalPages > 1 && (
-  <div className="flex justify-center gap-2 mt-4">
-    <button
-      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-      disabled={currentPage === 1}
-      className="px-3 py-1 border rounded disabled:opacity-50"
-    >
-      Prev
-    </button>
-
-    <span className="px-3 py-1 font-medium">
-      {currentPage} / {totalPages}
-    </span>
-
-    <button
-      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-      disabled={currentPage === totalPages}
-      className="px-3 py-1 border rounded disabled:opacity-50"
-    >
-      Next
-    </button>
-  </div>
-)}
-
-                </div>
-
-                {/* <div className="mt-6 flex justify-center">
-              <button className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-600 flex gap-2">
-                Find More Experts <Search size={20} />
-              </button>
-            </div> */}
-              </div>
-
-              {/* Expert Progress */}
-              <div className="bg-white rounded-2xl shadow p-6 flex-1 mx-0 sm:mx-5">
-                <h2 className="text-2xl mb-4 font-bold text-center">
-                  {parseUser.is_mentor
-                    ? "Progress with Mentees"
-                    : "Progress with Experts"}
-                </h2>
-                {selectedExpertData ? (
-                  <div className="space-y-3">
-                             
-                             <div className="relative">
-                   {/* spine */}
-                   <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-gray-200" />
-                 
-                   <div className="space-y-6">
-                     {selectedExpertData.map((m: any,index:number)=> (
-                       <div key={index} className="relative pl-12">
-                         {/* dot */}
-                         <div className="absolute left-[10px] top-4 h-3 w-3 rounded-full bg-blue-500" />
-                 
-                         {/* milestone card */}
-                         <div className="border rounded-xl p-4 bg-white shadow-sm">
-                           {/* TITLE */}
-                           
-                             <p className="text-sm font-semibold">{m.milestone}</p>
-                           
-                 
-                           {/* DESCRIPTION */}
-                           
-                             <p className="text-xs text-gray-500 mt-1">
-                               {m.description}
-                             </p>
-
-                              <p className={`text-xs ${m.status==="completed"?"text-green-500":"text-yellow-500"} mt-1`}>
-                               {m.status}
-                             </p>
-                           
-                 
-                           {/* DATE */}
-                           <div className="flex items-center gap-2 mt-3 text-xs text-gray-600">
-                             <Calendar className="h-3 w-3 text-green-600" />
-                            
-                               <span>Due: {m.expectedCompletionDate}</span>
-                             
-                           </div>
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-                 
-                             
-                           </div>
-                ) : (
-                  <p className="flex justify-center font-semibold text-lg">
-                    Not Available
-                  </p>
-                )}
-              </div>
-            </div>
-          ) : parseUser?.is_mentor && assignedMenteesData.length === 0 ? (
-            <div className="mx-[5%]">
-              <MilestoneFlowExpertTimeline />
-            </div>
+          {/* Slider */}
+          {visibleRecommendations.length === 0 ? (
+            <p className="text-center text-gray-400 py-10 text-sm">
+              No {activeRecommendationTab.toLowerCase()} recommendations available yet.
+            </p>
           ) : (
-            <div className="mx-[5%]">
-              <MilestoneFlowTimeline setActivePage={setActivePage} />
+            <div className="relative">
+              {/* Left arrow — only shown when scrollable */}
+              {visibleRecommendations.length > 4 && (
+              <button
+                onClick={() => scrollSlider("left")}
+                disabled={!canScrollLeft}
+                className={`absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm transition-all duration-200 ${
+                  canScrollLeft ? "opacity-100 hover:shadow-md cursor-pointer" : "opacity-30 cursor-default"
+                }`}
+              >
+                <ChevronLeft size={17} className="text-gray-600" />
+              </button>
+              )}
+
+              {/* Scrollable strip */}
+              <div
+                ref={sliderRef}
+                onScroll={updateScrollButtons}
+                className="flex gap-4 overflow-x-auto pb-1 pt-1"
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  scrollSnapType: "x mandatory",
+                  justifyContent: visibleRecommendations.length <= 4 ? "space-evenly" : "flex-start",
+                }}
+              >
+                {visibleRecommendations.map((item, i) => (
+                  <div
+                    key={i}
+                    className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer bg-white"
+                    style={{
+                      scrollSnapAlign: "start",
+                      flexShrink: 0,
+                      width: visibleRecommendations.length <= 4
+                        ? `calc((100% - ${(visibleRecommendations.length - 1) * 16}px) / ${visibleRecommendations.length})`
+                        : "224px",
+                      minWidth: visibleRecommendations.length <= 4 ? "160px" : "224px",
+                      maxWidth: visibleRecommendations.length <= 4 ? "280px" : "224px",
+                    }}
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative h-36 bg-gray-100 overflow-hidden">
+                      <img
+                        src={item.thumbnail}
+                        alt={item.title}
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* <span
+                        className="absolute top-2 left-2 text-xs font-bold px-2.5 py-0.5 rounded-full"
+                        style={{ background: item.colors.bg, color: item.colors.text }}
+                      >
+                        {item.tag}
+                      </span> */}
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-3">
+                      <p className="text-sm font-bold text-gray-800 leading-snug line-clamp-2 mb-1 text-center">
+                        {item.title}
+                      </p>
+                      {/* <p className="text-xs text-gray-500 mb-3">{item.instructor}</p> */}
+                      {/* <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <Clock size={11} />
+                          {item.duration}
+                        </span>
+                        <span className="flex items-center gap-1 text-xs font-semibold text-gray-700">
+                          <Star size={11} fill="#f4a235" color="#f4a235" />
+                          {item.rating}
+                        </span>
+                      </div> */}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Right arrow — only shown when scrollable */}
+              {visibleRecommendations.length > 4 && (
+              <button
+                onClick={() => scrollSlider("right")}
+                disabled={!canScrollRight}
+                className={`absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm transition-all duration-200 ${
+                  canScrollRight ? "opacity-100 hover:shadow-md cursor-pointer" : "opacity-30 cursor-default"
+                }`}
+              >
+                <ChevronRight size={17} className="text-gray-600" />
+              </button>
+              )}
             </div>
           )}
         </div>
-      </div>
+      )}
+
+      {/* ── Expert / Mentee Section ───────────────────────────────────────── */}
+      {loading ? (
+        <div className="fixed inset-0 bg-white/70 flex justify-center items-center z-50">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+        </div>
+      ) : assignedMenteesData.length > 0 || assignedMentorData.length > 0 ? (
+        <div className="flex flex-col lg:flex-row gap-5 mx-[5%]">
+
+          {/* Expert / Mentee List */}
+          <div className="bg-white rounded-2xl shadow p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
+              {parseUser.is_mentor ? "Your Mentees" : "Your Experts"}
+            </h2>
+            <div className="space-y-3 md:w-[360px]">
+              {parseUser?.is_mentor
+                ? paginatedMentorData.length < 1
+                  ? <p className="text-sm text-gray-400 text-center py-4">No Assigned Mentees</p>
+                  : paginatedMentorData.map((user) => (
+                      <div
+                        key={user.user_id}
+                        onClick={() => setSelectedExpertKey(user?.user_id)}
+                        className={`border rounded-xl px-4 py-2 flex items-center justify-between cursor-pointer transition-colors duration-150 hover:bg-gray-50 ${
+                          selectedExpertKey === user?.user_id ? "border-emerald-500 bg-emerald-50/30" : "border-gray-200"
+                        }`}
+                      >
+                        <img src={pic} alt="mentor" className="w-12 h-12 rounded-full object-cover" />
+                        <div className="flex flex-col flex-1 px-3">
+                          <p className="font-semibold text-sm text-gray-800">{user?.basic_info.firstname}</p>
+                          <p className="text-xs text-gray-500">{user.username}</p>
+                        </div>
+                        <ChatWidget
+                          mentorName={user?.basic_info.firstname}
+                          mentorId={user.user_id}
+                          isOpen={openChatMentor === user.user_id}
+                          onToggle={() => setOpenChatMentor(openChatMentor === user.user_id ? null : user.user_id)}
+                        />
+                      </div>
+                    ))
+                : paginatedMenteeData.length < 1
+                ? <p className="text-sm text-gray-400 text-center py-4">No Assigned Mentor</p>
+                : paginatedMenteeData.map((mentor) => (
+                    <div
+                      key={mentor.mentor_id}
+                      onClick={() => setSelectedExpertKey(mentor.mentor_id)}
+                      className={`border rounded-xl px-4 py-2 flex items-center justify-between cursor-pointer transition-colors duration-150 hover:bg-gray-50 ${
+                        selectedExpertKey === mentor.mentor_id ? "border-emerald-500 bg-emerald-50/30" : "border-gray-200"
+                      }`}
+                    >
+                      <img src={pic} alt="mentor" className="w-12 h-12 rounded-full object-cover" />
+                      <div className="flex flex-col flex-1 px-3">
+                        <p className="font-semibold text-sm text-gray-800">{mentor.name}</p>
+                        <p className="text-xs text-gray-500">{mentor.expertise}</p>
+                      </div>
+                      <ChatWidget
+                        mentorName={mentor.name}
+                        mentorId={parseUser?.is_mentor ? parseUser?.user_id : mentor.mentor_id}
+                        isOpen={openChatMentor === mentor.mentor_id}
+                        onToggle={() => setOpenChatMentor(openChatMentor === mentor.mentor_id ? null : mentor.mentor_id)}
+                      />
+                    </div>
+                  ))}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-4 pt-2 border-t border-gray-100">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft size={15} />
+                  </button>
+                  <span className="text-sm font-medium text-gray-600">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronRight size={15} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Expert Progress */}
+          <div className="bg-white rounded-2xl shadow p-6 flex-1">
+            <h2 className="text-xl font-bold text-gray-800 mb-5 text-center">
+              {parseUser.is_mentor ? "Progress with Mentees" : "Progress with Experts"}
+            </h2>
+            {selectedExpertData ? (
+              <div className="relative">
+                {/* Spine */}
+                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
+                <div className="space-y-5">
+                  {selectedExpertData.map((m: any, index: number) => (
+                    <div key={index} className="relative pl-11">
+                      {/* Dot */}
+                      <div className="absolute left-[10px] top-4 h-3 w-3 rounded-full bg-blue-500 ring-2 ring-white ring-offset-1" />
+                      {/* Card */}
+                      <div className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <p className="text-sm font-semibold text-gray-800">{m.milestone}</p>
+                        <p className="text-xs text-gray-500 mt-1">{m.description}</p>
+                        <span
+                          className={`inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full ${
+                            m.status === "completed"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : "bg-yellow-50 text-yellow-600"
+                          }`}
+                        >
+                          {m.status}
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-3 text-xs text-gray-500">
+                          <Calendar className="h-3 w-3 text-emerald-500" />
+                          <span>Due: {m.expectedCompletionDate}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-center text-gray-400 font-medium text-sm py-10">Not Available</p>
+            )}
+          </div>
+        </div>
+      ) : parseUser?.is_mentor && assignedMenteesData.length === 0 ? (
+        <div className="mx-[5%]">
+          <MilestoneFlowExpertTimeline />
+        </div>
+      ) : (
+        <div className="mx-[5%]">
+          <MilestoneFlowTimeline setActivePage={setActivePage} />
+        </div>
+      )}
+
     </div>
   );
 };
-
 export default LandingDashboard;
